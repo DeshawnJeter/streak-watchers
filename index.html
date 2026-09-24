@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StreakGuard — Lesson Loop Clone</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#ffffff;
+    --green:#58cc02;
+    --green-dark:#58a700;
+    --orange:#ff9600;
+    --orange-dark:#e08600;
+    --blue:#1cb0f6;
+    --blue-dark:#1899d6;
+    --gold:#ffc800;
+    --text:#3c3c3c;
+    --muted:#afafaf;
+    --border:#e5e5e5;
+    --border-track:#e5e5e5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Helvetica Neue",Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .app{
+    width:100%;
+    max-width:420px;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-weight:800;
+    font-size:19px;
+    color:var(--text);
+  }
+  .stat .icon{font-size:22px;}
+  .streak .icon{filter: drop-shadow(0 0 4px rgba(255,150,0,.35));}
+  .stat.streak{color:var(--orange-dark);}
+  .stat.xp{color:var(--blue-dark);}
+  .card{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:28px 24px;
+    text-align:center;
+  }
+  .lesson-title{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--muted);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+  .lesson-name{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:24px;
+    color:var(--text);
+  }
+  .progress-wrap{
+    margin-bottom:28px;
+  }
+  .progress-track{
+    position:relative;
+    height:16px;
+    background:var(--border-track);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background:var(--green);
+    transition:width .5s cubic-bezier(.2,.9,.3,1);
+    position:relative;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.12);
+  }
+  .progress-fill.near-goal{
+    animation:pulse 0.6s ease-in-out infinite;
+    background:#7ee81a;
+  }
+  @keyframes pulse{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.15);}
+  }
+  .progress-meta{
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+  }
+  .xp-pop{
+    position:relative;
+    height:0;
+  }
+  .btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:16px;
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn-primary{
+    background:var(--green);
+    color:#ffffff;
+    box-shadow:0 4px 0 var(--green-dark);
+  }
+  .btn-primary:active{
+    transform:translateY(3px);
+    box-shadow:0 1px 0 var(--green-dark);
+  }
+  .btn-primary:disabled{
+    opacity:.5;
+    cursor:default;
+  }
+  .celebration{
+    display:none;
+    margin-top:20px;
+    padding:18px;
+    border-radius:14px;
+    background:#d7ffb8;
+    border:2px solid var(--green);
+  }
+  .celebration.show{
+    display:block;
+    animation:fadeUp .4s ease;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .celebration h3{
+    margin:0 0 4px;
+    color:var(--green-dark);
+    font-size:18px;
+    font-weight:800;
+  }
+  .celebration p{
+    margin:0;
+    color:#4b4b4b;
+    font-size:14px;
+    font-weight:600;
+  }
+  .flame{
+    display:inline-block;
+    animation:flicker 1.4s ease-in-out infinite;
+  }
+  @keyframes flicker{
+    0%,100%{transform:scale(1) rotate(0deg);}
+    50%{transform:scale(1.08) rotate(-2deg);}
+  }
+  .footnote{
+    text-align:center;
+    margin-top:18px;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:600;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="stat streak">
+      <span class="icon flame">🔥</span>
+      <span id="streakCount">0</span>
+    </div>
+    <div class="stat xp">
+      <span class="icon">⭐</span>
+      <span id="xpCount">0</span> XP
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lesson-title">Unit 1, Lesson <span id="lessonNum">1</span></div>
+    <div class="lesson-name">Basic Phrases</div>
+
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="progressLabel">0 / 100 XP to next level</span>
+        <span id="levelLabel">Level 1</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="lessonBtn">Complete Lesson (+10 XP)</button>
+
+    <div class="celebration" id="celebration">
+      <h3 id="celebrationTitle">Lesson complete!</h3>
+      <p id="celebrationText">Nice work. Keep the streak going.</p>
+    </div>
+  </div>
+
+  <div class="footnote">Core loop clone — streak, XP, and goal-gradient progress bar</div>
+</div>
+
+<script>
+  const state = {
+    streak: 0,
+    xp: 0,
+    level: 1,
+    xpPerLevel: 100,
+    xpPerLesson: 10,
+    lessonsCompletedToday: 0
+  };
+
+  const els = {
+    streakCount: document.getElementById('streakCount'),
+    xpCount: document.getElementById('xpCount'),
+    progressFill: document.getElementById('progressFill'),
+    progressLabel: document.getElementById('progressLabel'),
+    levelLabel: document.getElementById('levelLabel'),
+    lessonBtn: document.getElementById('lessonBtn'),
+    celebration: document.getElementById('celebration'),
+    celebrationTitle: document.getElementById('celebrationTitle'),
+    celebrationText: document.getElementById('celebrationText'),
+    lessonNum: document.getElementById('lessonNum')
+  };
+
+  function render(){
+    els.streakCount.textContent = state.streak;
+    els.xpCount.textContent = state.xp;
+    els.levelLabel.textContent = 'Level ' + state.level;
+
+    const xpIntoLevel = state.xp % state.xpPerLevel;
+    const pct = (xpIntoLevel / state.xpPerLevel) * 100;
+
+    els.progressFill.style.width = pct + '%';
+    els.progressLabel.textContent = xpIntoLevel + ' / ' + state.xpPerLevel + ' XP to next level';
+
+    // Goal-Gradient Effect: as the user nears the goal, the bar visibly
+    // pulses/brightens to reinforce "almost there" and pull them to finish.
+    if (pct >= 70) {
+      els.progressFill.classList.add('near-goal');
+    } else {
+      els.progressFill.classList.remove('near-goal');
+    }
+  }
+
+  function completeLesson(){
+    state.xp += state.xpPerLesson;
+    state.lessonsCompletedToday += 1;
+    els.lessonNum.textContent = state.lessonsCompletedToday + 1;
+
+    let leveledUp = false;
+    while (state.xp >= state.level * state.xpPerLevel) {
+      state.level += 1;
+      leveledUp = true;
+    }
+
+    if (state.lessonsCompletedToday === 1) {
+      state.streak += 1;
+    }
+
+    render();
+
+    els.celebration.classList.add('show');
+    if (leveledUp) {
+      els.celebrationTitle.textContent = 'Level up! 🎉';
+      els.celebrationText.textContent = 'You reached Level ' + state.level + '.';
+    } else {
+      els.celebrationTitle.textContent = 'Lesson complete!';
+      els.celebrationText.textContent = '+' + state.xpPerLesson + ' XP · Streak: ' + state.streak + ' day' + (state.streak === 1 ? '' : 's');
+    }
+
+    setTimeout(() => {
+      els.celebration.classList.remove('show');
+    }, 2200);
+  }
+
+  els.lessonBtn.addEventListener('click', completeLesson);
+
+  render();
+</script>
+
+</body>
+</html>
