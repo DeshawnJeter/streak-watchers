@@ -1,306 +1,1013 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StreakGuard — Lesson Loop Clone</title>
+<title>Duolingo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
+
 <style>
-  :root{
-    --bg:#ffffff;
-    --card:#ffffff;
-    --green:#58cc02;
-    --green-dark:#58a700;
-    --orange:#ff9600;
-    --orange-dark:#e08600;
-    --blue:#1cb0f6;
-    --blue-dark:#1899d6;
-    --gold:#ffc800;
-    --text:#3c3c3c;
-    --muted:#afafaf;
-    --border:#e5e5e5;
-    --border-track:#e5e5e5;
+/* ── Tokens ── */
+:root {
+  --bg: #131f24;
+  --surface: #1e2d37;
+  --surface-2: #253742;
+  --surface-3: #2d414d;
+  --border: #37464f;
+  --text: #f7f7f7;
+  --text-secondary: #8fa3ad;
+  --green: #58cc02;
+  --green-dark: #46a302;
+  --green-shadow: #3c8902;
+  --gold: #ffc700;
+  --gold-dark: #cc9d00;
+  --blue: #1cb0f6;
+  --blue-dark: #0793d4;
+  --red: #ff4b4b;
+  --red-dark: #cc3a3a;
+  --purple: #ce82ff;
+  --orange: #ff9600;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f7f7f7;
+    --surface: #ffffff;
+    --surface-2: #f0f0f0;
+    --surface-3: #e5e5e5;
+    --border: #e5e5e5;
+    --text: #3c3c3c;
+    --text-secondary: #8fa3ad;
+    color-scheme: light;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    min-height:100vh;
-    background:var(--bg);
-    color:var(--text);
-    font-family:"Helvetica Neue",Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
+}
+:root[data-theme="light"] {
+  --bg: #f7f7f7;
+  --surface: #ffffff;
+  --surface-2: #f0f0f0;
+  --surface-3: #e5e5e5;
+  --border: #e5e5e5;
+  --text: #3c3c3c;
+  --text-secondary: #8fa3ad;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 2px solid var(--border);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  text-decoration: none;
+}
+.logo-owl { width: 42px; height: 42px; }
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.5px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border: 2px solid transparent;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.active {
+  color: var(--blue);
+  background: rgba(28, 176, 246, 0.1);
+  border-color: rgba(28, 176, 246, 0.2);
+}
+.nav-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+
+/* ── Main ── */
+.main { padding: 0 24px 80px; position: relative; }
+.unit-header {
+  background: linear-gradient(135deg, #1e3d1a 0%, #1a2e1a 100%);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 24px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid var(--green-dark);
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.unit-title { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+.unit-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+.unit-badge {
+  background: var(--green);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 0 var(--green-shadow);
+}
+.unit-header-locked {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid var(--border);
+  opacity: 0.7;
+}
+
+/* ── Path ── */
+.path-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0;
+  position: relative;
+}
+.path-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 120px;
+}
+.lesson-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.lesson-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  position: relative;
+  transition: transform 0.1s;
+  outline: none;
+}
+.lesson-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.lesson-btn:active { transform: scale(0.93); }
+.lesson-btn.active {
+  background: var(--green);
+  box-shadow: 0 6px 0 var(--green-shadow);
+  border: 3px solid var(--green-dark);
+}
+.lesson-btn.completed {
+  background: var(--green);
+  box-shadow: 0 4px 0 var(--green-shadow);
+}
+.lesson-btn.locked {
+  background: var(--surface-2);
+  box-shadow: 0 4px 0 var(--border);
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+.lesson-btn.checkpoint {
+  width: 80px;
+  height: 80px;
+  background: var(--gold);
+  box-shadow: 0 6px 0 var(--gold-dark);
+  border: 3px solid var(--gold-dark);
+  font-size: 2rem;
+}
+.lesson-btn.checkpoint.locked {
+  background: var(--surface-2);
+  box-shadow: 0 4px 0 var(--border);
+  filter: grayscale(0.6);
+}
+.lesson-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+.crown-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--gold);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  border: 2px solid var(--bg);
+}
+.active-arrow {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--green);
+  white-space: nowrap;
+  z-index: 2;
+  animation: bounce 1s ease-in-out infinite;
+}
+.active-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ── Right Panel ── */
+.right-panel {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-left: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.panel-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+}
+.panel-title {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.stat-icon { font-size: 1.6rem; width: 36px; text-align: center; }
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; }
+.stat-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+.hearts-row { display: flex; gap: 4px; align-items: center; }
+.heart { font-size: 1.3rem; }
+.heart.empty { filter: grayscale(1) opacity(0.3); }
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.leaderboard-item:last-child { border-bottom: none; }
+.lb-rank {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+  width: 20px;
+  text-align: center;
+}
+.lb-rank.gold-rank { color: var(--gold); font-size: 1rem; }
+.lb-rank.silver-rank { color: #b0b0b0; font-size: 1rem; }
+.lb-rank.bronze-rank { color: #cc7b2e; font-size: 1rem; }
+.lb-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.lb-name { font-size: 0.85rem; font-weight: 700; flex: 1; }
+.lb-xp { font-size: 0.8rem; font-weight: 800; color: var(--blue); }
+
+.streak-freeze-btn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 2px solid var(--blue);
+  border-radius: 12px;
+  color: var(--blue);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.streak-freeze-btn:hover { background: rgba(28,176,246,0.1); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay[hidden] { display: none !important; }
+.modal {
+  background: var(--surface);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-top-bar {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 8px;
+}
+.close-btn:hover { background: var(--surface-2); color: var(--text); }
+.progress-bar-wrap {
+  flex: 1;
+  height: 14px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.hearts-display { display: flex; gap: 3px; }
+.modal-body { padding: 32px 28px; }
+.question-type-label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.question-text {
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.4;
+  margin-bottom: 28px;
+  text-wrap: balance;
+}
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.choice-btn {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.1s, background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: rgba(28,176,246,0.08);
+}
+.choice-btn.selected { border-color: var(--blue); background: rgba(28,176,246,0.12); }
+.choice-btn.correct { border-color: var(--green); background: rgba(88,204,2,0.12); color: var(--green); }
+.choice-btn.wrong { border-color: var(--red); background: rgba(255,75,75,0.12); color: var(--red); }
+.choice-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.choice-btn.selected .choice-letter { background: var(--blue); color: white; }
+.choice-btn.correct .choice-letter { background: var(--green); color: white; }
+.choice-btn.wrong .choice-letter { background: var(--red); color: white; }
+.modal-footer { padding: 20px 28px; border-top: 2px solid var(--border); }
+.modal-footer.correct-state { background: rgba(88,204,2,0.08); border-top-color: var(--green); }
+.modal-footer.wrong-state { background: rgba(255,75,75,0.08); border-top-color: var(--red); }
+.feedback-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.feedback-icon { font-size: 1.4rem; }
+.feedback-text { font-size: 0.85rem; font-weight: 700; }
+.feedback-text.correct-text { color: var(--green); }
+.feedback-text.wrong-text { color: var(--red); }
+.feedback-answer { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-top: 2px; }
+.check-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  letter-spacing: 0.03em;
+}
+.check-btn:active { transform: translateY(2px); }
+.check-btn.disabled { background: var(--surface-2); color: var(--text-secondary); cursor: not-allowed; }
+.check-btn.ready { background: var(--green); color: white; box-shadow: 0 4px 0 var(--green-shadow); }
+.check-btn.ready:active { box-shadow: 0 2px 0 var(--green-shadow); }
+.check-btn.next-state { background: var(--green); color: white; box-shadow: 0 4px 0 var(--green-shadow); }
+.check-btn.wrong-btn { background: var(--red); color: white; box-shadow: 0 4px 0 var(--red-dark); }
+
+/* ── Completion ── */
+.completion-screen { padding: 40px 28px; text-align: center; }
+.completion-owl { font-size: 5rem; margin-bottom: 16px; animation: popIn 0.4s ease; }
+@keyframes popIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.completion-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; color: var(--text); }
+.completion-subtitle { font-size: 1rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 28px; }
+.xp-gained {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,199,0,0.15);
+  border: 2px solid var(--gold);
+  border-radius: 99px;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+.continue-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: var(--green);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--green-shadow);
+  letter-spacing: 0.03em;
+}
+.continue-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--green-shadow); }
+
+.confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 2px solid var(--border);
+    -webkit-overflow-scrolling: touch;
   }
-  .app{
-    width:100%;
-    max-width:420px;
+  .sidebar::-webkit-scrollbar { display: none; }
+  .logo { display: none; }
+  .nav-item { flex-direction: column; gap: 2px; font-size: 0.6rem; padding: 8px 10px; white-space: nowrap; min-width: 64px; }
+  .nav-icon { font-size: 1.2rem; width: auto; }
+  .right-panel {
+    position: static;
+    height: auto;
+    border-left: none;
+    border-top: 2px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow: visible;
   }
-  .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:20px;
-  }
-  .stat{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-weight:800;
-    font-size:19px;
-    color:var(--text);
-  }
-  .stat .icon{font-size:22px;}
-  .streak .icon{filter: drop-shadow(0 0 4px rgba(255,150,0,.35));}
-  .stat.streak{color:var(--orange-dark);}
-  .stat.xp{color:var(--blue-dark);}
-  .card{
-    background:var(--card);
-    border:2px solid var(--border);
-    border-radius:16px;
-    padding:28px 24px;
-    text-align:center;
-  }
-  .lesson-title{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--muted);
-    font-weight:800;
-    margin-bottom:6px;
-  }
-  .lesson-name{
-    font-size:22px;
-    font-weight:800;
-    margin-bottom:24px;
-    color:var(--text);
-  }
-  .progress-wrap{
-    margin-bottom:28px;
-  }
-  .progress-track{
-    position:relative;
-    height:16px;
-    background:var(--border-track);
-    border-radius:999px;
-    overflow:hidden;
-  }
-  .progress-fill{
-    height:100%;
-    width:0%;
-    border-radius:999px;
-    background:var(--green);
-    transition:width .5s cubic-bezier(.2,.9,.3,1);
-    position:relative;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,.12);
-  }
-  .progress-fill.near-goal{
-    animation:pulse 0.6s ease-in-out infinite;
-    background:#7ee81a;
-  }
-  @keyframes pulse{
-    0%,100%{filter:brightness(1);}
-    50%{filter:brightness(1.15);}
-  }
-  .progress-meta{
-    display:flex;
-    justify-content:space-between;
-    margin-top:8px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--muted);
-  }
-  .xp-pop{
-    position:relative;
-    height:0;
-  }
-  .btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:16px;
-    font-size:16px;
-    font-weight:800;
-    letter-spacing:.5px;
-    text-transform:uppercase;
-    cursor:pointer;
-    transition:transform .08s ease, filter .15s ease;
-  }
-  .btn-primary{
-    background:var(--green);
-    color:#ffffff;
-    box-shadow:0 4px 0 var(--green-dark);
-  }
-  .btn-primary:active{
-    transform:translateY(3px);
-    box-shadow:0 1px 0 var(--green-dark);
-  }
-  .btn-primary:disabled{
-    opacity:.5;
-    cursor:default;
-  }
-  .celebration{
-    display:none;
-    margin-top:20px;
-    padding:18px;
-    border-radius:14px;
-    background:#d7ffb8;
-    border:2px solid var(--green);
-  }
-  .celebration.show{
-    display:block;
-    animation:fadeUp .4s ease;
-  }
-  @keyframes fadeUp{
-    from{opacity:0; transform:translateY(8px);}
-    to{opacity:1; transform:translateY(0);}
-  }
-  .celebration h3{
-    margin:0 0 4px;
-    color:var(--green-dark);
-    font-size:18px;
-    font-weight:800;
-  }
-  .celebration p{
-    margin:0;
-    color:#4b4b4b;
-    font-size:14px;
-    font-weight:600;
-  }
-  .flame{
-    display:inline-block;
-    animation:flicker 1.4s ease-in-out infinite;
-  }
-  @keyframes flicker{
-    0%,100%{transform:scale(1) rotate(0deg);}
-    50%{transform:scale(1.08) rotate(-2deg);}
-  }
-  .footnote{
-    text-align:center;
-    margin-top:18px;
-    font-size:12px;
-    color:var(--muted);
-    font-weight:600;
-  }
+  .panel-card { flex: 1 1 200px; }
+  .choices { grid-template-columns: 1fr; }
+}
+
+@keyframes xpPop {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+}
+.xp-float {
+  position: fixed;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--gold);
+  pointer-events: none;
+  z-index: 300;
+  animation: xpPop 1s ease forwards;
+}
 </style>
-</head>
-<body>
+
+<canvas class="confetti-canvas" id="confetti"></canvas>
+
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal" id="modal">
+    <div class="modal-top-bar" id="modal-topbar">
+      <button class="close-btn" id="close-btn" title="Close">✕</button>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="hearts-display" id="modal-hearts"></div>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
 
 <div class="app">
-  <div class="topbar">
-    <div class="stat streak">
-      <span class="icon flame">🔥</span>
-      <span id="streakCount">0</span>
-    </div>
-    <div class="stat xp">
-      <span class="icon">⭐</span>
-      <span id="xpCount">0</span> XP
-    </div>
-  </div>
+  <nav class="sidebar">
+    <a class="logo" href="#">
+      <svg class="logo-owl" viewBox="0 0 64 64" fill="none">
+        <ellipse cx="32" cy="38" rx="22" ry="18" fill="#58CC02"/>
+        <ellipse cx="32" cy="28" rx="18" ry="20" fill="#58CC02"/>
+        <ellipse cx="24" cy="24" rx="10" ry="10" fill="white"/>
+        <ellipse cx="40" cy="24" rx="10" ry="10" fill="white"/>
+        <circle cx="24" cy="24" r="6" fill="#1A1A1A"/>
+        <circle cx="40" cy="24" r="6" fill="#1A1A1A"/>
+        <circle cx="26" cy="22" r="2" fill="white"/>
+        <circle cx="42" cy="22" r="2" fill="white"/>
+        <ellipse cx="32" cy="34" rx="6" ry="4" fill="#F7C948"/>
+        <ellipse cx="18" cy="42" rx="6" ry="4" fill="#46a302" transform="rotate(-20 18 42)"/>
+        <ellipse cx="46" cy="42" rx="6" ry="4" fill="#46a302" transform="rotate(20 46 42)"/>
+        <ellipse cx="22" cy="14" rx="5" ry="7" fill="#46a302" transform="rotate(-10 22 14)"/>
+        <ellipse cx="42" cy="14" rx="5" ry="7" fill="#46a302" transform="rotate(10 42 14)"/>
+      </svg>
+      <span class="logo-text">duolingo</span>
+    </a>
+    <button class="nav-item active" onclick="setNav(this)"><span class="nav-icon">🏠</span> Learn</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">🏆</span> Leaderboards</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">🗡️</span> Quests</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">🛒</span> Shop</button>
+    <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">👤</span> Profile</button>
+  </nav>
 
-  <div class="card">
-    <div class="lesson-title">Unit 1, Lesson <span id="lessonNum">1</span></div>
-    <div class="lesson-name">Basic Phrases</div>
-
-    <div class="progress-wrap">
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+  <main class="main">
+    <div class="unit-header">
+      <div>
+        <div class="unit-label">Unit 1 · Section 1</div>
+        <div class="unit-title">Form basic sentences</div>
+        <div class="unit-desc">Learn simple Spanish phrases and greetings</div>
       </div>
-      <div class="progress-meta">
-        <span id="progressLabel">0 / 100 XP to next level</span>
-        <span id="levelLabel">Level 1</span>
+      <div class="unit-badge">📖</div>
+    </div>
+    <div class="path-container" id="path"></div>
+    <div class="unit-header-locked">
+      <div>
+        <div class="unit-label" style="color:var(--text-secondary)">Unit 2 · Section 1</div>
+        <div class="unit-title" style="color:var(--text-secondary)">People and animals</div>
+        <div class="unit-desc">Coming after Unit 1</div>
+      </div>
+      <div style="font-size:1.5rem">🔒</div>
+    </div>
+  </main>
+
+  <aside class="right-panel">
+    <div class="panel-card">
+      <div class="panel-title">🇪🇸 Spanish</div>
+      <div class="stat-row">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-info">
+          <span class="stat-label">Day Streak</span>
+          <span class="stat-value" style="color:var(--gold)" id="streak-display">0</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-info">
+          <span class="stat-label">Total XP</span>
+          <span class="stat-value" style="color:var(--blue)" id="xp-display">0</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-info">
+          <span class="stat-label">Hearts</span>
+          <div class="hearts-row" id="hearts-row"></div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <button class="streak-freeze-btn">❄️ Streak Freeze · 10 💎</button>
       </div>
     </div>
 
-    <button class="btn btn-primary" id="lessonBtn">Complete Lesson (+10 XP)</button>
-
-    <div class="celebration" id="celebration">
-      <h3 id="celebrationTitle">Lesson complete!</h3>
-      <p id="celebrationText">Nice work. Keep the streak going.</p>
+    <div class="panel-card">
+      <div class="panel-title">🏆 Weekly Leaderboard</div>
+      <div id="leaderboard"></div>
     </div>
-  </div>
 
-  <div class="footnote">Core loop clone — streak, XP, and goal-gradient progress bar</div>
+    <div class="panel-card">
+      <div class="panel-title">📅 Daily Goal</div>
+      <div style="margin-bottom:8px;font-size:0.85rem;font-weight:700;color:var(--text-secondary)">
+        <span id="goal-xp">0</span> / 20 XP today
+      </div>
+      <div style="height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden">
+        <div id="goal-fill" style="height:100%;background:var(--green);border-radius:99px;width:0%;transition:width 0.4s"></div>
+      </div>
+    </div>
+  </aside>
 </div>
 
 <script>
-  const state = {
-    streak: 0,
-    xp: 0,
-    level: 1,
-    xpPerLevel: 100,
-    xpPerLesson: 10,
-    lessonsCompletedToday: 0
-  };
+const STATE_KEY = 'duo_state';
+let state = { xp: 0, streak: 7, hearts: 5, completedLessons: [], todayXp: 0, lastDate: '' };
+try {
+  const s = JSON.parse(localStorage.getItem(STATE_KEY));
+  if (s) Object.assign(state, s);
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) { state.todayXp = 0; state.lastDate = today; }
+} catch(e) {}
 
-  const els = {
-    streakCount: document.getElementById('streakCount'),
-    xpCount: document.getElementById('xpCount'),
-    progressFill: document.getElementById('progressFill'),
-    progressLabel: document.getElementById('progressLabel'),
-    levelLabel: document.getElementById('levelLabel'),
-    lessonBtn: document.getElementById('lessonBtn'),
-    celebration: document.getElementById('celebration'),
-    celebrationTitle: document.getElementById('celebrationTitle'),
-    celebrationText: document.getElementById('celebrationText'),
-    lessonNum: document.getElementById('lessonNum')
-  };
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
 
-  function render(){
-    els.streakCount.textContent = state.streak;
-    els.xpCount.textContent = state.xp;
-    els.levelLabel.textContent = 'Level ' + state.level;
+const lessons = [
+  { id: 0, icon: '🎯', label: 'Start', type: 'active', questions: [
+    { q: 'What does "Hola" mean?', choices: ['Goodbye','Hello','Thank you','Yes'], answer: 1 },
+    { q: 'How do you say "Thank you" in Spanish?', choices: ['Por favor','Lo siento','Gracias','De nada'], answer: 2 },
+    { q: 'What is "apple" in Spanish?', choices: ['Naranja','Manzana','Plátano','Uva'], answer: 1 }
+  ]},
+  { id: 1, icon: '💬', label: 'Greetings', type: 'normal', questions: [
+    { q: 'Which phrase means "Good morning"?', choices: ['Buenas noches','Buenas tardes','Buenos días','Hasta luego'], answer: 2 },
+    { q: 'What does "¿Cómo estás?" mean?', choices: ['What\'s your name?','How are you?','Where are you from?','How old are you?'], answer: 1 },
+    { q: 'How do you say "My name is…"?', choices: ['Yo tengo…','Me llamo…','Soy de…','Tengo… años'], answer: 1 }
+  ]},
+  { id: 2, icon: '🔢', label: 'Numbers', type: 'normal', questions: [
+    { q: 'What number is "tres"?', choices: ['1','2','3','4'], answer: 2 },
+    { q: 'How do you say "ten" in Spanish?', choices: ['Ocho','Nueve','Diez','Once'], answer: 2 },
+    { q: '"Veinte" means which number?', choices: ['12','20','21','22'], answer: 1 }
+  ]},
+  { id: 3, icon: '🏆', label: 'Checkpoint', type: 'checkpoint', questions: [
+    { q: 'Which sentence means "I am a student"?', choices: ['Yo soy un estudiante','Yo tengo un libro','Yo como una manzana','Yo soy un maestro'], answer: 0 },
+    { q: 'What does "La casa es grande" mean?', choices: ['The dog is big','The house is big','The car is fast','The tree is tall'], answer: 1 },
+    { q: 'How do you say "I speak Spanish"?', choices: ['Yo escucho español','Yo aprendo español','Yo hablo español','Yo leo español'], answer: 2 },
+    { q: 'What is "water" in Spanish?', choices: ['Leche','Jugo','Agua','Café'], answer: 2 }
+  ]},
+  { id: 4, icon: '🐶', label: 'Animals', type: 'normal', questions: [
+    { q: 'What is "dog" in Spanish?', choices: ['Gato','Perro','Pájaro','Pez'], answer: 1 },
+    { q: '"El gato bebe leche" means?', choices: ['The cat drinks milk','The dog eats food','The bird sings','The fish swims'], answer: 0 },
+    { q: 'How do you say "a big horse"?', choices: ['Un caballo pequeño','Un toro grande','Un caballo grande','Una vaca grande'], answer: 2 }
+  ]},
+  { id: 5, icon: '🍎', label: 'Food', type: 'normal', questions: [
+    { q: 'What is "bread" in Spanish?', choices: ['Leche','Queso','Pan','Arroz'], answer: 2 },
+    { q: '"Yo como una pizza" means?', choices: ['I want a pizza','I make a pizza','I eat a pizza','I buy a pizza'], answer: 2 },
+    { q: 'How do you say "I am hungry"?', choices: ['Tengo hambre','Tengo sed','Tengo frío','Tengo sueño'], answer: 0 }
+  ]},
+];
 
-    const xpIntoLevel = state.xp % state.xpPerLevel;
-    const pct = (xpIntoLevel / state.xpPerLevel) * 100;
+const offsets = [0, 60, 100, 60, 0, -60];
+const path = document.getElementById('path');
 
-    els.progressFill.style.width = pct + '%';
-    els.progressLabel.textContent = xpIntoLevel + ' / ' + state.xpPerLevel + ' XP to next level';
+function buildPath() {
+  path.innerHTML = '';
+  lessons.forEach((lesson, i) => {
+    const isCompleted = state.completedLessons.includes(lesson.id);
+    const isActive = !isCompleted && (i === 0 || state.completedLessons.includes(lessons[i-1].id));
+    const isLocked = !isCompleted && !isActive;
+    const row = document.createElement('div');
+    row.className = 'path-row';
+    row.style.transform = `translateX(${offsets[i] || 0}px)`;
+    let btnClass = 'lesson-btn ' + (isCompleted ? 'completed' : isActive ? 'active' : 'locked');
+    if (lesson.type === 'checkpoint') btnClass += ' checkpoint';
+    row.innerHTML = `
+      <div class="lesson-node" ${isLocked ? '' : `onclick="startLesson(${lesson.id})"`} style="${isLocked ? 'cursor:not-allowed' : ''}">
+        ${isActive && i === getNextLesson() ? '<div class="active-arrow">START</div>' : ''}
+        <button class="${btnClass}" ${isLocked ? 'disabled' : ''} title="${lesson.label}">
+          ${isCompleted ? '⭐' : lesson.icon}
+          ${isCompleted ? '<div class="crown-badge">👑</div>' : ''}
+        </button>
+        <span class="lesson-label">${lesson.label}</span>
+      </div>`;
+    path.appendChild(row);
+  });
+}
 
-    // Goal-Gradient Effect: as the user nears the goal, the bar visibly
-    // pulses/brightens to reinforce "almost there" and pull them to finish.
-    if (pct >= 70) {
-      els.progressFill.classList.add('near-goal');
-    } else {
-      els.progressFill.classList.remove('near-goal');
-    }
+function getNextLesson() {
+  for (let i = 0; i < lessons.length; i++) {
+    if (!state.completedLessons.includes(lessons[i].id)) return i;
   }
+  return -1;
+}
 
-  function completeLesson(){
-    state.xp += state.xpPerLesson;
-    state.lessonsCompletedToday += 1;
-    els.lessonNum.textContent = state.lessonsCompletedToday + 1;
+const lbData = [
+  { name: 'SarahK', xp: 1840, flag: '🦊' },
+  { name: 'Miguel_ES', xp: 1720, flag: '🦁' },
+  { name: 'You', xp: 0, flag: '🦉', isYou: true },
+  { name: 'LingoPro', xp: 980, flag: '🐨' },
+  { name: 'StudyBuddy', xp: 740, flag: '🐸' },
+];
 
-    let leveledUp = false;
-    while (state.xp >= state.level * state.xpPerLevel) {
-      state.level += 1;
-      leveledUp = true;
-    }
+function renderLeaderboard() {
+  const sorted = [...lbData].sort((a, b) => b.xp - a.xp);
+  const ranks = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => `
+    <div class="leaderboard-item" style="${p.isYou ? 'background:rgba(28,176,246,0.05);border-radius:10px;padding:8px;' : ''}">
+      <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
+      <div class="lb-avatar">${p.flag}</div>
+      <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
+      <span class="lb-xp">${p.xp} XP</span>
+    </div>`).join('');
+}
 
-    if (state.lessonsCompletedToday === 1) {
-      state.streak += 1;
-    }
-
-    render();
-
-    els.celebration.classList.add('show');
-    if (leveledUp) {
-      els.celebrationTitle.textContent = 'Level up! 🎉';
-      els.celebrationText.textContent = 'You reached Level ' + state.level + '.';
-    } else {
-      els.celebrationTitle.textContent = 'Lesson complete!';
-      els.celebrationText.textContent = '+' + state.xpPerLesson + ' XP · Streak: ' + state.streak + ' day' + (state.streak === 1 ? '' : 's');
-    }
-
-    setTimeout(() => {
-      els.celebration.classList.remove('show');
-    }, 2200);
+function renderStats() {
+  document.getElementById('streak-display').textContent = state.streak;
+  document.getElementById('xp-display').textContent = state.xp;
+  const hr = document.getElementById('hearts-row');
+  hr.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.hearts ? ' empty' : '');
+    h.textContent = '❤️';
+    hr.appendChild(h);
   }
+  const goalXp = Math.min(state.todayXp, 20);
+  document.getElementById('goal-xp').textContent = goalXp;
+  document.getElementById('goal-fill').style.width = (goalXp / 20 * 100) + '%';
+  lbData.find(p => p.isYou).xp = state.xp;
+  renderLeaderboard();
+}
 
-  els.lessonBtn.addEventListener('click', completeLesson);
+let currentLesson = null, currentQ = 0, selectedChoice = null, checked = false, lessonHearts = 5;
+const overlay = document.getElementById('modal-overlay');
+const closeBtn = document.getElementById('close-btn');
+const progressFill = document.getElementById('progress-fill');
+const modalContent = document.getElementById('modal-content');
 
-  render();
+function startLesson(id) {
+  currentLesson = lessons.find(l => l.id === id);
+  currentQ = 0; selectedChoice = null; checked = false;
+  lessonHearts = state.hearts;
+  overlay.hidden = false;
+  renderQuestion();
+}
+
+function renderModalHearts() {
+  const mh = document.getElementById('modal-hearts');
+  mh.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const h = document.createElement('span');
+    h.style.fontSize = '0.9rem';
+    h.textContent = i < lessonHearts ? '❤️' : '🖤';
+    mh.appendChild(h);
+  }
+}
+
+function renderQuestion() {
+  const q = currentLesson.questions[currentQ];
+  progressFill.style.width = (currentQ / currentLesson.questions.length * 100) + '%';
+  renderModalHearts();
+  selectedChoice = null; checked = false;
+  const letters = ['A','B','C','D'];
+  modalContent.innerHTML = `
+    <div class="modal-body">
+      <div class="question-type-label">Translate this sentence</div>
+      <div class="question-text">${q.q}</div>
+      <div class="choices" id="choices">
+        ${q.choices.map((c, i) => `
+          <button class="choice-btn" onclick="selectChoice(${i})" id="choice-${i}">
+            <span class="choice-letter">${letters[i]}</span>${c}
+          </button>`).join('')}
+      </div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="check-btn disabled" id="check-btn" onclick="checkAnswer()">CHECK</button>
+    </div>`;
+}
+
+function selectChoice(i) {
+  if (checked) return;
+  selectedChoice = i;
+  document.querySelectorAll('.choice-btn').forEach((b, idx) => {
+    b.className = 'choice-btn' + (idx === i ? ' selected' : '');
+  });
+  document.getElementById('check-btn').className = 'check-btn ready';
+}
+
+function checkAnswer() {
+  if (selectedChoice === null || checked) return;
+  checked = true;
+  const q = currentLesson.questions[currentQ];
+  const correct = selectedChoice === q.answer;
+  const footer = document.getElementById('modal-footer');
+  document.querySelectorAll('.choice-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.answer) b.className = 'choice-btn correct';
+    else if (i === selectedChoice && !correct) b.className = 'choice-btn wrong';
+  });
+  if (correct) {
+    footer.className = 'modal-footer correct-state';
+    footer.innerHTML = `
+      <div class="feedback-row">
+        <span class="feedback-icon">✅</span>
+        <div><div class="feedback-text correct-text">Correct! Great job!</div></div>
+      </div>
+      <button class="check-btn next-state" onclick="nextQuestion()">CONTINUE</button>`;
+  } else {
+    lessonHearts = Math.max(0, lessonHearts - 1);
+    state.hearts = Math.max(0, state.hearts - 1);
+    renderModalHearts();
+    footer.className = 'modal-footer wrong-state';
+    footer.innerHTML = `
+      <div class="feedback-row">
+        <span class="feedback-icon">❌</span>
+        <div>
+          <div class="feedback-text wrong-text">Incorrect!</div>
+          <div class="feedback-answer">Correct answer: ${q.choices[q.answer]}</div>
+        </div>
+      </div>
+      <button class="check-btn wrong-btn" onclick="nextQuestion()">GOT IT</button>`;
+    saveState(); renderStats();
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= currentLesson.questions.length) showCompletion();
+  else renderQuestion();
+}
+
+function showCompletion() {
+  const xpGain = 10 + (currentLesson.type === 'checkpoint' ? 10 : 0);
+  progressFill.style.width = '100%';
+  document.getElementById('modal-topbar').style.display = 'none';
+  modalContent.innerHTML = `
+    <div class="completion-screen">
+      <div class="completion-owl">🦉</div>
+      <div class="completion-title">Lesson Complete!</div>
+      <div class="completion-subtitle">You finished <strong>${currentLesson.label}</strong></div>
+      <div class="xp-gained">+${xpGain} ⚡ XP</div>
+      <button class="continue-btn" onclick="completeLesson()">CONTINUE</button>
+    </div>`;
+  launchConfetti();
+  state.xp += xpGain;
+  state.todayXp += xpGain;
+  if (!state.completedLessons.includes(currentLesson.id)) state.completedLessons.push(currentLesson.id);
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) { state.streak++; state.lastDate = today; }
+  saveState(); renderStats(); floatXP(xpGain);
+}
+
+function completeLesson() {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
+  buildPath();
+}
+
+closeBtn.addEventListener('click', () => {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
+});
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) { overlay.hidden = true; document.getElementById('modal-topbar').style.display = ''; }
+});
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ['#58CC02','#FFC700','#1CB0F6','#FF4B4B','#CE82FF','#FF9600'];
+  const particles = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height * 0.3 - 50,
+    vx: (Math.random() - 0.5) * 6, vy: Math.random() * 4 + 2,
+    size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * 360, vr: (Math.random() - 0.5) * 8, op: 1
+  }));
+  let frame = 0;
+  const tick = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.vx *= 0.99; p.rot += p.vr;
+      if (frame > 60) p.op -= 0.018;
+      ctx.save(); ctx.globalAlpha = Math.max(0, p.op);
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(tick);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+  requestAnimationFrame(tick);
+}
+
+function floatXP(amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.textContent = '+' + amount + ' XP';
+  el.style.left = (window.innerWidth / 2 - 30) + 'px';
+  el.style.top = (window.innerHeight / 2) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function setNav(btn) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+buildPath();
+renderStats();
 </script>
-
-</body>
-</html>
