@@ -18,7 +18,7 @@ export default function RightPanel() {
       <div className="stat-card">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-extrabold text-[#AFAFAF] uppercase tracking-widest">Streak</span>
-          <span className="text-2xl">🔥</span>
+          <span className="text-2xl animate-flicker">🔥</span>
         </div>
         <p className="text-4xl font-black text-[#FF9600]">{user.streak || 0}
           <span className="text-base text-[#AFAFAF] font-bold ml-2">day streak</span>
@@ -50,7 +50,7 @@ export default function RightPanel() {
         </div>
         <div className="w-full h-4 bg-[#E5E5E5] rounded-full overflow-hidden mb-2">
           <div
-            className="h-full bg-[#58CC02] rounded-full transition-all duration-700"
+            className={`h-full bg-[#58CC02] rounded-full transition-all duration-700 ${progressPct >= 70 ? 'animate-nearGoal' : ''}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>

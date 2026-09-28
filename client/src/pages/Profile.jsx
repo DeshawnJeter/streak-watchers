@@ -133,7 +133,7 @@ export default function Profile() {
         </div>
         <div className="w-full h-4 bg-[#E5E5E5] rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#CE82FF] rounded-full transition-all duration-700"
+            className={`h-full bg-[#CE82FF] rounded-full transition-all duration-700 ${(levelXP / 1000) * 100 >= 70 ? 'animate-nearGoal' : ''}`}
             style={{ width: `${(levelXP / 1000) * 100}%` }}
           />
         </div>

@@ -176,6 +176,8 @@ export default function Lesson() {
   const [localHearts, setLocalHearts] = useState(user?.hearts ?? 5);
   const [xpToast, setXpToast] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
+  const [leveledUp, setLeveledUp] = useState(false);
+  const [newLevel, setNewLevel] = useState(null);
 
   useEffect(() => {
     api.get(`/lessons/lesson/${lessonId}`)
@@ -231,14 +233,19 @@ export default function Lesson() {
   };
 
   const finish = async () => {
-    const finalCorrect = isCorrect ? correct : correct; // already tallied
     const xp = correct * XP_PER_CORRECT;
+    const oldLevel = Math.floor((user?.xp || 0) / 1000) + 1;
     try {
       const r = await api.post(`/lessons/lesson/${lessonId}/complete`, {
         xp_earned: xp,
         hearts_lost: heartsLost,
       });
       setUser(u => ({ ...u, ...r.data.user }));
+      const nextLevel = Math.floor((r.data.user?.xp || 0) / 1000) + 1;
+      if (nextLevel > oldLevel) {
+        setLeveledUp(true);
+        setNewLevel(nextLevel);
+      }
     } catch {}
     setPhase('result');
   };
@@ -279,6 +286,15 @@ export default function Lesson() {
               </div>
             ))}
           </div>
+
+          {/* streak-watchers: level-up celebration */}
+          {leveledUp && (
+            <div className="animate-fadeIn mb-6 p-5 rounded-2xl bg-[#D7FFB8] border-2 border-[#58CC02] text-center">
+              <p className="text-3xl mb-1">🎉</p>
+              <h3 className="text-lg font-extrabold text-[#2B730A]">Level up!</h3>
+              <p className="text-sm font-bold text-[#4b4b4b]">You reached Level {newLevel}. Keep the streak going!</p>
+            </div>
+          )}
 
           <button onClick={() => navigate(-1)} className="btn-green w-full text-center">
             CONTINUE
