@@ -1037,7 +1037,13 @@ function nextQuestion() {
 }
 
 function showCompletion() {
-  const xpGain = 10 + (currentLesson.type === 'checkpoint' ? 10 : 0);
+  const isCheckpoint = currentLesson.type === 'checkpoint';
+  const xpGain = 10 + (isCheckpoint ? 10 : 0);
+  const gemGain = isCheckpoint ? 20 : (currentLesson.id === 0 ? 10 : 5);
+  const perfectBonus = lessonHearts === state.hearts;
+  const bonusGems = perfectBonus ? 20 : 0;
+  const totalGems = gemGain + bonusGems;
+
   progressFill.style.width = '100%';
   document.getElementById('modal-topbar').style.display = 'none';
   modalContent.innerHTML = `
@@ -1045,16 +1051,23 @@ function showCompletion() {
       <div class="completion-owl">🦉</div>
       <div class="completion-title">Lesson Complete!</div>
       <div class="completion-subtitle">You finished <strong>${currentLesson.label}</strong></div>
-      <div class="xp-gained">+${xpGain} ⚡ XP</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+        <div class="xp-gained">+${xpGain} ⚡ XP</div>
+        <div class="xp-gained" style="border-color:var(--purple);background:rgba(206,130,255,0.12);color:var(--purple)">
+          +${totalGems} 💎 Gems
+        </div>
+        ${perfectBonus ? '<div class="xp-gained" style="border-color:var(--gold);background:rgba(255,199,0,0.1);color:var(--gold);font-size:0.85rem">⭐ Perfect +20 💎</div>' : ''}
+      </div>
       <button class="continue-btn" onclick="completeLesson()">CONTINUE</button>
     </div>`;
   launchConfetti();
   state.xp += xpGain;
   state.todayXp += xpGain;
+  state.gems += totalGems;
   if (!state.completedLessons.includes(currentLesson.id)) state.completedLessons.push(currentLesson.id);
   const today = new Date().toDateString();
   if (state.lastDate !== today) { state.streak++; state.lastDate = today; }
-  saveState(); renderStats(); floatXP(xpGain);
+  saveState(); renderStats(); floatXP(xpGain); floatGems(totalGems);
 }
 
 function completeLesson() {
@@ -1106,6 +1119,17 @@ function floatXP(amount) {
   el.textContent = '+' + amount + ' XP';
   el.style.left = (window.innerWidth / 2 - 30) + 'px';
   el.style.top = (window.innerHeight / 2) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function floatGems(amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.style.color = 'var(--purple)';
+  el.textContent = '+' + amount + ' 💎';
+  el.style.left = (window.innerWidth / 2 + 40) + 'px';
+  el.style.top = (window.innerHeight / 2 + 24) + 'px';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
