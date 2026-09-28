@@ -587,6 +587,61 @@ body {
   .choices { grid-template-columns: 1fr; }
 }
 
+/* ── Restore Hearts UI ── */
+.restore-btn {
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: 2px solid var(--red);
+  border-radius: 12px;
+  color: var(--red);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.restore-btn:hover { background: rgba(255,75,75,0.1); }
+.restore-btn:disabled { border-color: var(--border); color: var(--text-secondary); cursor: not-allowed; }
+.restore-confirm {
+  background: rgba(255,75,75,0.08);
+  border: 2px solid var(--red);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.restore-confirm-text { font-size: 0.8rem; font-weight: 700; color: var(--text); text-align: center; }
+.restore-confirm-cost { font-size: 0.75rem; color: var(--text-secondary); text-align: center; font-weight: 600; }
+.restore-confirm-btns { display: flex; gap: 8px; }
+.restore-confirm-yes {
+  flex: 1; padding: 8px; border-radius: 10px; border: none;
+  background: var(--red); color: white;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem;
+  cursor: pointer; box-shadow: 0 3px 0 var(--red-dark);
+}
+.restore-confirm-yes:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--red-dark); }
+.restore-confirm-no {
+  flex: 1; padding: 8px; border-radius: 10px;
+  border: 2px solid var(--border); background: none;
+  color: var(--text-secondary); font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 0.8rem; cursor: pointer;
+}
+.restore-confirm-no:hover { background: var(--surface-2); color: var(--text); }
+.restore-toast {
+  font-size: 0.75rem; font-weight: 700; text-align: center;
+  padding: 6px 10px; border-radius: 8px;
+  animation: fadeOut 2s ease forwards;
+}
+.restore-toast.success { color: var(--green); background: rgba(88,204,2,0.1); }
+.restore-toast.error { color: var(--red); background: rgba(255,75,75,0.1); }
+@keyframes fadeOut { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+
 @keyframes xpPop {
   0% { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
@@ -682,12 +737,20 @@ body {
         </div>
       </div>
       <div class="stat-row">
-        <div class="stat-icon">❤️</div>
+        <div class="stat-icon">💎</div>
         <div class="stat-info">
+          <span class="stat-label">Gems</span>
+          <span class="stat-value" style="color:var(--purple)" id="gems-display">500</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-info" style="flex:1">
           <span class="stat-label">Hearts</span>
           <div class="hearts-row" id="hearts-row"></div>
         </div>
       </div>
+      <div id="hearts-section" style="margin-top:4px"></div>
       <div style="margin-top:8px">
         <button class="streak-freeze-btn">❄️ Streak Freeze · 10 💎</button>
       </div>
@@ -712,7 +775,7 @@ body {
 
 <script>
 const STATE_KEY = 'duo_state';
-let state = { xp: 0, streak: 7, hearts: 5, completedLessons: [], todayXp: 0, lastDate: '' };
+let state = { xp: 0, streak: 7, hearts: 5, gems: 500, completedLessons: [], todayXp: 0, lastDate: '' };
 try {
   const s = JSON.parse(localStorage.getItem(STATE_KEY));
   if (s) Object.assign(state, s);
@@ -815,6 +878,7 @@ function renderLeaderboard() {
 function renderStats() {
   document.getElementById('streak-display').textContent = state.streak;
   document.getElementById('xp-display').textContent = state.xp;
+  document.getElementById('gems-display').textContent = state.gems;
   const hr = document.getElementById('hearts-row');
   hr.innerHTML = '';
   for (let i = 0; i < 5; i++) {
@@ -823,11 +887,54 @@ function renderStats() {
     h.textContent = '❤️';
     hr.appendChild(h);
   }
+  const hs = document.getElementById('hearts-section');
+  if (state.hearts < 5) {
+    const canAfford = state.gems >= RESTORE_COST;
+    hs.innerHTML = `
+      <button class="restore-btn" onclick="showRestoreConfirm()" ${canAfford ? '' : 'disabled'}>
+        ❤️ Restore Hearts · ${RESTORE_COST} 💎
+      </button>
+      ${!canAfford ? '<div class="restore-toast error" style="animation:none;opacity:1">Not enough gems (need 350)</div>' : ''}`;
+  } else {
+    hs.innerHTML = '';
+  }
   const goalXp = Math.min(state.todayXp, 20);
   document.getElementById('goal-xp').textContent = goalXp;
   document.getElementById('goal-fill').style.width = (goalXp / 20 * 100) + '%';
   lbData.find(p => p.isYou).xp = state.xp;
   renderLeaderboard();
+}
+
+const RESTORE_COST = 350;
+
+function showRestoreConfirm() {
+  const missing = 5 - state.hearts;
+  document.getElementById('hearts-section').innerHTML = `
+    <div class="restore-confirm">
+      <div class="restore-confirm-text">Restore all ${missing} heart${missing > 1 ? 's' : ''}?</div>
+      <div class="restore-confirm-cost">Costs ${RESTORE_COST} 💎 · You have ${state.gems} 💎</div>
+      <div class="restore-confirm-btns">
+        <button class="restore-confirm-no" onclick="cancelRestore()">CANCEL</button>
+        <button class="restore-confirm-yes" onclick="restoreHearts()">RESTORE</button>
+      </div>
+    </div>`;
+}
+
+function cancelRestore() { renderStats(); }
+
+function restoreHearts() {
+  if (state.gems < RESTORE_COST) return;
+  state.gems -= RESTORE_COST;
+  state.hearts = 5;
+  saveState();
+  renderStats();
+  const toast = document.createElement('div');
+  toast.className = 'restore-toast success';
+  toast.textContent = '❤️ Hearts fully restored!';
+  document.getElementById('hearts-section').appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+  lessonHearts = 5;
+  if (!overlay.hidden) renderModalHearts();
 }
 
 let currentLesson = null, currentQ = 0, selectedChoice = null, checked = false, lessonHearts = 5;
