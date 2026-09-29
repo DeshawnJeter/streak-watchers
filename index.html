@@ -802,6 +802,7 @@ const STATE_KEY = 'duo_state';
 let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
   completedLessons: [], todayXp: 0, lastDate: '',
+  earnedBadges: [],
   /* avatar */
   activeChar: 'mario',
   equippedSkins: {
@@ -823,6 +824,7 @@ try {
     if (!state.equippedSkins) state.equippedSkins = {};
     if (!state.unlockedSkins) state.unlockedSkins = [];
     if (!state.activeChar)    state.activeChar = 'mario';
+    if (!state.earnedBadges)  state.earnedBadges = [];
   }
   const today = new Date().toDateString();
   if (state.lastDate !== today) { state.todayXp = 0; state.lastDate = today; }
@@ -830,6 +832,40 @@ try {
 
 function saveState() {
   try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ─────────────── Badges ─────────────── */
+const BADGES = [
+  { id: 'streak_7',   type: 'streak',  threshold: 7,   name: 'Week Warrior',     icon: '🔥', desc: 'Reach a 7-day streak' },
+  { id: 'streak_30',  type: 'streak',  threshold: 30,  name: 'Monthly Master',   icon: '🏆', desc: 'Reach a 30-day streak' },
+  { id: 'streak_100', type: 'streak',  threshold: 100, name: 'Centurion',        icon: '💯', desc: 'Reach a 100-day streak' },
+  { id: 'lessons_10', type: 'lessons', threshold: 10,  name: 'Getting Started',  icon: '📘', desc: 'Complete 10 lessons' },
+  { id: 'lessons_50', type: 'lessons', threshold: 50,  name: 'Dedicated Learner',icon: '📚', desc: 'Complete 50 lessons' },
+  { id: 'lessons_100',type: 'lessons', threshold: 100, name: 'Lesson Legend',    icon: '🎓', desc: 'Complete 100 lessons' },
+];
+
+/* Earned badges are appended to state.earnedBadges and never removed,
+   so they survive a streak reset (PRD 1c / Requirements 3, P0). */
+function evaluateBadgeUnlocks() {
+  const newlyEarned = [];
+  BADGES.forEach(badge => {
+    if (state.earnedBadges.includes(badge.id)) return;
+    const progress = badge.type === 'streak' ? state.streak : state.completedLessons.length;
+    if (progress >= badge.threshold) {
+      state.earnedBadges.push(badge.id);
+      newlyEarned.push(badge);
+    }
+  });
+  newlyEarned.forEach(badge => showBadgeToast(badge));
+  if (newlyEarned.length) saveState();
+}
+
+function showBadgeToast(badge) {
+  const t = document.createElement('div');
+  t.className = 'unlock-toast';
+  t.innerHTML = `${badge.icon} New badge earned! <strong>${badge.name}</strong>`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
 }
 
 /* ─────────────── Helpers ─────────────── */
@@ -1150,7 +1186,8 @@ function showCompletion() {
   const today = new Date().toDateString();
   if (state.lastDate !== today) { state.streak++; state.lastDate = today; }
   saveState();
-  evaluateSkinUnlocks();  /* check XP-gated skin unlocks */
+  evaluateSkinUnlocks();   /* check XP-gated skin unlocks */
+  evaluateBadgeUnlocks();  /* check streak/lesson-count badge unlocks */
   renderStats();
   launchConfetti();
   floatXP(xpGain);
