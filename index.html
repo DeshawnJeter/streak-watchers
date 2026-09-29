@@ -828,7 +828,7 @@ const SKINS = {
 const STATE_KEY = 'duo_state';
 let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
-  completedLessons: [], todayXp: 0, lastDate: '',
+  completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '',
   earnedBadges: [],
   /* avatar */
   activeChar: 'mario',
@@ -854,7 +854,17 @@ try {
     if (!state.earnedBadges)  state.earnedBadges = [];
   }
   const today = new Date().toDateString();
-  if (state.lastDate !== today) { state.todayXp = 0; state.lastDate = today; }
+
+  /* Streak reset: lastDate only ever changes when a lesson is completed
+     (see completeLesson), so this gap reflects real missed days. */
+  if (state.lastDate) {
+    const gapDays = Math.round((new Date(today) - new Date(state.lastDate)) / 86400000);
+    if (gapDays >= 2) state.streak = 0;
+  }
+
+  /* Daily XP reset is tracked separately so it never touches lastDate
+     and never masks the streak-increment check in completeLesson. */
+  if (state.lastOpenDate !== today) { state.todayXp = 0; state.lastOpenDate = today; }
 } catch(e) {}
 
 function saveState() {
