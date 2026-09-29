@@ -560,6 +560,33 @@ body {
   color: var(--text-secondary);
   white-space: nowrap;
 }
+
+/* Badge case */
+.badge-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.badge-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+}
+.badge-card.earned { border-color: var(--gold); background: rgba(var(--color-bee), 0.08); }
+.badge-card.locked { opacity: 0.75; }
+.badge-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 2px solid var(--border);
+}
+.badge-card.earned .badge-icon { border-color: var(--gold); background: rgba(var(--color-bee), 0.15); }
+.badge-info { flex: 1; }
+.badge-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); }
+.badge-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+.badge-earned-tag { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--gold); white-space: nowrap; }
+.badge-lock-tag { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--text-secondary); white-space: nowrap; }
 .skin-near-tag {
   font-size: 0.7rem;
   font-weight: 900;
@@ -866,6 +893,27 @@ function showBadgeToast(badge) {
   t.innerHTML = `${badge.icon} New badge earned! <strong>${badge.name}</strong>`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
+}
+
+function buildBadgeGrid() {
+  return BADGES.map(badge => {
+    const earned = state.earnedBadges.includes(badge.id);
+    const progress = badge.type === 'streak' ? state.streak : state.completedLessons.length;
+    const remaining = Math.max(0, badge.threshold - progress);
+    const unit = badge.type === 'streak' ? (remaining === 1 ? 'day' : 'days') : (remaining === 1 ? 'lesson' : 'lessons');
+    const rightTag = earned
+      ? `<span class="badge-earned-tag">✓ Earned</span>`
+      : `<span class="badge-lock-tag">🔒 ${remaining} more ${unit}</span>`;
+    return `
+      <div class="badge-card ${earned ? 'earned' : 'locked'}">
+        <div class="badge-icon">${badge.icon}</div>
+        <div class="badge-info">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-desc">${badge.desc}</div>
+        </div>
+        ${rightTag}
+      </div>`;
+  }).join('');
 }
 
 /* ─────────────── Helpers ─────────────── */
@@ -1255,6 +1303,9 @@ function renderAvatarPage() {
         </div>
         <span class="active-badge">Active</span>
       </div>
+
+      <div class="char-section-label">Badges (${state.earnedBadges.length}/${BADGES.length})</div>
+      <div class="badge-grid">${buildBadgeGrid()}</div>
 
       <div class="char-section-label">All Characters</div>
       <div class="char-grid">${charCards}</div>
