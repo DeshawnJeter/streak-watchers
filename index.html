@@ -720,6 +720,20 @@ body {
     </div>
     <!-- Avatar / Profile view -->
     <div id="avatar-view" hidden></div>
+    <!-- Leaderboard view -->
+    <div id="leaderboard-view" hidden>
+      <div class="unit-header">
+        <div>
+          <div class="unit-label">Weekly Leaderboard</div>
+          <div class="unit-title">See where you rank</div>
+          <div class="unit-desc">Rankings update once per day</div>
+        </div>
+        <div class="unit-badge">🏆</div>
+      </div>
+      <div class="panel-card" style="max-width:480px">
+        <div id="leaderboard"></div>
+      </div>
+    </div>
   </main>
 
   <aside class="right-panel">
@@ -757,11 +771,6 @@ body {
       <div style="margin-top:8px">
         <button class="streak-freeze-btn">❄️ Streak Freeze · 10 💎</button>
       </div>
-    </div>
-
-    <div class="panel-card">
-      <div class="panel-title">🏆 Weekly Leaderboard</div>
-      <div id="leaderboard"></div>
     </div>
 
     <div class="panel-card">
@@ -1474,12 +1483,16 @@ function setNav(btn) {
   btn.classList.add('active');
 
   const view = btn.dataset.view;
-  document.getElementById('learn-view').hidden  = (view !== 'learn');
-  document.getElementById('avatar-view').hidden = (view !== 'profile');
+  document.getElementById('learn-view').hidden       = (view !== 'learn');
+  document.getElementById('avatar-view').hidden      = (view !== 'profile');
+  document.getElementById('leaderboard-view').hidden = (view !== 'boards');
 
   if (view === 'profile') {
     selectedCharForPanel = state.activeChar; /* open active char's panel by default */
     renderAvatarPage();
+  }
+  if (view === 'boards') {
+    renderLeaderboard();
   }
 }
 
