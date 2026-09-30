@@ -288,6 +288,16 @@ body {
 .lb-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); flex: 1; }
 .lb-xp   { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--blue); font-variant-numeric: tabular-nums; }
 
+/* Daily quests */
+.quest-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.quest-item:last-child { border-bottom: none; }
+.quest-check { font-size: 1.1rem; flex-shrink: 0; }
+.quest-info { flex: 1; }
+.quest-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); }
+.quest-sub  { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+.quest-progress-track { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.quest-progress-fill  { height: 100%; background: var(--gold); border-radius: 99px; transition: width 0.4s; }
+
 .streak-freeze-btn { width: 100%; padding: 10px; background: none; border: 2px solid var(--blue); border-radius: 12px; color: var(--blue); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .streak-freeze-btn:hover { background: rgba(var(--color-macaw), 0.1); }
 
@@ -755,6 +765,11 @@ body {
     </div>
 
     <div class="panel-card">
+      <div class="panel-title">🎯 Today's Quests</div>
+      <div id="quests"></div>
+    </div>
+
+    <div class="panel-card">
       <div class="panel-title">📅 Daily Goal</div>
       <div style="margin-bottom:8px;font-size:var(--text-caption-size);font-weight:700;color:var(--text-secondary)">
         <span id="goal-xp">0</span> / 20 XP today
@@ -826,10 +841,17 @@ const SKINS = {
 
 /* ─────────────── State ─────────────── */
 const STATE_KEY = 'duo_state';
+const DEFAULT_RIVALS = [
+  { name: 'SarahK',     xp: 1840, flag: '🦊' },
+  { name: 'Miguel_ES',  xp: 1720, flag: '🦁' },
+  { name: 'LingoPro',   xp: 980,  flag: '🐨' },
+  { name: 'StudyBuddy', xp: 740,  flag: '🐸' },
+];
 let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
   completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '',
   earnedBadges: [],
+  rivals: DEFAULT_RIVALS.map(r => ({ ...r })),
   /* avatar */
   activeChar: 'mario',
   equippedSkins: {
@@ -852,6 +874,7 @@ try {
     if (!state.unlockedSkins) state.unlockedSkins = [];
     if (!state.activeChar)    state.activeChar = 'mario';
     if (!state.earnedBadges)  state.earnedBadges = [];
+    if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
   }
   const today = new Date().toDateString();
 
@@ -862,9 +885,14 @@ try {
     if (gapDays >= 2) state.streak = 0;
   }
 
-  /* Daily XP reset is tracked separately so it never touches lastDate
-     and never masks the streak-increment check in completeLesson. */
-  if (state.lastOpenDate !== today) { state.todayXp = 0; state.lastOpenDate = today; }
+  /* Daily XP reset (and the leaderboard rivals' daily XP gain) is tracked
+     separately from lastDate so it never masks the streak-increment check
+     in completeLesson. This block runs once, the first load of a new day. */
+  if (state.lastOpenDate !== today) {
+    state.todayXp = 0;
+    state.lastOpenDate = today;
+    simulateRivalProgress();
+  }
 } catch(e) {}
 
 function saveState() {
@@ -1029,17 +1057,17 @@ function getNextLesson() {
 }
 
 /* ─────────────── Leaderboard ─────────────── */
-const lbData = [
-  { name: 'SarahK',     xp: 1840, flag: '🦊' },
-  { name: 'Miguel_ES',  xp: 1720, flag: '🦁' },
-  { name: 'You',        xp: 0,    isYou: true },
-  { name: 'LingoPro',   xp: 980,  flag: '🐨' },
-  { name: 'StudyBuddy', xp: 740,  flag: '🐸' },
-];
+/* Rivals live in state.rivals (persisted) so their XP can move over time
+   instead of being a fixed mock list. Called once per new calendar day
+   (see the load block above), same boundary the streak logic uses. */
+function simulateRivalProgress() {
+  state.rivals.forEach(r => { r.xp += 10 + Math.floor(Math.random() * 50); });
+}
 
 function renderLeaderboard() {
   const activeSkin = getActiveSkin(state.activeChar);
-  const sorted = [...lbData].sort((a, b) => b.xp - a.xp);
+  const you = { name: 'You', xp: state.xp, isYou: true };
+  const sorted = [...state.rivals, you].sort((a, b) => b.xp - a.xp);
   const ranks = ['🥇','🥈','🥉'];
   document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => `
     <div class="leaderboard-item" style="${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}">
@@ -1048,6 +1076,45 @@ function renderLeaderboard() {
       <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
       <span class="lb-xp">${p.xp} XP</span>
     </div>`).join('');
+}
+
+/* ─────────────── Daily Quests ─────────────── */
+/* Quests aren't a separate reward system — they're a daily-framed view
+   into the same badge progress from the badge system PRD. Completing
+   a quest IS the action that advances a badge; there's no separate
+   quest currency or completion state to track. */
+function nextBadge(type) {
+  return BADGES.filter(b => b.type === type && !state.earnedBadges.includes(b.id))
+               .sort((a, b) => a.threshold - b.threshold)[0] || null;
+}
+
+function renderQuests() {
+  const today = new Date().toDateString();
+  const streakBadge = nextBadge('streak');
+  const lessonBadge = nextBadge('lessons');
+  const streakDoneToday = state.lastDate === today;
+
+  const streakRow = `
+    <div class="quest-item">
+      <span class="quest-check">${streakDoneToday ? '✅' : '⬜'}</span>
+      <div class="quest-info">
+        <div class="quest-name">Complete a lesson today</div>
+        <div class="quest-sub">${streakBadge ? `Keeps your streak moving toward ${streakBadge.icon} ${streakBadge.name}` : 'All streak badges earned! 🎉'}</div>
+      </div>
+    </div>`;
+
+  const lessonRow = lessonBadge ? `
+    <div class="quest-item">
+      <div class="quest-info" style="flex:1">
+        <div class="quest-name">${Math.max(0, lessonBadge.threshold - state.completedLessons.length)} more lessons for ${lessonBadge.icon} ${lessonBadge.name}</div>
+        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.completedLessons.length / lessonBadge.threshold * 100)}%"></div></div>
+      </div>
+    </div>` : `
+    <div class="quest-item">
+      <div class="quest-info"><div class="quest-name">All lesson badges earned! 🎉</div></div>
+    </div>`;
+
+  document.getElementById('quests').innerHTML = streakRow + lessonRow;
 }
 
 /* ─────────────── Stats ─────────────── */
@@ -1077,8 +1144,8 @@ function renderStats() {
   const goalXp = Math.min(state.todayXp, 20);
   document.getElementById('goal-xp').textContent = goalXp;
   document.getElementById('goal-fill').style.width = (goalXp / 20 * 100) + '%';
-  lbData.find(p => p.isYou).xp = state.xp;
   renderLeaderboard();
+  renderQuests();
 }
 
 const RESTORE_COST = 350;
