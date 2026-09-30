@@ -290,6 +290,7 @@ body {
 .lb-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .lb-name-row { display: flex; align-items: center; gap: 8px; }
 .lb-streak { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--orange); }
+.lb-meta { font-size: 0.65rem; color: var(--text-secondary); }
 .lb-badges { display: flex; gap: 4px; flex-wrap: wrap; }
 .lb-badge-icon { font-size: 0.8rem; }
 .lb-no-badges { font-size: 0.65rem; color: var(--text-secondary); }
@@ -303,6 +304,9 @@ body {
 .quest-sub  { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
 .quest-progress-track { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 6px; }
 .quest-progress-fill  { height: 100%; background: var(--gold); border-radius: 99px; transition: width 0.4s; }
+.quest-week-dots { display: flex; gap: 5px; margin-top: 8px; }
+.quest-day-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border); }
+.quest-day-dot.done { background: var(--green); border-color: var(--green-dark); }
 
 .streak-freeze-btn { width: 100%; padding: 10px; background: none; border: 2px solid var(--blue); border-radius: 12px; color: var(--blue); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .streak-freeze-btn:hover { background: rgba(var(--color-macaw), 0.1); }
@@ -866,14 +870,20 @@ const SKINS = {
 /* ─────────────── State ─────────────── */
 const STATE_KEY = 'duo_state';
 const DEFAULT_RIVALS = [
-  { name: 'SarahK',     xp: 1840, flag: '🦊', streak: 34 },
-  { name: 'Miguel_ES',  xp: 1720, flag: '🦁', streak: 12 },
-  { name: 'LingoPro',   xp: 980,  flag: '🐨', streak: 5  },
-  { name: 'StudyBuddy', xp: 740,  flag: '🐸', streak: 2  },
+  { name: 'SarahK',     xp: 1840, flag: '🦊', streak: 34, language: 'French'   },
+  { name: 'Miguel_ES',  xp: 1720, flag: '🦁', streak: 12, language: 'German'   },
+  { name: 'LingoPro',   xp: 980,  flag: '🐨', streak: 5,  language: 'Japanese' },
+  { name: 'StudyBuddy', xp: 740,  flag: '🐸', streak: 2,  language: 'Italian'  },
 ];
+const YOUR_LANGUAGE = 'Spanish';  /* the only course this app actually teaches */
+
+/* Player level is a simple XP tier, separate from course Unit/Lesson numbers. */
+function levelForXp(xp) {
+  return Math.floor(xp / 100) + 1;
+}
 let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
-  completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '',
+  completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '', activityDates: [],
   earnedBadges: [],
   rivals: DEFAULT_RIVALS.map(r => ({ ...r })),
   /* avatar */
@@ -901,6 +911,7 @@ try {
     if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
     /* older saves may have rivals without a streak field yet */
     state.rivals.forEach((r, i) => { if (typeof r.streak !== 'number') r.streak = (DEFAULT_RIVALS[i] && DEFAULT_RIVALS[i].streak) || 0; });
+    if (!state.activityDates) state.activityDates = [];
   }
   const today = new Date().toDateString();
 
@@ -1105,7 +1116,7 @@ function earnedBadgeIcons() {
 
 function renderLeaderboard() {
   const activeSkin = getActiveSkin(state.activeChar);
-  const you = { name: 'You', xp: state.xp, streak: state.streak, isYou: true };
+  const you = { name: 'You', xp: state.xp, streak: state.streak, language: YOUR_LANGUAGE, isYou: true };
   const sorted = [...state.rivals, you].sort((a, b) => b.xp - a.xp);
   const ranks = ['🥇','🥈','🥉'];
   document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => {
@@ -1119,6 +1130,7 @@ function renderLeaderboard() {
           <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
           <span class="lb-streak">🔥 ${p.streak}</span>
         </div>
+        <div class="lb-meta">Learning ${p.language} · Level ${levelForXp(p.xp)}</div>
         <div class="lb-badges">${badges.length ? badges.map(i => `<span class="lb-badge-icon">${i}</span>`).join('') : '<span class="lb-no-badges">No badges yet</span>'}</div>
       </div>
       <span class="lb-xp">${p.xp} XP</span>
@@ -1134,6 +1146,17 @@ function renderLeaderboard() {
 function nextBadge(type) {
   return BADGES.filter(b => b.type === type && !state.earnedBadges.includes(b.id))
                .sort((a, b) => a.threshold - b.threshold)[0] || null;
+}
+
+/* last 7 calendar days (today back 6 days), oldest first */
+function last7Days() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toDateString());
+  }
+  return days;
 }
 
 function renderQuests() {
@@ -1162,7 +1185,29 @@ function renderQuests() {
       <div class="quest-info"><div class="quest-name">All lesson badges earned! 🎉</div></div>
     </div>`;
 
-  document.getElementById('quests').innerHTML = streakRow + lessonRow;
+  const xpGoalDone = state.todayXp >= 20;
+  const xpRow = `
+    <div class="quest-item">
+      <span class="quest-check">${xpGoalDone ? '✅' : '⬜'}</span>
+      <div class="quest-info" style="flex:1">
+        <div class="quest-name">Earn 20 XP today</div>
+        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.todayXp / 20 * 100)}%"></div></div>
+      </div>
+    </div>`;
+
+  const days = last7Days();
+  const doneDays = days.filter(d => state.activityDates.includes(d)).length;
+  const dots = days.map(d => `<span class="quest-day-dot ${state.activityDates.includes(d) ? 'done' : ''}"></span>`).join('');
+  const weekRow = `
+    <div class="quest-item">
+      <div class="quest-info" style="flex:1">
+        <div class="quest-name">Perfect Week — ${doneDays}/7 days</div>
+        <div class="quest-sub">${doneDays === 7 ? 'Nice! A full week, no missed days. 🎉' : 'Complete a lesson every day this week'}</div>
+        <div class="quest-week-dots">${dots}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('quests').innerHTML = streakRow + xpRow + lessonRow + weekRow;
 }
 
 /* ─────────────── Stats ─────────────── */
@@ -1357,7 +1402,12 @@ function showCompletion() {
   state.gems += totalGems;
   if (!state.completedLessons.includes(currentLesson.id)) state.completedLessons.push(currentLesson.id);
   const today = new Date().toDateString();
-  if (state.lastDate !== today) { state.streak++; state.lastDate = today; }
+  if (state.lastDate !== today) {
+    state.streak++;
+    state.lastDate = today;
+    state.activityDates.push(today);
+    if (state.activityDates.length > 14) state.activityDates.shift();  /* only need ~2 weeks for the Perfect Week quest */
+  }
   saveState();
   evaluateSkinUnlocks();   /* check XP-gated skin unlocks */
   evaluateBadgeUnlocks();  /* check streak/lesson-count badge unlocks */
