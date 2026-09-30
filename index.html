@@ -285,8 +285,14 @@ body {
 .lb-rank.silver-rank { color: rgb(var(--color-koala)); font-size: 1rem; }
 .lb-rank.bronze-rank { color: var(--orange); font-size: 1rem; }
 .lb-avatar { width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.lb-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); flex: 1; }
+.lb-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); }
 .lb-xp   { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--blue); font-variant-numeric: tabular-nums; }
+.lb-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lb-name-row { display: flex; align-items: center; gap: 8px; }
+.lb-streak { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--orange); }
+.lb-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.lb-badge-icon { font-size: 0.8rem; }
+.lb-no-badges { font-size: 0.65rem; color: var(--text-secondary); }
 
 /* Daily quests */
 .quest-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
@@ -734,6 +740,20 @@ body {
         <div id="leaderboard"></div>
       </div>
     </div>
+    <!-- Quests view -->
+    <div id="quests-view" hidden>
+      <div class="unit-header">
+        <div>
+          <div class="unit-label">Today's Quests</div>
+          <div class="unit-title">Keep your progress moving</div>
+          <div class="unit-desc">Quests track the same streak and lesson goals your badges do</div>
+        </div>
+        <div class="unit-badge">🗡️</div>
+      </div>
+      <div class="panel-card" style="max-width:480px">
+        <div id="quests"></div>
+      </div>
+    </div>
   </main>
 
   <aside class="right-panel">
@@ -771,11 +791,6 @@ body {
       <div style="margin-top:8px">
         <button class="streak-freeze-btn">❄️ Streak Freeze · 10 💎</button>
       </div>
-    </div>
-
-    <div class="panel-card">
-      <div class="panel-title">🎯 Today's Quests</div>
-      <div id="quests"></div>
     </div>
 
     <div class="panel-card">
@@ -851,10 +866,10 @@ const SKINS = {
 /* ─────────────── State ─────────────── */
 const STATE_KEY = 'duo_state';
 const DEFAULT_RIVALS = [
-  { name: 'SarahK',     xp: 1840, flag: '🦊' },
-  { name: 'Miguel_ES',  xp: 1720, flag: '🦁' },
-  { name: 'LingoPro',   xp: 980,  flag: '🐨' },
-  { name: 'StudyBuddy', xp: 740,  flag: '🐸' },
+  { name: 'SarahK',     xp: 1840, flag: '🦊', streak: 34 },
+  { name: 'Miguel_ES',  xp: 1720, flag: '🦁', streak: 12 },
+  { name: 'LingoPro',   xp: 980,  flag: '🐨', streak: 5  },
+  { name: 'StudyBuddy', xp: 740,  flag: '🐸', streak: 2  },
 ];
 let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
@@ -884,6 +899,8 @@ try {
     if (!state.activeChar)    state.activeChar = 'mario';
     if (!state.earnedBadges)  state.earnedBadges = [];
     if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
+    /* older saves may have rivals without a streak field yet */
+    state.rivals.forEach((r, i) => { if (typeof r.streak !== 'number') r.streak = (DEFAULT_RIVALS[i] && DEFAULT_RIVALS[i].streak) || 0; });
   }
   const today = new Date().toDateString();
 
@@ -1070,21 +1087,43 @@ function getNextLesson() {
    instead of being a fixed mock list. Called once per new calendar day
    (see the load block above), same boundary the streak logic uses. */
 function simulateRivalProgress() {
-  state.rivals.forEach(r => { r.xp += 10 + Math.floor(Math.random() * 50); });
+  state.rivals.forEach(r => {
+    r.xp += 10 + Math.floor(Math.random() * 50);
+    if (Math.random() < 0.8) r.streak += 1;  /* most days they keep it up; some they miss */
+  });
+}
+
+/* Rivals aren't tracked through the real badge system (they have no
+   lesson history), so their badges are derived straight from their
+   mock streak number using the same BADGES thresholds. */
+function badgeIconsForStreak(streak) {
+  return BADGES.filter(b => b.type === 'streak' && streak >= b.threshold).map(b => b.icon);
+}
+function earnedBadgeIcons() {
+  return BADGES.filter(b => state.earnedBadges.includes(b.id)).map(b => b.icon);
 }
 
 function renderLeaderboard() {
   const activeSkin = getActiveSkin(state.activeChar);
-  const you = { name: 'You', xp: state.xp, isYou: true };
+  const you = { name: 'You', xp: state.xp, streak: state.streak, isYou: true };
   const sorted = [...state.rivals, you].sort((a, b) => b.xp - a.xp);
   const ranks = ['🥇','🥈','🥉'];
-  document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => `
+  document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => {
+    const badges = p.isYou ? earnedBadgeIcons() : badgeIconsForStreak(p.streak);
+    return `
     <div class="leaderboard-item" style="${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}">
       <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
       <div class="lb-avatar" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? activeSkin.icon : p.flag}</div>
-      <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
+      <div class="lb-main">
+        <div class="lb-name-row">
+          <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
+          <span class="lb-streak">🔥 ${p.streak}</span>
+        </div>
+        <div class="lb-badges">${badges.length ? badges.map(i => `<span class="lb-badge-icon">${i}</span>`).join('') : '<span class="lb-no-badges">No badges yet</span>'}</div>
+      </div>
       <span class="lb-xp">${p.xp} XP</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* ─────────────── Daily Quests ─────────────── */
@@ -1486,6 +1525,7 @@ function setNav(btn) {
   document.getElementById('learn-view').hidden       = (view !== 'learn');
   document.getElementById('avatar-view').hidden      = (view !== 'profile');
   document.getElementById('leaderboard-view').hidden = (view !== 'boards');
+  document.getElementById('quests-view').hidden      = (view !== 'quests');
 
   if (view === 'profile') {
     selectedCharForPanel = state.activeChar; /* open active char's panel by default */
@@ -1493,6 +1533,9 @@ function setNav(btn) {
   }
   if (view === 'boards') {
     renderLeaderboard();
+  }
+  if (view === 'quests') {
+    renderQuests();
   }
 }
 
