@@ -308,6 +308,47 @@ body {
 .quest-day-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border); }
 .quest-day-dot.done { background: var(--green); border-color: var(--green-dark); }
 
+/* Quests page shell -- matches the real app's hero banner + internal
+   Quests/Badges tabs sitting above the Daily Quests list. */
+.quest-hero {
+  background: linear-gradient(135deg, var(--purple) 0%, rgba(var(--color-beetle),0.75) 100%);
+  border-radius: 18px;
+  padding: 24px 24px 28px;
+  margin: 24px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+  color: #fff;
+  overflow: hidden;
+}
+.quest-hero-title { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-large); margin-bottom: 4px; }
+.quest-hero-sub { font-size: var(--text-caption-size); opacity: 0.9; }
+.quest-hero-icon { font-size: 3rem; flex-shrink: 0; }
+
+.quest-tabs { display: flex; gap: 4px; margin: 0 0 16px; border-bottom: 2px solid var(--border); }
+.quest-tab {
+  flex: 1; background: none; border: none; padding: 12px 0 10px; cursor: pointer;
+  font-family: "duolingo-sans", 'Nunito', sans-serif;
+  font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-large);
+  letter-spacing: var(--text-label-letter-spacing-medium); text-transform: var(--text-label-casing-medium);
+  color: var(--text-secondary); border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.quest-tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+.quest-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.quest-section-title { font-size: var(--text-heading-size-xsmall); font-weight: var(--text-heading-weight-small); color: var(--text-color); }
+.quest-timer { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--gold); display: flex; align-items: center; gap: 4px; }
+
+.quest-item-icon { font-size: 1.5rem; width: 36px; text-align: center; flex-shrink: 0; }
+.quest-progress-wrap { position: relative; margin-top: 6px; }
+.quest-progress-track.tall { height: 18px; }
+.quest-progress-text {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: var(--text-label-weight-medium); color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+}
+.quest-reward { font-size: 1.4rem; flex-shrink: 0; }
+.quest-locked-row { display: flex; align-items: center; gap: 10px; padding: 14px 4px; color: var(--text-secondary); opacity: 0.7; }
+.quest-locked-icon { font-size: 1.3rem; }
+
 .streak-freeze-btn { width: 100%; padding: 10px; background: none; border: 2px solid var(--blue); border-radius: 12px; color: var(--blue); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .streak-freeze-btn:hover { background: rgba(var(--color-macaw), 0.1); }
 
@@ -746,16 +787,33 @@ body {
     </div>
     <!-- Quests view -->
     <div id="quests-view" hidden>
-      <div class="unit-header">
+      <div class="quest-hero">
         <div>
-          <div class="unit-label">Today's Quests</div>
-          <div class="unit-title">Keep your progress moving</div>
-          <div class="unit-desc">Quests track the same streak and lesson goals your badges do</div>
+          <div class="quest-hero-title">Welcome Back!</div>
+          <div class="quest-hero-sub">Complete quests to earn rewards!</div>
         </div>
-        <div class="unit-badge">🗡️</div>
+        <div class="quest-hero-icon">🦉</div>
       </div>
-      <div class="panel-card" style="max-width:480px">
-        <div id="quests"></div>
+      <nav class="quest-tabs" role="tablist">
+        <button class="quest-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')">Quests</button>
+        <button class="quest-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')">Badges</button>
+      </nav>
+      <div id="quests-panel">
+        <div class="quest-section-head">
+          <h2 class="quest-section-title">Daily Quests</h2>
+          <span class="quest-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
+        </div>
+        <div class="panel-card" style="max-width:480px">
+          <div id="quests"></div>
+        </div>
+      </div>
+      <div id="badges-panel" style="display:none">
+        <div class="quest-section-head">
+          <h2 class="quest-section-title">Badges</h2>
+        </div>
+        <div class="panel-card" style="max-width:480px">
+          <div class="badge-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -1263,40 +1321,65 @@ function last7Days() {
   return days;
 }
 
+/* Centered "progress / goal" text inside a pill-shaped track, the same
+   shape the real Duolingo Quests page uses for "0 / 10". */
+function progressBar(pct, text) {
+  return `<div class="quest-progress-wrap">
+    <div class="quest-progress-track tall"><div class="quest-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quest-progress-text">${text}</div>
+  </div>`;
+}
+
+/* How many hours remain until quests reset (local midnight) -- shown
+   next to "Daily Quests" the way the real page shows a countdown. */
+function questResetHoursLeft() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  return Math.max(1, Math.ceil((midnight - now) / 36e5));
+}
+
 /* Every quest row is built FROM a badge, via badgeProgress(), so a
    quest can never show progress its matching badge disagrees with --
    there is exactly one place (badgeProgress) that computes "how far
-   along is this". A quest with no badge left to chase says so instead
-   of dangling. */
-function questRow(badge, { label, checkbox = false, done, visual } = {}) {
+   along is this". A quest with no badge left to chase shows the same
+   locked-card treatment the real app uses for "More quests unlock
+   soon", instead of dangling. */
+function questRow(badge, { icon = '⭐', label, checkbox = false, done, visual } = {}) {
   if (!badge) {
     return `
-    <div class="quest-item">
-      <div class="quest-info"><div class="quest-name">🎉 All badges in this set earned!</div></div>
+    <div class="quest-locked-row">
+      <span class="quest-locked-icon">🔒</span>
+      <span>All badges in this set are earned — nice!</span>
     </div>`;
   }
   const earned = state.earnedBadges.includes(badge.id);
   const progress = badgeProgress(badge);
   const pct = Math.min(100, progress / badge.threshold * 100);
-  const check = checkbox ? `<span class="quest-check">${earned || (done && done(progress)) ? '✅' : '⬜'}</span>` : '';
-  const defaultVisual = `<div class="quest-progress-track"><div class="quest-progress-fill" style="width:${pct}%"></div></div>`;
+  const check = checkbox ? (earned || (done && done(progress)) ? '✅ ' : '') : '';
+  const defaultVisual = progressBar(pct, `${Math.min(progress, badge.threshold)} / ${badge.threshold}`);
   return `
     <div class="quest-item">
-      ${check}
+      <div class="quest-item-icon">${icon}</div>
       <div class="quest-info" style="flex:1">
-        <div class="quest-name">${label(progress, badge)}</div>
-        <div class="quest-sub">Builds toward ${badge.icon} ${badge.name}${earned ? ' — already earned!' : ''}</div>
+        <div class="quest-name">${check}${label(progress, badge)}</div>
         ${visual ? visual(progress, badge) : defaultVisual}
+        <div class="quest-sub">Builds toward ${badge.icon} ${badge.name}${earned ? ' — already earned!' : ''}</div>
       </div>
+      <div class="quest-reward" title="${badge.name}">${badge.icon}</div>
     </div>`;
 }
 
 function renderQuests() {
+  switchQuestTab('quests');  /* opening the tab always lands on Quests, not wherever Badges was left */
+  document.getElementById('quest-reset-timer').textContent = `${questResetHoursLeft()} hours`;
+
   const streakBadge = nextBadge('streak');
   const lessonBadge = nextBadge('lessons');
   const weekBadge = BADGES.find(b => b.id === 'perfect_week');
 
   const streakRow = questRow(streakBadge, {
+    icon: '📖',
     checkbox: true,
     done: () => state.lastDate === new Date().toDateString(),
     label: () => 'Complete a lesson today',
@@ -1304,18 +1387,21 @@ function renderQuests() {
 
   const xpGoalDone = state.todayXp >= 20;
   const xpRow = streakBadge ? questRow(streakBadge, {
+    icon: '⚡',
     checkbox: true,
     done: () => xpGoalDone,
     label: () => 'Earn 20 XP today',
-    visual: () => `<div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.todayXp / 20 * 100)}%"></div></div>`,
+    visual: () => progressBar(Math.min(100, state.todayXp / 20 * 100), `${Math.min(state.todayXp, 20)} / 20`),
   }) : '';
 
   const lessonRow = questRow(lessonBadge, {
+    icon: '📘',
     label: (progress, badge) => `${Math.max(0, badge.threshold - progress)} more lessons for ${badge.icon} ${badge.name}`,
   });
 
   const days = last7Days();
   const weekRow = questRow(weekBadge, {
+    icon: '📅',
     checkbox: true,
     done: progress => progress === 7,
     label: progress => `Perfect Week — ${progress}/7 days`,
@@ -1323,6 +1409,21 @@ function renderQuests() {
   });
 
   document.getElementById('quests').innerHTML = streakRow + xpRow + lessonRow + weekRow;
+}
+
+/* Quests/Badges sub-tabs inside the Quests page, matching the real
+   app's internal tablist (separate from the top nav). Badges reuses
+   the exact same buildBadgeGrid() the Profile tab renders, so the two
+   can never show a different badge list. */
+function switchQuestTab(tab) {
+  document.querySelectorAll('.quest-tab').forEach(b => {
+    const active = b.dataset.tab === tab;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  document.getElementById('quests-panel').style.display = tab === 'quests' ? '' : 'none';
+  document.getElementById('badges-panel').style.display = tab === 'badges' ? '' : 'none';
+  if (tab === 'badges') document.getElementById('quests-badge-grid').innerHTML = buildBadgeGrid();
 }
 
 /* ─────────────── Stats ─────────────── */
