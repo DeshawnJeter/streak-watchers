@@ -1214,10 +1214,11 @@ function renderQuests() {
   });
 
   const xpGoalDone = state.todayXp >= 20;
-  const xpRow = lessonBadge ? questRow(lessonBadge, {
+  const xpRow = streakBadge ? questRow(streakBadge, {
     checkbox: true,
     done: () => xpGoalDone,
     label: () => 'Earn 20 XP today',
+    visual: () => `<div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.todayXp / 20 * 100)}%"></div></div>`,
   }) : '';
 
   const lessonRow = questRow(lessonBadge, {
