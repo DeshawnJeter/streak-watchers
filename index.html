@@ -938,13 +938,24 @@ function saveState() {
 
 /* ─────────────── Badges ─────────────── */
 const BADGES = [
-  { id: 'streak_7',   type: 'streak',  threshold: 7,   name: 'Week Warrior',     icon: '🔥', desc: 'Reach a 7-day streak' },
-  { id: 'streak_30',  type: 'streak',  threshold: 30,  name: 'Monthly Master',   icon: '🏆', desc: 'Reach a 30-day streak' },
-  { id: 'streak_100', type: 'streak',  threshold: 100, name: 'Centurion',        icon: '💯', desc: 'Reach a 100-day streak' },
-  { id: 'lessons_10', type: 'lessons', threshold: 10,  name: 'Getting Started',  icon: '📘', desc: 'Complete 10 lessons' },
-  { id: 'lessons_50', type: 'lessons', threshold: 50,  name: 'Dedicated Learner',icon: '📚', desc: 'Complete 50 lessons' },
-  { id: 'lessons_100',type: 'lessons', threshold: 100, name: 'Lesson Legend',    icon: '🎓', desc: 'Complete 100 lessons' },
+  { id: 'streak_7',   type: 'streak',      threshold: 7,   name: 'Week Warrior',     icon: '🔥', desc: 'Reach a 7-day streak' },
+  { id: 'streak_30',  type: 'streak',      threshold: 30,  name: 'Monthly Master',   icon: '🏆', desc: 'Reach a 30-day streak' },
+  { id: 'streak_100', type: 'streak',      threshold: 100, name: 'Centurion',        icon: '💯', desc: 'Reach a 100-day streak' },
+  { id: 'lessons_10', type: 'lessons',     threshold: 10,  name: 'Getting Started',  icon: '📘', desc: 'Complete 10 lessons' },
+  { id: 'lessons_50', type: 'lessons',     threshold: 50,  name: 'Dedicated Learner',icon: '📚', desc: 'Complete 50 lessons' },
+  { id: 'lessons_100',type: 'lessons',     threshold: 100, name: 'Lesson Legend',    icon: '🎓', desc: 'Complete 100 lessons' },
+  { id: 'perfect_week',type: 'consistency',threshold: 7,   name: 'Perfect Week',     icon: '📅', desc: 'Complete a lesson every day for 7 days straight' },
 ];
+
+/* Single source of truth for "how close is this badge" -- every quest
+   reads progress through this same function, so a quest and its badge
+   can never drift out of sync with each other. */
+function badgeProgress(badge) {
+  if (badge.type === 'streak')      return state.streak;
+  if (badge.type === 'lessons')     return state.completedLessons.length;
+  if (badge.type === 'consistency') return last7Days().filter(d => state.activityDates.includes(d)).length;
+  return 0;
+}
 
 /* Earned badges are appended to state.earnedBadges and never removed,
    so they survive a streak reset (PRD 1c / Requirements 3, P0). */
@@ -952,8 +963,7 @@ function evaluateBadgeUnlocks() {
   const newlyEarned = [];
   BADGES.forEach(badge => {
     if (state.earnedBadges.includes(badge.id)) return;
-    const progress = badge.type === 'streak' ? state.streak : state.completedLessons.length;
-    if (progress >= badge.threshold) {
+    if (badgeProgress(badge) >= badge.threshold) {
       state.earnedBadges.push(badge.id);
       newlyEarned.push(badge);
     }
@@ -970,15 +980,20 @@ function showBadgeToast(badge) {
   setTimeout(() => t.remove(), 3000);
 }
 
+function badgeUnit(badge, remaining) {
+  if (badge.type === 'streak')      return remaining === 1 ? 'day' : 'days';
+  if (badge.type === 'lessons')     return remaining === 1 ? 'lesson' : 'lessons';
+  if (badge.type === 'consistency') return remaining === 1 ? 'day left this week' : 'days left this week';
+  return '';
+}
+
 function buildBadgeGrid() {
   return BADGES.map(badge => {
     const earned = state.earnedBadges.includes(badge.id);
-    const progress = badge.type === 'streak' ? state.streak : state.completedLessons.length;
-    const remaining = Math.max(0, badge.threshold - progress);
-    const unit = badge.type === 'streak' ? (remaining === 1 ? 'day' : 'days') : (remaining === 1 ? 'lesson' : 'lessons');
+    const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
     const rightTag = earned
       ? `<span class="badge-earned-tag">✓ Earned</span>`
-      : `<span class="badge-lock-tag">🔒 ${remaining} more ${unit}</span>`;
+      : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
     return `
       <div class="badge-card ${earned ? 'earned' : 'locked'}">
         <div class="badge-icon">${badge.icon}</div>
@@ -1159,53 +1174,63 @@ function last7Days() {
   return days;
 }
 
+/* Every quest row is built FROM a badge, via badgeProgress(), so a
+   quest can never show progress its matching badge disagrees with --
+   there is exactly one place (badgeProgress) that computes "how far
+   along is this". A quest with no badge left to chase says so instead
+   of dangling. */
+function questRow(badge, { label, checkbox = false, done, visual } = {}) {
+  if (!badge) {
+    return `
+    <div class="quest-item">
+      <div class="quest-info"><div class="quest-name">🎉 All badges in this set earned!</div></div>
+    </div>`;
+  }
+  const earned = state.earnedBadges.includes(badge.id);
+  const progress = badgeProgress(badge);
+  const pct = Math.min(100, progress / badge.threshold * 100);
+  const check = checkbox ? `<span class="quest-check">${earned || (done && done(progress)) ? '✅' : '⬜'}</span>` : '';
+  const defaultVisual = `<div class="quest-progress-track"><div class="quest-progress-fill" style="width:${pct}%"></div></div>`;
+  return `
+    <div class="quest-item">
+      ${check}
+      <div class="quest-info" style="flex:1">
+        <div class="quest-name">${label(progress, badge)}</div>
+        <div class="quest-sub">Builds toward ${badge.icon} ${badge.name}${earned ? ' — already earned!' : ''}</div>
+        ${visual ? visual(progress, badge) : defaultVisual}
+      </div>
+    </div>`;
+}
+
 function renderQuests() {
-  const today = new Date().toDateString();
   const streakBadge = nextBadge('streak');
   const lessonBadge = nextBadge('lessons');
-  const streakDoneToday = state.lastDate === today;
+  const weekBadge = BADGES.find(b => b.id === 'perfect_week');
 
-  const streakRow = `
-    <div class="quest-item">
-      <span class="quest-check">${streakDoneToday ? '✅' : '⬜'}</span>
-      <div class="quest-info">
-        <div class="quest-name">Complete a lesson today</div>
-        <div class="quest-sub">${streakBadge ? `Keeps your streak moving toward ${streakBadge.icon} ${streakBadge.name}` : 'All streak badges earned! 🎉'}</div>
-      </div>
-    </div>`;
-
-  const lessonRow = lessonBadge ? `
-    <div class="quest-item">
-      <div class="quest-info" style="flex:1">
-        <div class="quest-name">${Math.max(0, lessonBadge.threshold - state.completedLessons.length)} more lessons for ${lessonBadge.icon} ${lessonBadge.name}</div>
-        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.completedLessons.length / lessonBadge.threshold * 100)}%"></div></div>
-      </div>
-    </div>` : `
-    <div class="quest-item">
-      <div class="quest-info"><div class="quest-name">All lesson badges earned! 🎉</div></div>
-    </div>`;
+  const streakRow = questRow(streakBadge, {
+    checkbox: true,
+    done: () => state.lastDate === new Date().toDateString(),
+    label: () => 'Complete a lesson today',
+  });
 
   const xpGoalDone = state.todayXp >= 20;
-  const xpRow = `
-    <div class="quest-item">
-      <span class="quest-check">${xpGoalDone ? '✅' : '⬜'}</span>
-      <div class="quest-info" style="flex:1">
-        <div class="quest-name">Earn 20 XP today</div>
-        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${Math.min(100, state.todayXp / 20 * 100)}%"></div></div>
-      </div>
-    </div>`;
+  const xpRow = lessonBadge ? questRow(lessonBadge, {
+    checkbox: true,
+    done: () => xpGoalDone,
+    label: () => 'Earn 20 XP today',
+  }) : '';
+
+  const lessonRow = questRow(lessonBadge, {
+    label: (progress, badge) => `${Math.max(0, badge.threshold - progress)} more lessons for ${badge.icon} ${badge.name}`,
+  });
 
   const days = last7Days();
-  const doneDays = days.filter(d => state.activityDates.includes(d)).length;
-  const dots = days.map(d => `<span class="quest-day-dot ${state.activityDates.includes(d) ? 'done' : ''}"></span>`).join('');
-  const weekRow = `
-    <div class="quest-item">
-      <div class="quest-info" style="flex:1">
-        <div class="quest-name">Perfect Week — ${doneDays}/7 days</div>
-        <div class="quest-sub">${doneDays === 7 ? 'Nice! A full week, no missed days. 🎉' : 'Complete a lesson every day this week'}</div>
-        <div class="quest-week-dots">${dots}</div>
-      </div>
-    </div>`;
+  const weekRow = questRow(weekBadge, {
+    checkbox: true,
+    done: progress => progress === 7,
+    label: progress => `Perfect Week — ${progress}/7 days`,
+    visual: () => `<div class="quest-week-dots">${days.map(d => `<span class="quest-day-dot ${state.activityDates.includes(d) ? 'done' : ''}"></span>`).join('')}</div>`,
+  });
 
   document.getElementById('quests').innerHTML = streakRow + xpRow + lessonRow + weekRow;
 }
