@@ -1131,23 +1131,40 @@ function simulateRivalProgress() {
 
 /* Rivals aren't tracked through the real badge system (they have no
    lesson history), so their badges are derived straight from their
-   mock streak number using the same BADGES thresholds. */
-function badgeIconsForStreak(streak) {
-  return BADGES.filter(b => b.type === 'streak' && streak >= b.threshold).map(b => b.icon);
+   mock streak number using the same BADGES thresholds. One function
+   returns the actual badge objects -- both the leaderboard row icons
+   and the player-summary modal read through it, so they can never
+   show a different badge list for the same player. */
+function playerBadges(p) {
+  return p.isYou
+    ? BADGES.filter(b => state.earnedBadges.includes(b.id))
+    : BADGES.filter(b => b.type === 'streak' && p.streak >= b.threshold);
 }
-function earnedBadgeIcons() {
-  return BADGES.filter(b => state.earnedBadges.includes(b.id)).map(b => b.icon);
+function highestBadge(badges) {
+  return badges.length ? badges.reduce((a, b) => b.threshold > a.threshold ? b : a) : null;
 }
 
+/* How many more (10-XP) lessons until the next level, same XP-per-lesson
+   math showCompletion() awards -- so this projection and the real climb
+   up the leaderboard always agree. */
+function nextLevelInfo(xp) {
+  const level = levelForXp(xp);
+  const nextThreshold = level * 100;
+  const xpNeeded = Math.max(0, nextThreshold - xp);
+  return { level, lessonsToNext: Math.max(1, Math.ceil(xpNeeded / 10)) };
+}
+
+let leaderboardSorted = [];
 function renderLeaderboard() {
   const activeSkin = getActiveSkin(state.activeChar);
   const you = { name: 'You', xp: state.xp, streak: state.streak, language: YOUR_LANGUAGE, isYou: true };
   const sorted = [...state.rivals, you].sort((a, b) => b.xp - a.xp);
+  leaderboardSorted = sorted;
   const ranks = ['🥇','🥈','🥉'];
   document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => {
-    const badges = p.isYou ? earnedBadgeIcons() : badgeIconsForStreak(p.streak);
+    const badges = playerBadges(p).map(b => b.icon);
     return `
-    <div class="leaderboard-item" style="${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}">
+    <div class="leaderboard-item" style="cursor:pointer;${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}" onclick="openPlayerSummary(${i})">
       <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
       <div class="lb-avatar" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? activeSkin.icon : p.flag}</div>
       <div class="lb-main">
@@ -1161,6 +1178,68 @@ function renderLeaderboard() {
       <span class="lb-xp">${p.xp} XP</span>
     </div>`;
   }).join('');
+}
+
+/* Tapping a leaderboard row opens the same modal shell the lesson
+   flow uses, with a player-summary screen in it. */
+function openPlayerSummary(i) {
+  const p = leaderboardSorted[i];
+  if (!p) return;
+  const activeSkin = getActiveSkin(state.activeChar);
+  const badges = playerBadges(p);
+  const top = highestBadge(badges);
+  const { level, lessonsToNext } = nextLevelInfo(p.xp);
+  const pctToNext = Math.max(0, Math.min(100, 100 - (lessonsToNext * 10 / 100 * 100)));
+
+  document.getElementById('modal-topbar').style.display = 'none';
+  modalContent.innerHTML = `
+    <div class="completion-screen" style="padding-top:32px">
+      <div style="font-size:4rem">${p.isYou ? activeSkin.icon : p.flag}</div>
+      <div class="completion-title">${p.isYou ? 'You' : p.name}</div>
+      <div class="completion-subtitle">${languageFlag(p.language)} Learning ${p.language} · Level ${level}</div>
+
+      <div class="panel-card" style="text-align:left;margin-bottom:16px">
+        <div class="stat-row">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-info"><span class="stat-label">Day Streak</span><span class="stat-value">${p.streak}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-info"><span class="stat-label">Total XP</span><span class="stat-value">${p.xp}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon">🏅</div>
+          <div class="stat-info"><span class="stat-label">Badge Rank</span><span class="stat-value" style="font-size:var(--text-body-size)">${top ? `${top.icon} ${top.name}` : 'No badges yet'}</span></div>
+        </div>
+      </div>
+
+      <div class="panel-card" style="text-align:left;margin-bottom:16px">
+        <div class="panel-title">Badges</div>
+        <div class="badge-grid" style="margin-bottom:0">
+          ${badges.length ? badges.map(b => `
+            <div class="badge-card earned" style="padding:8px 10px">
+              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-info">
+                <div class="badge-name">${b.name}</div>
+                <div class="badge-desc">${b.desc}</div>
+              </div>
+            </div>`).join('') : '<div class="badge-desc">No badges yet.</div>'}
+        </div>
+      </div>
+
+      <div class="panel-card" style="text-align:left">
+        <div class="panel-title">Projected</div>
+        <div class="quest-sub" style="margin-bottom:8px">${lessonsToNext} more lesson${lessonsToNext === 1 ? '' : 's'} until ${p.isYou ? 'you reach' : `${p.name} reaches`} level ${level + 1}</div>
+        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${pctToNext}%"></div></div>
+      </div>
+
+      <button class="continue-btn" style="margin-top:20px" onclick="closePlayerSummary()">CLOSE</button>
+    </div>`;
+  overlay.hidden = false;
+}
+function closePlayerSummary() {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
 }
 
 /* ─────────────── Daily Quests ─────────────── */
