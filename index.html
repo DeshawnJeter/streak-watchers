@@ -877,6 +877,16 @@ const DEFAULT_RIVALS = [
 ];
 const YOUR_LANGUAGE = 'Spanish';  /* the only course this app actually teaches */
 
+/* Country flag for the language being studied (distinct from a rival's
+   own avatar emoji, which stays a mascot/character, not a flag). */
+const LANGUAGE_FLAGS = {
+  Spanish: '🇪🇸', French: '🇫🇷', German: '🇩🇪',
+  Japanese: '🇯🇵', Italian: '🇮🇹',
+};
+function languageFlag(language) {
+  return LANGUAGE_FLAGS[language] || '🌐';
+}
+
 /* Player level is a simple XP tier, separate from course Unit/Lesson numbers. */
 function levelForXp(xp) {
   return Math.floor(xp / 100) + 1;
@@ -1145,7 +1155,7 @@ function renderLeaderboard() {
           <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
           <span class="lb-streak">🔥 ${p.streak}</span>
         </div>
-        <div class="lb-meta">Learning ${p.language} · Level ${levelForXp(p.xp)}</div>
+        <div class="lb-meta">${languageFlag(p.language)} Learning ${p.language} · Level ${levelForXp(p.xp)}</div>
         <div class="lb-badges">${badges.length ? badges.map(i => `<span class="lb-badge-icon">${i}</span>`).join('') : '<span class="lb-no-badges">No badges yet</span>'}</div>
       </div>
       <span class="lb-xp">${p.xp} XP</span>
