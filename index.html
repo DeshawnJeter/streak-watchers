@@ -911,8 +911,9 @@ body {
       </div>
       <div class="quest-subnav-shell duo-quests-subnav">
         <nav class="quest-tabs duo-quests-tablist" role="tablist" aria-label="Quests and Badges">
-          <button class="quest-tab duo-quests-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" tabindex="0" onclick="switchQuestTab('quests')"><span class="duo-quests-tab-label">Quests</span></button>
-          <button class="quest-tab duo-quests-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" tabindex="-1" onclick="switchQuestTab('badges')"><span class="duo-quests-tab-label">Badges</span></button>
+          <!-- ids quests-tab / badges-tab pair with tabpanel aria-labelledby for screen readers (U1-T6). -->
+          <button id="quests-tab" class="quest-tab duo-quests-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')"><span class="duo-quests-tab-label">Quests</span></button>
+          <button id="badges-tab" class="quest-tab duo-quests-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')"><span class="duo-quests-tab-label">Badges</span></button>
         </nav>
       </div>
       <div id="quests-panel" class="duo-quests-panel" role="tabpanel" aria-labelledby="quests-tab">
@@ -1537,14 +1538,14 @@ function renderQuests() {
 /* Quests/Badges sub-tabs inside the Quests page, matching the real
    app's internal tablist (separate from the top nav). Badges reuses
    the exact same buildBadgeGrid() the Profile tab renders, so the two
-   can never show a different badge list. */
-/* Switches Quests vs Badges sub-tabs and updates keyboard focus order like Duolingo. */
+   can never show a different badge list. Both tab buttons stay in normal
+   Tab order (FIX-2 option A — no roving tabindex) so keyboard users
+   can reach Quests and Badges without arrow-key wiring. */
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(b => {
     const active = b.dataset.tab === tab;
     b.classList.toggle('active', active);
     b.setAttribute('aria-selected', active ? 'true' : 'false');
-    b.setAttribute('tabindex', active ? '0' : '-1');
   });
   document.getElementById('quests-panel').style.display = tab === 'quests' ? '' : 'none';
   document.getElementById('badges-panel').style.display = tab === 'badges' ? '' : 'none';
