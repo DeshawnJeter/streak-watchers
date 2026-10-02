@@ -1,9 +1,20 @@
+<!DOCTYPE html>
+<!-- Page shell: data-duo-theme="dark" matches Duolingo's real site and keeps the dark palette active. -->
+<html lang="en" dir="ltr" data-duo-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>LuoDingo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
 
 <style>
-/* ── Duolingo Color Tokens (dark theme — extracted from cloudfront CDN) ── */
+/*
+  Duolingo design tokens (RGB triplets used inside rgb(var(--color-name))).
+  Keep every official name from the Quests page excerpt; semantic aliases below
+  map friendly names (--bg, --green) to those tokens for the rest of the CSS.
+*/
 :root {
   --color-snow: 19, 31, 36;
   --color-polar: 32, 47, 54;
@@ -29,7 +40,93 @@
   --color-guinea-pig: 215, 148, 51;
   --color-canary: 32, 47, 54;
 
-  /* Typography scale */
+  /* Official palette extensions from Duolingo Quests (dark theme excerpt) */
+  --color-anchovy: 210, 228, 232;
+  --color-aqua: 43, 164, 176;
+  --color-aqua-always-light: 56, 238, 255;
+  --color-bee-always-dark: 255, 199, 0;
+  --color-beluga: 187, 242, 255;
+  --color-black: 0, 0, 0;
+  --color-blue-jay: 63, 133, 167;
+  --color-buttery: 111, 78, 161;
+  --color-celestia: 255, 255, 255;
+  --color-cheetah: 32, 47, 54;
+  --color-cosmos: 60, 77, 255;
+  --color-crab: 255, 120, 120;
+  --color-deep-martin: 16, 15, 62;
+  --color-deep-starling: 34, 33, 81;
+  --color-dragon: 204, 52, 141;
+  --color-duck: 251, 229, 109;
+  --color-eclipse: 0, 4, 55;
+  --color-flamingo: 148, 81, 81;
+  --color-gamma: 38, 246, 99;
+  --color-grackle: 167, 160, 255;
+  --color-grizzly: 187, 113, 73;
+  --color-hare-always-light: 175, 175, 175;
+  --color-honeycreeper: 193, 187, 255;
+  --color-humpback: 43, 112, 201;
+  --color-iguana: 32, 47, 54;
+  --color-legendary-foreground: 140, 65, 3;
+  --color-lion: 255, 177, 0;
+  --color-manta-ray: 4, 44, 96;
+  --color-martin: 71, 85, 223;
+  --color-max-shadow: 20, 208, 225;
+  --color-monkey: 229, 162, 89;
+  --color-moon-jelly: 122, 240, 242;
+  --color-narwhal: 20, 83, 163;
+  --color-nebula: 63, 34, 236;
+  --color-nova: 207, 23, 200;
+  --color-ocean: 56, 238, 255;
+  --color-peacock: 0, 205, 156;
+  --color-pig: 245, 164, 164;
+  --color-quasar: 252, 85, 255;
+  --color-sea-sponge: 32, 47, 54;
+  --color-snow-always-dark: 19, 31, 36;
+  --color-snow-always-light: 255, 255, 255;
+  --color-squid: 235, 227, 227;
+  --color-stardust: 199, 255, 254;
+  --color-starsh: 255, 134, 208;
+  --color-starlight: 38, 138, 255;
+  --color-starling: 92, 108, 252;
+  --color-swan-always-dark: 55, 70, 79;
+  --color-swan-always-light: 229, 229, 229;
+  --color-walking-sh: 32, 47, 54;
+  --color-black-white: 255, 255, 255;
+  --color-diamond-stat: 86, 219, 226;
+  --color-mask-green: 144, 220, 72;
+  --color-pearl-stat: 255, 170, 222;
+  --color-snow-dark-swan: 55, 70, 79;
+  --color-black-text: 241, 247, 251;
+  --color-blue-space: 11, 62, 113;
+  --color-juicy-blue-space: 10, 74, 130;
+  --color-juicy-blue-space-light: 35, 83, 144;
+  --color-gold: 250, 169, 25;
+  --color-gray-text: 220, 230, 236;
+  --color-orange: 255, 157, 0;
+  --color-diamond-highlight: 231, 251, 251;
+  --color-diamond: 56, 208, 208;
+  --color-diamond-shadow: 0, 172, 178;
+  --color-banana: 255, 176, 32;
+  --color-cloud: 207, 207, 207;
+  --color-cloud-light: 221, 221, 221;
+  --color-cloud-lightest: 240, 240, 240;
+  --color-kiwi: 122, 199, 12;
+  --color-kiwi-dark: 93, 151, 9;
+  --color-kiwi-light: 142, 224, 0;
+  --color-facebook: 59, 89, 152;
+  --color-facebook-dark: 45, 67, 115;
+  --color-google: 66, 133, 244;
+  --color-twitter: 29, 161, 242;
+  --color-hv-light-peach: 241, 218, 179;
+  --color-hv-peach: 219, 186, 131;
+  --color-hv-light-orange: 255, 177, 64;
+  --color-hv-orange: 204, 121, 0;
+  --color-hv-brown: 140, 90, 17;
+  --color-brawl-stars-background: 65, 16, 87;
+  --color-streak-panel-extended-background: 205, 121, 0;
+  --color-streak-panel-friend-background: 255, 95, 0;
+
+  /* Typography scale (Duolingo web-ui text tokens — sizes in rem, weights 500–700) */
   --text-pageTitle-size-large: 2.5rem;
   --text-pageTitle-weight-large: 700;
   --text-pageTitle-line-height-large: 2.75rem;
@@ -84,8 +181,9 @@
   color-scheme: dark;
 }
 
+/* OS light mode only applies when we have not pinned Duolingo dark on the root. */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
+  :root:not([data-theme="dark"]):not([data-duo-theme="dark"]) {
     --color-snow:     247, 247, 247;
     --color-polar:    255, 255, 255;
     --color-ice:      240, 240, 240;
@@ -308,16 +406,31 @@ body {
 .quest-day-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border); }
 .quest-day-dot.done { background: var(--green); border-color: var(--green-dark); }
 
-/* Quests page shell -- matches the real app's hero banner + internal
-   Quests/Badges tabs sitting above the Daily Quests list. */
+/*
+  Quests page shell — mirrors Duolingo's Welcome Back hero (beetle purple)
+  and the Quests/Badges tab strip above Daily Quests. JS still targets #quests-view
+  and #quests-badge-grid; class names here are for look-and-feel only.
+*/
 .quest-hero {
-  background: linear-gradient(135deg, var(--purple) 0%, rgba(var(--color-beetle),0.75) 100%);
+  background: rgb(var(--color-beetle));
   border-radius: 18px;
   padding: 24px 24px 28px;
   margin: 24px 0 0;
   display: flex; align-items: center; justify-content: space-between;
-  color: #fff;
+  color: rgb(var(--color-eel));
   overflow: hidden;
+}
+.quest-subnav-shell {
+  background: rgb(var(--color-beetle));
+  border-radius: 0 0 18px 18px;
+  padding: 0 12px;
+  margin: -8px 0 16px;
+}
+.quest-subnav-shell .quest-tabs { border-bottom-color: rgba(var(--color-eel), 0.2); margin-bottom: 0; }
+.quest-subnav-shell .quest-tab { color: rgba(var(--color-eel), 0.75); }
+.quest-subnav-shell .quest-tab.active {
+  color: rgb(var(--color-eel));
+  border-bottom-color: rgb(var(--color-eel));
 }
 .quest-hero-title { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-large); margin-bottom: 4px; }
 .quest-hero-sub { font-size: var(--text-caption-size); opacity: 0.9; }
@@ -705,6 +818,8 @@ body {
 @keyframes toastIn  { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 </style>
+</head>
+<body>
 
 <canvas class="confetti-canvas" id="confetti"></canvas>
 
@@ -785,34 +900,42 @@ body {
         <div id="leaderboard"></div>
       </div>
     </div>
-    <!-- Quests view -->
+    <!-- Quests view: layout follows Duolingo DOM (hero → tablist → daily list → locked slot). -->
     <div id="quests-view" hidden>
-      <div class="quest-hero">
-        <div>
-          <div class="quest-hero-title">Welcome Back!</div>
-          <div class="quest-hero-sub">Complete quests to earn rewards!</div>
+      <div class="quest-hero duo-quests-hero">
+        <div class="duo-quests-welcome">
+          <div class="quest-hero-title duo-quests-welcome-title">Welcome Back!</div>
+          <div class="quest-hero-sub duo-quests-welcome-sub">Complete quests to earn rewards!</div>
         </div>
-        <div class="quest-hero-icon">🦉</div>
+        <div class="quest-hero-icon duo-quests-welcome-art" aria-hidden="true">🦉</div>
       </div>
-      <nav class="quest-tabs" role="tablist">
-        <button class="quest-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')">Quests</button>
-        <button class="quest-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')">Badges</button>
-      </nav>
-      <div id="quests-panel">
-        <div class="quest-section-head">
-          <h2 class="quest-section-title">Daily Quests</h2>
-          <span class="quest-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
+      <div class="quest-subnav-shell duo-quests-subnav">
+        <nav class="quest-tabs duo-quests-tablist" role="tablist" aria-label="Quests and Badges">
+          <button class="quest-tab duo-quests-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" tabindex="0" onclick="switchQuestTab('quests')"><span class="duo-quests-tab-label">Quests</span></button>
+          <button class="quest-tab duo-quests-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" tabindex="-1" onclick="switchQuestTab('badges')"><span class="duo-quests-tab-label">Badges</span></button>
+        </nav>
+      </div>
+      <div id="quests-panel" class="duo-quests-panel" role="tabpanel" aria-labelledby="quests-tab">
+        <div class="quest-section-head duo-daily-quests-head">
+          <h2 class="quest-section-title duo-daily-quests-title">Daily Quests</h2>
+          <span class="quest-timer duo-daily-quests-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
         </div>
-        <div class="panel-card" style="max-width:480px">
-          <div id="quests"></div>
+        <div class="panel-card duo-daily-quests-card" style="max-width:480px">
+          <div id="quests" class="duo-daily-quests-list"></div>
+        </div>
+        <div class="panel-card duo-quests-locked-slot" style="max-width:480px;margin-top:10px">
+          <div class="quest-locked-row">
+            <span class="quest-locked-icon" aria-hidden="true">🔒</span>
+            <span>More quests unlock soon</span>
+          </div>
         </div>
       </div>
-      <div id="badges-panel" style="display:none">
-        <div class="quest-section-head">
-          <h2 class="quest-section-title">Badges</h2>
+      <div id="badges-panel" class="duo-badges-panel" style="display:none" role="tabpanel" aria-labelledby="badges-tab">
+        <div class="quest-section-head duo-badges-head">
+          <h2 class="quest-section-title duo-badges-title">Badges</h2>
         </div>
-        <div class="panel-card" style="max-width:480px">
-          <div class="badge-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
+        <div class="panel-card duo-badges-card" style="max-width:480px">
+          <div class="badge-grid duo-badges-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
         </div>
       </div>
     </div>
@@ -1415,11 +1538,13 @@ function renderQuests() {
    app's internal tablist (separate from the top nav). Badges reuses
    the exact same buildBadgeGrid() the Profile tab renders, so the two
    can never show a different badge list. */
+/* Switches Quests vs Badges sub-tabs and updates keyboard focus order like Duolingo. */
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(b => {
     const active = b.dataset.tab === tab;
     b.classList.toggle('active', active);
     b.setAttribute('aria-selected', active ? 'true' : 'false');
+    b.setAttribute('tabindex', active ? '0' : '-1');
   });
   document.getElementById('quests-panel').style.display = tab === 'quests' ? '' : 'none';
   document.getElementById('badges-panel').style.display = tab === 'badges' ? '' : 'none';
@@ -1861,3 +1986,5 @@ buildPath();
 renderStats();
 evaluateSkinUnlocks(); /* catch any already-earned unlocks from saved state */
 </script>
+</body>
+</html>
