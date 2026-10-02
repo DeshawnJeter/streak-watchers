@@ -1333,6 +1333,12 @@ function getEquippedBadge() {
 */
 let badgePickerOverlay = null;
 
+/*
+  Hides the profile-badge popup and clears our handle to it.
+  Called when the user taps Done, taps outside the panel, or after equip/unequip
+  so the Profile page can redraw without leaving a stale dialog on screen.
+  To maintain: if you add another way to dismiss the picker, call this here too.
+*/
 function closeBadgePicker() {
   if (badgePickerOverlay) {
     badgePickerOverlay.remove();
@@ -1340,6 +1346,13 @@ function closeBadgePicker() {
   }
 }
 
+/*
+  Builds one row inside the badge picker for a single catalog badge.
+  Earned badges become clickable buttons wired to chooseBadgeFromPicker;
+  locked badges are plain divs (no click) so players cannot equip what they
+  have not earned. Uses isBadgeEquippable and badgeProgress like the quest list.
+  To maintain: when you add a badge to BADGES, this row appears automatically.
+*/
 function buildBadgePickerOptionHtml(badge) {
   const earned = isBadgeEquippable(badge.id);
   const isEquipped = state.equippedBadge === badge.id;
@@ -1372,6 +1385,13 @@ function buildBadgePickerOptionHtml(badge) {
     </button>`;
 }
 
+/*
+  Opens the full-screen badge chooser when the user taps the circular avatar
+  on Profile. Lists every badge via buildBadgePickerOptionHtml, optionally
+  shows "Remove equipped badge" when something is already worn, and attaches
+  the dialog to document.body (see badgePickerOverlay above).
+  To maintain: keep openBadgePicker on the avatar button only — not on badge cards.
+*/
 function openBadgePicker() {
   closeBadgePicker();
   const equipped = getEquippedBadge();
@@ -1416,6 +1436,11 @@ function chooseBadgeFromPicker(badgeId) {
   renderAvatarPage();
 }
 
+/*
+  Clears the worn profile badge when the user chooses "Remove equipped badge"
+  in the picker. Delegates saving to unequipBadge(), then closes the dialog
+  and redraws Profile so the banner and badge list match saved state.
+*/
 function chooseNoBadgeFromPicker() {
   unequipBadge();
   closeBadgePicker();
@@ -1437,6 +1462,12 @@ function badgeUnit(badge, remaining) {
   return '';
 }
 
+/*
+  Renders the read-only badge cards shown on Profile and on Quests → Badges tab.
+  Shows progress locks, "Earned", or "Equipped" tags — but no equip buttons here;
+  changing what is worn happens only through the avatar-slot picker (openBadgePicker).
+  To maintain: keep tags in sync with state.equippedBadge and state.earnedBadges.
+*/
 function buildBadgeGrid() {
   return BADGES.map(badge => {
     const earned = state.earnedBadges.includes(badge.id);
@@ -2037,6 +2068,12 @@ overlay.addEventListener('click', e => {
 /* ─────────────── Avatar Page ─────────────── */
 let selectedCharForPanel = null;
 
+/*
+  Redraws the whole Profile tab: active character banner (with badge-avatar-slot
+  button that opens the picker), badge grid, character roster, and optional skin panel.
+  Call this after equip/unequip, skin changes, or switching which character is selected.
+  To maintain: any new Profile-only UI should be added inside this innerHTML block.
+*/
 function renderAvatarPage() {
   const av = document.getElementById('avatar-view');
 
