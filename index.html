@@ -1,9 +1,20 @@
+<!DOCTYPE html>
+<!-- Page shell: data-duo-theme="dark" matches Duolingo's real site and keeps the dark palette active. -->
+<html lang="en" dir="ltr" data-duo-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>LuoDingo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
 
 <style>
-/* ── Duolingo Color Tokens (dark theme — extracted from cloudfront CDN) ── */
+/*
+  Duolingo design tokens (RGB triplets used inside rgb(var(--color-name))).
+  Keep every official name from the Quests page excerpt; semantic aliases below
+  map friendly names (--bg, --green) to those tokens for the rest of the CSS.
+*/
 :root {
   --color-snow: 19, 31, 36;
   --color-polar: 32, 47, 54;
@@ -29,7 +40,93 @@
   --color-guinea-pig: 215, 148, 51;
   --color-canary: 32, 47, 54;
 
-  /* Typography scale */
+  /* Official palette extensions from Duolingo Quests (dark theme excerpt) */
+  --color-anchovy: 210, 228, 232;
+  --color-aqua: 43, 164, 176;
+  --color-aqua-always-light: 56, 238, 255;
+  --color-bee-always-dark: 255, 199, 0;
+  --color-beluga: 187, 242, 255;
+  --color-black: 0, 0, 0;
+  --color-blue-jay: 63, 133, 167;
+  --color-buttery: 111, 78, 161;
+  --color-celestia: 255, 255, 255;
+  --color-cheetah: 32, 47, 54;
+  --color-cosmos: 60, 77, 255;
+  --color-crab: 255, 120, 120;
+  --color-deep-martin: 16, 15, 62;
+  --color-deep-starling: 34, 33, 81;
+  --color-dragon: 204, 52, 141;
+  --color-duck: 251, 229, 109;
+  --color-eclipse: 0, 4, 55;
+  --color-flamingo: 148, 81, 81;
+  --color-gamma: 38, 246, 99;
+  --color-grackle: 167, 160, 255;
+  --color-grizzly: 187, 113, 73;
+  --color-hare-always-light: 175, 175, 175;
+  --color-honeycreeper: 193, 187, 255;
+  --color-humpback: 43, 112, 201;
+  --color-iguana: 32, 47, 54;
+  --color-legendary-foreground: 140, 65, 3;
+  --color-lion: 255, 177, 0;
+  --color-manta-ray: 4, 44, 96;
+  --color-martin: 71, 85, 223;
+  --color-max-shadow: 20, 208, 225;
+  --color-monkey: 229, 162, 89;
+  --color-moon-jelly: 122, 240, 242;
+  --color-narwhal: 20, 83, 163;
+  --color-nebula: 63, 34, 236;
+  --color-nova: 207, 23, 200;
+  --color-ocean: 56, 238, 255;
+  --color-peacock: 0, 205, 156;
+  --color-pig: 245, 164, 164;
+  --color-quasar: 252, 85, 255;
+  --color-sea-sponge: 32, 47, 54;
+  --color-snow-always-dark: 19, 31, 36;
+  --color-snow-always-light: 255, 255, 255;
+  --color-squid: 235, 227, 227;
+  --color-stardust: 199, 255, 254;
+  --color-starsh: 255, 134, 208;
+  --color-starlight: 38, 138, 255;
+  --color-starling: 92, 108, 252;
+  --color-swan-always-dark: 55, 70, 79;
+  --color-swan-always-light: 229, 229, 229;
+  --color-walking-sh: 32, 47, 54;
+  --color-black-white: 255, 255, 255;
+  --color-diamond-stat: 86, 219, 226;
+  --color-mask-green: 144, 220, 72;
+  --color-pearl-stat: 255, 170, 222;
+  --color-snow-dark-swan: 55, 70, 79;
+  --color-black-text: 241, 247, 251;
+  --color-blue-space: 11, 62, 113;
+  --color-juicy-blue-space: 10, 74, 130;
+  --color-juicy-blue-space-light: 35, 83, 144;
+  --color-gold: 250, 169, 25;
+  --color-gray-text: 220, 230, 236;
+  --color-orange: 255, 157, 0;
+  --color-diamond-highlight: 231, 251, 251;
+  --color-diamond: 56, 208, 208;
+  --color-diamond-shadow: 0, 172, 178;
+  --color-banana: 255, 176, 32;
+  --color-cloud: 207, 207, 207;
+  --color-cloud-light: 221, 221, 221;
+  --color-cloud-lightest: 240, 240, 240;
+  --color-kiwi: 122, 199, 12;
+  --color-kiwi-dark: 93, 151, 9;
+  --color-kiwi-light: 142, 224, 0;
+  --color-facebook: 59, 89, 152;
+  --color-facebook-dark: 45, 67, 115;
+  --color-google: 66, 133, 244;
+  --color-twitter: 29, 161, 242;
+  --color-hv-light-peach: 241, 218, 179;
+  --color-hv-peach: 219, 186, 131;
+  --color-hv-light-orange: 255, 177, 64;
+  --color-hv-orange: 204, 121, 0;
+  --color-hv-brown: 140, 90, 17;
+  --color-brawl-stars-background: 65, 16, 87;
+  --color-streak-panel-extended-background: 205, 121, 0;
+  --color-streak-panel-friend-background: 255, 95, 0;
+
+  /* Typography scale (Duolingo web-ui text tokens — sizes in rem, weights 500–700) */
   --text-pageTitle-size-large: 2.5rem;
   --text-pageTitle-weight-large: 700;
   --text-pageTitle-line-height-large: 2.75rem;
@@ -84,8 +181,9 @@
   color-scheme: dark;
 }
 
+/* OS light mode only applies when we have not pinned Duolingo dark on the root. */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
+  :root:not([data-theme="dark"]):not([data-duo-theme="dark"]) {
     --color-snow:     247, 247, 247;
     --color-polar:    255, 255, 255;
     --color-ice:      240, 240, 240;
@@ -308,16 +406,31 @@ body {
 .quest-day-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border); }
 .quest-day-dot.done { background: var(--green); border-color: var(--green-dark); }
 
-/* Quests page shell -- matches the real app's hero banner + internal
-   Quests/Badges tabs sitting above the Daily Quests list. */
+/*
+  Quests page shell — mirrors Duolingo's Welcome Back hero (beetle purple)
+  and the Quests/Badges tab strip above Daily Quests. JS still targets #quests-view
+  and #quests-badge-grid; class names here are for look-and-feel only.
+*/
 .quest-hero {
-  background: linear-gradient(135deg, var(--purple) 0%, rgba(var(--color-beetle),0.75) 100%);
+  background: rgb(var(--color-beetle));
   border-radius: 18px;
   padding: 24px 24px 28px;
   margin: 24px 0 0;
   display: flex; align-items: center; justify-content: space-between;
-  color: #fff;
+  color: rgb(var(--color-eel));
   overflow: hidden;
+}
+.quest-subnav-shell {
+  background: rgb(var(--color-beetle));
+  border-radius: 0 0 18px 18px;
+  padding: 0 12px;
+  margin: -8px 0 16px;
+}
+.quest-subnav-shell .quest-tabs { border-bottom-color: rgba(var(--color-eel), 0.2); margin-bottom: 0; }
+.quest-subnav-shell .quest-tab { color: rgba(var(--color-eel), 0.75); }
+.quest-subnav-shell .quest-tab.active {
+  color: rgb(var(--color-eel));
+  border-bottom-color: rgb(var(--color-eel));
 }
 .quest-hero-title { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-large); margin-bottom: 4px; }
 .quest-hero-sub { font-size: var(--text-caption-size); opacity: 0.9; }
@@ -466,6 +579,38 @@ body {
   border: 2px solid;
   transition: box-shadow 0.3s;
 }
+/*
+  Equipped profile badge — one small circular medal at the bottom-right of a circular avatar.
+  All three avatar surfaces (Profile banner, Boards “You” row, player-summary for You) use
+  class avatar-equipped-badge-host on the circle and call avatarEquippedBadgeOverlayHtml()
+  so the medal always looks the same. Tune size with --avatar-medal-size on the host
+  (default fits the 32px leaderboard circle; Profile and modal set a larger value inline).
+*/
+.avatar-equipped-badge-host {
+  position: relative;
+}
+.avatar-equipped-medal {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: var(--avatar-medal-size, 16px);
+  height: var(--avatar-medal-size, 16px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--avatar-medal-size, 16px) * 0.52);
+  line-height: 1;
+  background: var(--surface);
+  border: 1.5px solid rgba(var(--color-black), 0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+/*
+  Circular profile icon on the Profile banner. The badge-avatar-slot button opens the picker;
+  keep class active-char-icon-wrap stable for renderAvatarPage and overlay hooks.
+*/
 .active-char-icon-wrap {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -473,6 +618,134 @@ body {
   font-size: 2.4rem;
   flex-shrink: 0;
   border: 3px solid;
+  position: relative;
+}
+/* Opens the earned-badge picker — not equip buttons on each badge card. */
+button.badge-avatar-slot {
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  background: transparent;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+button.badge-avatar-slot:hover { transform: scale(1.04); }
+button.badge-avatar-slot:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.badge-slot-edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Full-screen dim layer; badge choices live in the centered panel. */
+.badge-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(var(--color-black), 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.badge-picker-panel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  max-height: min(80vh, 520px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+.badge-picker-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.badge-picker-title {
+  font-size: var(--text-heading-size-xsmall);
+  font-weight: var(--text-heading-weight-xsmall);
+  color: var(--text-color);
+}
+.badge-picker-sub {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.badge-picker-list {
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.badge-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  font-family: inherit;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.badge-picker-option:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(var(--color-bee), 0.06);
+}
+.badge-picker-option.equipped {
+  border-color: var(--gold);
+  background: rgba(var(--color-bee), 0.1);
+}
+.badge-picker-option.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.badge-picker-option.none-row {
+  border-style: dashed;
+  justify-content: center;
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label-weight-medium);
+  color: var(--text-secondary);
+}
+.badge-picker-foot {
+  padding: 0 12px 12px;
+}
+.badge-picker-close {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-color);
+  font-family: inherit;
+  font-weight: var(--text-label-weight-medium);
+  cursor: pointer;
+}
+.badge-equipped-tag {
+  font-size: 0.7rem;
+  font-weight: var(--text-label-weight-medium);
+  color: var(--gold);
+  white-space: nowrap;
 }
 .active-char-info { flex: 1; }
 .active-char-name { font-size: var(--text-heading-size-medium); font-weight: var(--text-heading-weight-medium); color: var(--text-color); }
@@ -705,6 +978,8 @@ body {
 @keyframes toastIn  { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 </style>
+</head>
+<body>
 
 <canvas class="confetti-canvas" id="confetti"></canvas>
 
@@ -785,34 +1060,43 @@ body {
         <div id="leaderboard"></div>
       </div>
     </div>
-    <!-- Quests view -->
+    <!-- Quests view: layout follows Duolingo DOM (hero → tablist → daily list → locked slot). -->
     <div id="quests-view" hidden>
-      <div class="quest-hero">
-        <div>
-          <div class="quest-hero-title">Welcome Back!</div>
-          <div class="quest-hero-sub">Complete quests to earn rewards!</div>
+      <div class="quest-hero duo-quests-hero">
+        <div class="duo-quests-welcome">
+          <div class="quest-hero-title duo-quests-welcome-title">Welcome Back!</div>
+          <div class="quest-hero-sub duo-quests-welcome-sub">Complete quests to earn rewards!</div>
         </div>
-        <div class="quest-hero-icon">🦉</div>
+        <div class="quest-hero-icon duo-quests-welcome-art" aria-hidden="true">🦉</div>
       </div>
-      <nav class="quest-tabs" role="tablist">
-        <button class="quest-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')">Quests</button>
-        <button class="quest-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')">Badges</button>
-      </nav>
-      <div id="quests-panel">
-        <div class="quest-section-head">
-          <h2 class="quest-section-title">Daily Quests</h2>
-          <span class="quest-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
+      <div class="quest-subnav-shell duo-quests-subnav">
+        <nav class="quest-tabs duo-quests-tablist" role="tablist" aria-label="Quests and Badges">
+          <!-- ids quests-tab / badges-tab pair with tabpanel aria-labelledby for screen readers (U1-T6). -->
+          <button id="quests-tab" class="quest-tab duo-quests-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')"><span class="duo-quests-tab-label">Quests</span></button>
+          <button id="badges-tab" class="quest-tab duo-quests-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')"><span class="duo-quests-tab-label">Badges</span></button>
+        </nav>
+      </div>
+      <div id="quests-panel" class="duo-quests-panel" role="tabpanel" aria-labelledby="quests-tab">
+        <div class="quest-section-head duo-daily-quests-head">
+          <h2 class="quest-section-title duo-daily-quests-title">Daily Quests</h2>
+          <span class="quest-timer duo-daily-quests-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
         </div>
-        <div class="panel-card" style="max-width:480px">
-          <div id="quests"></div>
+        <div class="panel-card duo-daily-quests-card" style="max-width:480px">
+          <div id="quests" class="duo-daily-quests-list"></div>
+        </div>
+        <div class="panel-card duo-quests-locked-slot" style="max-width:480px;margin-top:10px">
+          <div class="quest-locked-row">
+            <span class="quest-locked-icon" aria-hidden="true">🔒</span>
+            <span>More quests unlock soon</span>
+          </div>
         </div>
       </div>
-      <div id="badges-panel" style="display:none">
-        <div class="quest-section-head">
-          <h2 class="quest-section-title">Badges</h2>
+      <div id="badges-panel" class="duo-badges-panel" style="display:none" role="tabpanel" aria-labelledby="badges-tab">
+        <div class="quest-section-head duo-badges-head">
+          <h2 class="quest-section-title duo-badges-title">Badges</h2>
         </div>
-        <div class="panel-card" style="max-width:480px">
-          <div class="badge-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
+        <div class="panel-card duo-badges-card" style="max-width:480px">
+          <div class="badge-grid duo-badges-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
         </div>
       </div>
     </div>
@@ -953,6 +1237,8 @@ let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
   completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '', activityDates: [],
   earnedBadges: [],
+  /* Which badge id is worn on the avatar slot; null means empty until the user picks one. */
+  equippedBadge: null,
   rivals: DEFAULT_RIVALS.map(r => ({ ...r })),
   /* avatar */
   activeChar: 'mario',
@@ -976,6 +1262,8 @@ try {
     if (!state.unlockedSkins) state.unlockedSkins = [];
     if (!state.activeChar)    state.activeChar = 'mario';
     if (!state.earnedBadges)  state.earnedBadges = [];
+    /* Missing key on old saves means "never chose a badge"; stored null is the same empty slot. */
+    if (!('equippedBadge' in state)) state.equippedBadge = null;
     if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
     /* older saves may have rivals without a streak field yet */
     state.rivals.forEach((r, i) => { if (typeof r.streak !== 'number') r.streak = (DEFAULT_RIVALS[i] && DEFAULT_RIVALS[i].streak) || 0; });
@@ -1026,7 +1314,8 @@ function badgeProgress(badge) {
 }
 
 /* Earned badges are appended to state.earnedBadges and never removed,
-   so they survive a streak reset (PRD 1c / Requirements 3, P0). */
+   so they survive a streak reset (PRD 1c / Requirements 3, P0).
+   Unlocking does not fill state.equippedBadge — the user must equip explicitly. */
 function evaluateBadgeUnlocks() {
   const newlyEarned = [];
   BADGES.forEach(badge => {
@@ -1038,6 +1327,166 @@ function evaluateBadgeUnlocks() {
   });
   newlyEarned.forEach(badge => showBadgeToast(badge));
   if (newlyEarned.length) saveState();
+}
+
+/*
+  Equip helpers read/write state.equippedBadge and duo_state via saveState().
+  Only badges already listed in earnedBadges can be equipped; everything else is ignored.
+*/
+function isBadgeEquippable(badgeId) {
+  return Array.isArray(state.earnedBadges) && state.earnedBadges.includes(badgeId);
+}
+
+function equipBadge(badgeId) {
+  if (!isBadgeEquippable(badgeId)) return;
+  state.equippedBadge = badgeId;
+  saveState();
+}
+
+function unequipBadge() {
+  state.equippedBadge = null;
+  saveState();
+}
+
+/* Returns the full BADGES catalog entry for the equipped id, or null when the slot is empty. */
+function getEquippedBadge() {
+  if (state.equippedBadge === null || state.equippedBadge === undefined) return null;
+  return BADGES.find(b => b.id === state.equippedBadge) || null;
+}
+
+/*
+  Builds the HTML for the equipped-badge medal (or nothing when the slot is empty).
+  Profile, Boards “You”, and the player-summary modal all call this helper so the
+  overlay never drifts between screens. Pass an explicit badge object when you already
+  have getEquippedBadge(); rivals never call this. Styling lives in .avatar-equipped-medal above.
+*/
+function avatarEquippedBadgeOverlayHtml(badge) {
+  const equipped = badge === undefined ? getEquippedBadge() : badge;
+  if (!equipped) return '';
+  return `<span class="avatar-equipped-medal" aria-hidden="true" title="${equipped.name}">${equipped.icon}</span>`;
+}
+
+/*
+  Badge picker UI lives on the Profile avatar circle, not on each badge card.
+  The overlay is attached to document.body so renderAvatarPage can refresh the
+  banner without destroying an open picker accidentally (we close before re-render).
+*/
+let badgePickerOverlay = null;
+
+/*
+  Hides the profile-badge popup and clears our handle to it.
+  Called when the user taps Done, taps outside the panel, or after equip/unequip
+  so the Profile page can redraw without leaving a stale dialog on screen.
+  To maintain: if you add another way to dismiss the picker, call this here too.
+*/
+function closeBadgePicker() {
+  if (badgePickerOverlay) {
+    badgePickerOverlay.remove();
+    badgePickerOverlay = null;
+  }
+}
+
+/*
+  Builds one row inside the badge picker for a single catalog badge.
+  Earned badges become clickable buttons wired to chooseBadgeFromPicker;
+  locked badges are plain divs (no click) so players cannot equip what they
+  have not earned. Uses isBadgeEquippable and badgeProgress like the quest list.
+  To maintain: when you add a badge to BADGES, this row appears automatically.
+*/
+function buildBadgePickerOptionHtml(badge) {
+  const earned = isBadgeEquippable(badge.id);
+  const isEquipped = state.equippedBadge === badge.id;
+  const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
+  const status = isEquipped
+    ? '<span class="badge-equipped-tag">★ Equipped</span>'
+    : earned
+      ? '<span class="badge-earned-tag">Tap to equip</span>'
+      : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
+  if (!earned) {
+    return `
+      <div class="badge-picker-option locked" aria-disabled="true">
+        <div class="badge-icon">${badge.icon}</div>
+        <div class="badge-info">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-desc">${badge.desc}</div>
+        </div>
+        ${status}
+      </div>`;
+  }
+  return `
+    <button type="button" class="badge-picker-option earned ${isEquipped ? 'equipped' : ''}"
+            onclick="chooseBadgeFromPicker('${badge.id}')">
+      <div class="badge-icon">${badge.icon}</div>
+      <div class="badge-info">
+        <div class="badge-name">${badge.name}</div>
+        <div class="badge-desc">${badge.desc}</div>
+      </div>
+      ${status}
+    </button>`;
+}
+
+/*
+  Opens the full-screen badge chooser when the user taps the circular avatar
+  on Profile. Lists every badge via buildBadgePickerOptionHtml, optionally
+  shows "Remove equipped badge" when something is already worn, and attaches
+  the dialog to document.body (see badgePickerOverlay above).
+  To maintain: keep openBadgePicker on the avatar button only — not on badge cards.
+*/
+function openBadgePicker() {
+  closeBadgePicker();
+  const equipped = getEquippedBadge();
+  const hasEarned = state.earnedBadges.length > 0;
+  const noneRow = equipped
+    ? `<button type="button" class="badge-picker-option none-row" onclick="chooseNoBadgeFromPicker()">Remove equipped badge</button>`
+    : '';
+  const emptyHint = hasEarned
+    ? ''
+    : `<p class="badge-picker-sub" style="padding:0 4px 8px">Earn badges from quests first — locked ones cannot be chosen here.</p>`;
+
+  badgePickerOverlay = document.createElement('div');
+  badgePickerOverlay.className = 'badge-picker-overlay';
+  badgePickerOverlay.setAttribute('role', 'dialog');
+  badgePickerOverlay.setAttribute('aria-label', 'Choose profile badge');
+  badgePickerOverlay.innerHTML = `
+    <div class="badge-picker-panel" onclick="event.stopPropagation()">
+      <div class="badge-picker-header">
+        <div class="badge-picker-title">Profile badge</div>
+        <div class="badge-picker-sub">${equipped ? `Showing ${equipped.icon} ${equipped.name} on your avatar slot.` : 'Pick one earned badge to show on your profile icon (optional).'}</div>
+      </div>
+      <div class="badge-picker-list">
+        ${emptyHint}
+        ${noneRow}
+        ${BADGES.map(buildBadgePickerOptionHtml).join('')}
+      </div>
+      <div class="badge-picker-foot">
+        <button type="button" class="badge-picker-close" onclick="closeBadgePicker()">Done</button>
+      </div>
+    </div>`;
+  badgePickerOverlay.addEventListener('click', e => {
+    if (e.target === badgePickerOverlay) closeBadgePicker();
+  });
+  document.body.appendChild(badgePickerOverlay);
+}
+
+/* User picked an earned badge in the picker — helpers enforce earned-only rules. */
+function chooseBadgeFromPicker(badgeId) {
+  if (!isBadgeEquippable(badgeId)) return;
+  equipBadge(badgeId);
+  closeBadgePicker();
+  renderAvatarPage();
+  renderLeaderboard();
+}
+
+/*
+  Clears the worn profile badge when the user chooses "Remove equipped badge"
+  in the picker. Delegates saving to unequipBadge(), then closes the dialog
+  and redraws Profile so the banner and badge list match saved state.
+*/
+function chooseNoBadgeFromPicker() {
+  unequipBadge();
+  closeBadgePicker();
+  renderAvatarPage();
+  renderLeaderboard();
 }
 
 function showBadgeToast(badge) {
@@ -1055,13 +1504,22 @@ function badgeUnit(badge, remaining) {
   return '';
 }
 
+/*
+  Renders the read-only badge cards shown on Profile and on Quests → Badges tab.
+  Shows progress locks, "Earned", or "Equipped" tags — but no equip buttons here;
+  changing what is worn happens only through the avatar-slot picker (openBadgePicker).
+  To maintain: keep tags in sync with state.equippedBadge and state.earnedBadges.
+*/
 function buildBadgeGrid() {
   return BADGES.map(badge => {
     const earned = state.earnedBadges.includes(badge.id);
+    const isEquipped = earned && state.equippedBadge === badge.id;
     const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
-    const rightTag = earned
-      ? `<span class="badge-earned-tag">✓ Earned</span>`
-      : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
+    const rightTag = isEquipped
+      ? `<span class="badge-equipped-tag">★ Equipped</span>`
+      : earned
+        ? `<span class="badge-earned-tag">✓ Earned</span>`
+        : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
     return `
       <div class="badge-card ${earned ? 'earned' : 'locked'}">
         <div class="badge-icon">${badge.icon}</div>
@@ -1221,10 +1679,15 @@ function renderLeaderboard() {
   const ranks = ['🥇','🥈','🥉'];
   document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => {
     const badges = playerBadges(p).map(b => b.icon);
+    /*
+      Avatar circle for this row: “You” adds avatar-equipped-badge-host and the shared
+      medal HTML from avatarEquippedBadgeOverlayHtml(); rivals stay a plain flag emoji
+      with no overlay so their look never changes when you equip a badge.
+    */
     return `
     <div class="leaderboard-item" style="cursor:pointer;${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}" onclick="openPlayerSummary(${i})">
       <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
-      <div class="lb-avatar" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? activeSkin.icon : p.flag}</div>
+      <div class="lb-avatar${p.isYou ? ' avatar-equipped-badge-host' : ''}" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? `${activeSkin.icon}${avatarEquippedBadgeOverlayHtml()}` : p.flag}</div>
       <div class="lb-main">
         <div class="lb-name-row">
           <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
@@ -1250,9 +1713,14 @@ function openPlayerSummary(i) {
   const pctToNext = Math.max(0, Math.min(100, 100 - (lessonsToNext * 10 / 100 * 100)));
 
   document.getElementById('modal-topbar').style.display = 'none';
+  /*
+    Large avatar at the top of this screen: when the row is “You”, the same
+    avatar-equipped-badge-host wrapper and avatarEquippedBadgeOverlayHtml() output
+    as Profile and Boards so your equipped badge medal always matches.
+  */
   modalContent.innerHTML = `
     <div class="completion-screen" style="padding-top:32px">
-      <div style="font-size:4rem">${p.isYou ? activeSkin.icon : p.flag}</div>
+      <div class="avatar-equipped-badge-host" style="font-size:4rem;display:inline-flex;align-items:center;justify-content:center;${p.isYou ? `--avatar-medal-size:28px;border-radius:50%;` : ''}">${p.isYou ? activeSkin.icon : p.flag}${p.isYou ? avatarEquippedBadgeOverlayHtml() : ''}</div>
       <div class="completion-title">${p.isYou ? 'You' : p.name}</div>
       <div class="completion-subtitle">${languageFlag(p.language)} Learning ${p.language} · Level ${level}</div>
 
@@ -1414,7 +1882,9 @@ function renderQuests() {
 /* Quests/Badges sub-tabs inside the Quests page, matching the real
    app's internal tablist (separate from the top nav). Badges reuses
    the exact same buildBadgeGrid() the Profile tab renders, so the two
-   can never show a different badge list. */
+   can never show a different badge list. Both tab buttons stay in normal
+   Tab order (FIX-2 option A — no roving tabindex) so keyboard users
+   can reach Quests and Badges without arrow-key wiring. */
 function switchQuestTab(tab) {
   document.querySelectorAll('.quest-tab').forEach(b => {
     const active = b.dataset.tab === tab;
@@ -1650,11 +2120,18 @@ overlay.addEventListener('click', e => {
 /* ─────────────── Avatar Page ─────────────── */
 let selectedCharForPanel = null;
 
+/*
+  Redraws the whole Profile tab: active character banner (with badge-avatar-slot
+  button that opens the picker), badge grid, character roster, and optional skin panel.
+  Call this after equip/unequip, skin changes, or switching which character is selected.
+  To maintain: any new Profile-only UI should be added inside this innerHTML block.
+*/
 function renderAvatarPage() {
   const av = document.getElementById('avatar-view');
 
   const activeChar = CHARACTERS[state.activeChar];
   const activeSkin = getActiveSkin(state.activeChar);
+  const equippedBadge = getEquippedBadge();
 
   const charCards = Object.keys(CHARACTERS).map(charId => {
     const char = CHARACTERS[charId];
@@ -1684,13 +2161,19 @@ function renderAvatarPage() {
       <!-- Active character banner -->
       <div class="active-char-banner"
            style="background:${activeSkin.aura}11;border-color:${activeSkin.aura};box-shadow:0 0 24px ${activeSkin.aura}33">
-        <div class="active-char-icon-wrap" style="background:${activeSkin.aura}22;border-color:${activeSkin.aura}">
+        <button type="button" class="active-char-icon-wrap badge-avatar-slot avatar-equipped-badge-host"
+                style="background:${activeSkin.aura}22;border-color:${activeSkin.aura};--avatar-medal-size:26px"
+                aria-label="${equippedBadge ? `Profile badge: ${equippedBadge.name}. Tap to change.` : 'Choose a profile badge'}"
+                onclick="openBadgePicker()">
           ${activeSkin.icon}
-        </div>
+          ${avatarEquippedBadgeOverlayHtml(equippedBadge)}
+          ${equippedBadge ? '' : '<span class="badge-slot-edit" aria-hidden="true">🏅</span>'}
+        </button>
         <div class="active-char-info">
           <div class="active-char-name">${activeChar.name}</div>
           <div class="active-char-skin" style="color:${activeSkin.aura}">${activeSkin.name}</div>
           <div class="active-char-game">${activeChar.game}</div>
+          ${equippedBadge ? `<div class="active-char-game" style="color:var(--gold);margin-top:4px">${equippedBadge.icon} ${equippedBadge.name} equipped</div>` : ''}
         </div>
         <span class="active-badge">Active</span>
       </div>
@@ -1784,6 +2267,13 @@ function setActiveChar(charId) {
 
 /* ─────────────── Nav / View switching ─────────────── */
 function setNav(btn) {
+  /*
+    Leaving Profile (or any tab) should dismiss the profile-badge popup if it
+    is open — otherwise the dim overlay stays on document.body and blocks clicks
+    on Learn, Leaderboards, and Quests until the user finds Done again.
+  */
+  closeBadgePicker();
+
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
@@ -1861,3 +2351,5 @@ buildPath();
 renderStats();
 evaluateSkinUnlocks(); /* catch any already-earned unlocks from saved state */
 </script>
+</body>
+</html>
