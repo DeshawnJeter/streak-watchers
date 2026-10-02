@@ -1077,6 +1077,8 @@ let state = {
   xp: 0, streak: 7, hearts: 5, gems: 500,
   completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '', activityDates: [],
   earnedBadges: [],
+  /* Which badge id is worn on the avatar slot; null means empty until the user picks one. */
+  equippedBadge: null,
   rivals: DEFAULT_RIVALS.map(r => ({ ...r })),
   /* avatar */
   activeChar: 'mario',
@@ -1100,6 +1102,8 @@ try {
     if (!state.unlockedSkins) state.unlockedSkins = [];
     if (!state.activeChar)    state.activeChar = 'mario';
     if (!state.earnedBadges)  state.earnedBadges = [];
+    /* Missing key on old saves means "never chose a badge"; stored null is the same empty slot. */
+    if (!('equippedBadge' in state)) state.equippedBadge = null;
     if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
     /* older saves may have rivals without a streak field yet */
     state.rivals.forEach((r, i) => { if (typeof r.streak !== 'number') r.streak = (DEFAULT_RIVALS[i] && DEFAULT_RIVALS[i].streak) || 0; });
@@ -1150,7 +1154,8 @@ function badgeProgress(badge) {
 }
 
 /* Earned badges are appended to state.earnedBadges and never removed,
-   so they survive a streak reset (PRD 1c / Requirements 3, P0). */
+   so they survive a streak reset (PRD 1c / Requirements 3, P0).
+   Unlocking does not fill state.equippedBadge — the user must equip explicitly. */
 function evaluateBadgeUnlocks() {
   const newlyEarned = [];
   BADGES.forEach(badge => {
@@ -1162,6 +1167,31 @@ function evaluateBadgeUnlocks() {
   });
   newlyEarned.forEach(badge => showBadgeToast(badge));
   if (newlyEarned.length) saveState();
+}
+
+/*
+  Equip helpers read/write state.equippedBadge and duo_state via saveState().
+  Only badges already listed in earnedBadges can be equipped; everything else is ignored.
+*/
+function isBadgeEquippable(badgeId) {
+  return Array.isArray(state.earnedBadges) && state.earnedBadges.includes(badgeId);
+}
+
+function equipBadge(badgeId) {
+  if (!isBadgeEquippable(badgeId)) return;
+  state.equippedBadge = badgeId;
+  saveState();
+}
+
+function unequipBadge() {
+  state.equippedBadge = null;
+  saveState();
+}
+
+/* Returns the full BADGES catalog entry for the equipped id, or null when the slot is empty. */
+function getEquippedBadge() {
+  if (state.equippedBadge === null || state.equippedBadge === undefined) return null;
+  return BADGES.find(b => b.id === state.equippedBadge) || null;
 }
 
 function showBadgeToast(badge) {
