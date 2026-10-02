@@ -580,8 +580,36 @@ body {
   transition: box-shadow 0.3s;
 }
 /*
-  Circular profile icon on the Profile banner. U4 may add a medal overlay on this wrap;
-  keep class active-char-icon-wrap (and badge-avatar-slot) stable for that hook.
+  Equipped profile badge — one small circular medal at the bottom-right of a circular avatar.
+  All three avatar surfaces (Profile banner, Boards “You” row, player-summary for You) use
+  class avatar-equipped-badge-host on the circle and call avatarEquippedBadgeOverlayHtml()
+  so the medal always looks the same. Tune size with --avatar-medal-size on the host
+  (default fits the 32px leaderboard circle; Profile and modal set a larger value inline).
+*/
+.avatar-equipped-badge-host {
+  position: relative;
+}
+.avatar-equipped-medal {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: var(--avatar-medal-size, 16px);
+  height: var(--avatar-medal-size, 16px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--avatar-medal-size, 16px) * 0.52);
+  line-height: 1;
+  background: var(--surface);
+  border: 1.5px solid rgba(var(--color-black), 0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+/*
+  Circular profile icon on the Profile banner. The badge-avatar-slot button opens the picker;
+  keep class active-char-icon-wrap stable for renderAvatarPage and overlay hooks.
 */
 .active-char-icon-wrap {
   width: 72px; height: 72px;
@@ -1327,6 +1355,18 @@ function getEquippedBadge() {
 }
 
 /*
+  Builds the HTML for the equipped-badge medal (or nothing when the slot is empty).
+  Profile, Boards “You”, and the player-summary modal all call this helper so the
+  overlay never drifts between screens. Pass an explicit badge object when you already
+  have getEquippedBadge(); rivals never call this. Styling lives in .avatar-equipped-medal above.
+*/
+function avatarEquippedBadgeOverlayHtml(badge) {
+  const equipped = badge === undefined ? getEquippedBadge() : badge;
+  if (!equipped) return '';
+  return `<span class="avatar-equipped-medal" aria-hidden="true" title="${equipped.name}">${equipped.icon}</span>`;
+}
+
+/*
   Badge picker UI lives on the Profile avatar circle, not on each badge card.
   The overlay is attached to document.body so renderAvatarPage can refresh the
   banner without destroying an open picker accidentally (we close before re-render).
@@ -1434,6 +1474,7 @@ function chooseBadgeFromPicker(badgeId) {
   equipBadge(badgeId);
   closeBadgePicker();
   renderAvatarPage();
+  renderLeaderboard();
 }
 
 /*
@@ -1445,6 +1486,7 @@ function chooseNoBadgeFromPicker() {
   unequipBadge();
   closeBadgePicker();
   renderAvatarPage();
+  renderLeaderboard();
 }
 
 function showBadgeToast(badge) {
@@ -1640,7 +1682,7 @@ function renderLeaderboard() {
     return `
     <div class="leaderboard-item" style="cursor:pointer;${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}" onclick="openPlayerSummary(${i})">
       <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
-      <div class="lb-avatar" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? activeSkin.icon : p.flag}</div>
+      <div class="lb-avatar${p.isYou ? ' avatar-equipped-badge-host' : ''}" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? `${activeSkin.icon}${avatarEquippedBadgeOverlayHtml()}` : p.flag}</div>
       <div class="lb-main">
         <div class="lb-name-row">
           <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
@@ -1668,7 +1710,7 @@ function openPlayerSummary(i) {
   document.getElementById('modal-topbar').style.display = 'none';
   modalContent.innerHTML = `
     <div class="completion-screen" style="padding-top:32px">
-      <div style="font-size:4rem">${p.isYou ? activeSkin.icon : p.flag}</div>
+      <div class="avatar-equipped-badge-host" style="font-size:4rem;display:inline-flex;align-items:center;justify-content:center;${p.isYou ? `--avatar-medal-size:28px;border-radius:50%;` : ''}">${p.isYou ? activeSkin.icon : p.flag}${p.isYou ? avatarEquippedBadgeOverlayHtml() : ''}</div>
       <div class="completion-title">${p.isYou ? 'You' : p.name}</div>
       <div class="completion-subtitle">${languageFlag(p.language)} Learning ${p.language} · Level ${level}</div>
 
@@ -2109,11 +2151,12 @@ function renderAvatarPage() {
       <!-- Active character banner -->
       <div class="active-char-banner"
            style="background:${activeSkin.aura}11;border-color:${activeSkin.aura};box-shadow:0 0 24px ${activeSkin.aura}33">
-        <button type="button" class="active-char-icon-wrap badge-avatar-slot"
-                style="background:${activeSkin.aura}22;border-color:${activeSkin.aura}"
+        <button type="button" class="active-char-icon-wrap badge-avatar-slot avatar-equipped-badge-host"
+                style="background:${activeSkin.aura}22;border-color:${activeSkin.aura};--avatar-medal-size:26px"
                 aria-label="${equippedBadge ? `Profile badge: ${equippedBadge.name}. Tap to change.` : 'Choose a profile badge'}"
                 onclick="openBadgePicker()">
           ${activeSkin.icon}
+          ${avatarEquippedBadgeOverlayHtml(equippedBadge)}
           <span class="badge-slot-edit" aria-hidden="true">🏅</span>
         </button>
         <div class="active-char-info">
