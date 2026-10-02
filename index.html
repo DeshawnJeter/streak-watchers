@@ -2214,6 +2214,13 @@ function setActiveChar(charId) {
 
 /* ─────────────── Nav / View switching ─────────────── */
 function setNav(btn) {
+  /*
+    Leaving Profile (or any tab) should dismiss the profile-badge popup if it
+    is open — otherwise the dim overlay stays on document.body and blocks clicks
+    on Learn, Leaderboards, and Quests until the user finds Done again.
+  */
+  closeBadgePicker();
+
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
