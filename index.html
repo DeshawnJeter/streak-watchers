@@ -1,306 +1,2356 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- test -->
+<!-- Page shell: data-duo-theme="dark" matches Duolingo's real site and keeps the dark palette active. -->
+<html lang="en" dir="ltr" data-duo-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StreakGuard — Lesson Loop Clone</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>LuoDingo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
+
 <style>
-  :root{
-    --bg:#ffffff;
-    --card:#ffffff;
-    --green:#58cc02;
-    --green-dark:#58a700;
-    --orange:#ff9600;
-    --orange-dark:#e08600;
-    --blue:#1cb0f6;
-    --blue-dark:#1899d6;
-    --gold:#ffc800;
-    --text:#3c3c3c;
-    --muted:#afafaf;
-    --border:#e5e5e5;
-    --border-track:#e5e5e5;
+/*
+  Duolingo design tokens (RGB triplets used inside rgb(var(--color-name))).
+  Keep every official name from the Quests page excerpt; semantic aliases below
+  map friendly names (--bg, --green) to those tokens for the rest of the CSS.
+*/
+:root {
+  --color-snow: 19, 31, 36;
+  --color-polar: 32, 47, 54;
+  --color-ice: 23, 52, 58;
+  --color-seafoam: 30, 89, 97;
+  --color-swan: 55, 70, 79;
+  --color-eel: 241, 247, 251;
+  --color-wolf: 220, 230, 236;
+  --color-hare: 82, 101, 109;
+  --color-koala: 72, 90, 98;
+  --color-owl: 147, 211, 51;
+  --color-tree-frog: 121, 185, 51;
+  --color-turtle: 95, 132, 40;
+  --color-bee: 255, 199, 0;
+  --color-camel: 231, 166, 1;
+  --color-macaw: 73, 192, 248;
+  --color-whale: 24, 153, 214;
+  --color-cardinal: 238, 85, 85;
+  --color-fire-ant: 216, 72, 72;
+  --color-beetle: 206, 130, 255;
+  --color-betta: 144, 105, 205;
+  --color-fox: 255, 171, 51;
+  --color-guinea-pig: 215, 148, 51;
+  --color-canary: 32, 47, 54;
+
+  /* Official palette extensions from Duolingo Quests (dark theme excerpt) */
+  --color-anchovy: 210, 228, 232;
+  --color-aqua: 43, 164, 176;
+  --color-aqua-always-light: 56, 238, 255;
+  --color-bee-always-dark: 255, 199, 0;
+  --color-beluga: 187, 242, 255;
+  --color-black: 0, 0, 0;
+  --color-blue-jay: 63, 133, 167;
+  --color-buttery: 111, 78, 161;
+  --color-celestia: 255, 255, 255;
+  --color-cheetah: 32, 47, 54;
+  --color-cosmos: 60, 77, 255;
+  --color-crab: 255, 120, 120;
+  --color-deep-martin: 16, 15, 62;
+  --color-deep-starling: 34, 33, 81;
+  --color-dragon: 204, 52, 141;
+  --color-duck: 251, 229, 109;
+  --color-eclipse: 0, 4, 55;
+  --color-flamingo: 148, 81, 81;
+  --color-gamma: 38, 246, 99;
+  --color-grackle: 167, 160, 255;
+  --color-grizzly: 187, 113, 73;
+  --color-hare-always-light: 175, 175, 175;
+  --color-honeycreeper: 193, 187, 255;
+  --color-humpback: 43, 112, 201;
+  --color-iguana: 32, 47, 54;
+  --color-legendary-foreground: 140, 65, 3;
+  --color-lion: 255, 177, 0;
+  --color-manta-ray: 4, 44, 96;
+  --color-martin: 71, 85, 223;
+  --color-max-shadow: 20, 208, 225;
+  --color-monkey: 229, 162, 89;
+  --color-moon-jelly: 122, 240, 242;
+  --color-narwhal: 20, 83, 163;
+  --color-nebula: 63, 34, 236;
+  --color-nova: 207, 23, 200;
+  --color-ocean: 56, 238, 255;
+  --color-peacock: 0, 205, 156;
+  --color-pig: 245, 164, 164;
+  --color-quasar: 252, 85, 255;
+  --color-sea-sponge: 32, 47, 54;
+  --color-snow-always-dark: 19, 31, 36;
+  --color-snow-always-light: 255, 255, 255;
+  --color-squid: 235, 227, 227;
+  --color-stardust: 199, 255, 254;
+  --color-starsh: 255, 134, 208;
+  --color-starlight: 38, 138, 255;
+  --color-starling: 92, 108, 252;
+  --color-swan-always-dark: 55, 70, 79;
+  --color-swan-always-light: 229, 229, 229;
+  --color-walking-sh: 32, 47, 54;
+  --color-black-white: 255, 255, 255;
+  --color-diamond-stat: 86, 219, 226;
+  --color-mask-green: 144, 220, 72;
+  --color-pearl-stat: 255, 170, 222;
+  --color-snow-dark-swan: 55, 70, 79;
+  --color-black-text: 241, 247, 251;
+  --color-blue-space: 11, 62, 113;
+  --color-juicy-blue-space: 10, 74, 130;
+  --color-juicy-blue-space-light: 35, 83, 144;
+  --color-gold: 250, 169, 25;
+  --color-gray-text: 220, 230, 236;
+  --color-orange: 255, 157, 0;
+  --color-diamond-highlight: 231, 251, 251;
+  --color-diamond: 56, 208, 208;
+  --color-diamond-shadow: 0, 172, 178;
+  --color-banana: 255, 176, 32;
+  --color-cloud: 207, 207, 207;
+  --color-cloud-light: 221, 221, 221;
+  --color-cloud-lightest: 240, 240, 240;
+  --color-kiwi: 122, 199, 12;
+  --color-kiwi-dark: 93, 151, 9;
+  --color-kiwi-light: 142, 224, 0;
+  --color-facebook: 59, 89, 152;
+  --color-facebook-dark: 45, 67, 115;
+  --color-google: 66, 133, 244;
+  --color-twitter: 29, 161, 242;
+  --color-hv-light-peach: 241, 218, 179;
+  --color-hv-peach: 219, 186, 131;
+  --color-hv-light-orange: 255, 177, 64;
+  --color-hv-orange: 204, 121, 0;
+  --color-hv-brown: 140, 90, 17;
+  --color-brawl-stars-background: 65, 16, 87;
+  --color-streak-panel-extended-background: 205, 121, 0;
+  --color-streak-panel-friend-background: 255, 95, 0;
+
+  /* Typography scale (Duolingo web-ui text tokens — sizes in rem, weights 500–700) */
+  --text-pageTitle-size-large: 2.5rem;
+  --text-pageTitle-weight-large: 700;
+  --text-pageTitle-line-height-large: 2.75rem;
+  --text-heading-size-large: 1.75rem;
+  --text-heading-weight-large: 700;
+  --text-heading-line-height-large: 2rem;
+  --text-heading-size-medium: 1.5rem;
+  --text-heading-weight-medium: 700;
+  --text-heading-line-height-medium: 2rem;
+  --text-heading-size-small: 1.25rem;
+  --text-heading-weight-small: 700;
+  --text-heading-line-height-small: 1.5rem;
+  --text-heading-size-xsmall: 1rem;
+  --text-heading-weight-xsmall: 700;
+  --text-body-size: 1.25rem;
+  --text-body-weight: 500;
+  --text-body-weight-bold: 700;
+  --text-body-line-height: 1.75rem;
+  --text-caption-size: 1rem;
+  --text-caption-weight: 500;
+  --text-caption-weight-bold: 700;
+  --text-caption-line-height: 1.5rem;
+  --text-label-size-large: 1.5rem;
+  --text-label-weight-large: 700;
+  --text-label-casing-large: uppercase;
+  --text-label-letter-spacing-large: 0.04em;
+  --text-label-size-medium: 1rem;
+  --text-label-weight-medium: 700;
+  --text-label-casing-medium: uppercase;
+  --text-label-letter-spacing-medium: 0.04em;
+
+  /* Semantic aliases */
+  --bg:             rgb(var(--color-snow));
+  --surface:        rgb(var(--color-polar));
+  --surface-2:      rgb(var(--color-ice));
+  --surface-3:      rgb(var(--color-seafoam));
+  --border:         rgb(var(--color-swan));
+  --text-color:     rgb(var(--color-eel));
+  --text-secondary: rgb(var(--color-hare));
+  --green:          rgb(var(--color-owl));
+  --green-dark:     rgb(var(--color-tree-frog));
+  --green-shadow:   rgb(var(--color-turtle));
+  --gold:           rgb(var(--color-bee));
+  --gold-dark:      rgb(var(--color-camel));
+  --blue:           rgb(var(--color-macaw));
+  --blue-dark:      rgb(var(--color-whale));
+  --red:            rgb(var(--color-cardinal));
+  --red-dark:       rgb(var(--color-fire-ant));
+  --purple:         rgb(var(--color-beetle));
+  --orange:         rgb(var(--color-fox));
+
+  color-scheme: dark;
+}
+
+/* OS light mode only applies when we have not pinned Duolingo dark on the root. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-duo-theme="dark"]) {
+    --color-snow:     247, 247, 247;
+    --color-polar:    255, 255, 255;
+    --color-ice:      240, 240, 240;
+    --color-seafoam:  229, 229, 229;
+    --color-swan:     229, 229, 229;
+    --color-eel:      75, 75, 75;
+    --color-hare:     175, 175, 175;
+    --color-koala:    215, 215, 215;
+    --color-wolf:     119, 119, 119;
+    --color-owl:      88, 204, 2;
+    --color-tree-frog:88, 167, 0;
+    --color-turtle:   165, 237, 110;
+    --color-macaw:    28, 176, 246;
+    --color-whale:    7, 147, 212;
+    --color-cardinal: 255, 75, 75;
+    --color-fire-ant: 234, 43, 43;
+    color-scheme: light;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    min-height:100vh;
-    background:var(--bg);
-    color:var(--text);
-    font-family:"Helvetica Neue",Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-  }
-  .app{
-    width:100%;
-    max-width:420px;
-  }
-  .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:20px;
-  }
-  .stat{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-weight:800;
-    font-size:19px;
-    color:var(--text);
-  }
-  .stat .icon{font-size:22px;}
-  .streak .icon{filter: drop-shadow(0 0 4px rgba(255,150,0,.35));}
-  .stat.streak{color:var(--orange-dark);}
-  .stat.xp{color:var(--blue-dark);}
-  .card{
-    background:var(--card);
-    border:2px solid var(--border);
-    border-radius:16px;
-    padding:28px 24px;
-    text-align:center;
-  }
-  .lesson-title{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--muted);
-    font-weight:800;
-    margin-bottom:6px;
-  }
-  .lesson-name{
-    font-size:22px;
-    font-weight:800;
-    margin-bottom:24px;
-    color:var(--text);
-  }
-  .progress-wrap{
-    margin-bottom:28px;
-  }
-  .progress-track{
-    position:relative;
-    height:16px;
-    background:var(--border-track);
-    border-radius:999px;
-    overflow:hidden;
-  }
-  .progress-fill{
-    height:100%;
-    width:0%;
-    border-radius:999px;
-    background:var(--green);
-    transition:width .5s cubic-bezier(.2,.9,.3,1);
-    position:relative;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,.12);
-  }
-  .progress-fill.near-goal{
-    animation:pulse 0.6s ease-in-out infinite;
-    background:#7ee81a;
-  }
-  @keyframes pulse{
-    0%,100%{filter:brightness(1);}
-    50%{filter:brightness(1.15);}
-  }
-  .progress-meta{
-    display:flex;
-    justify-content:space-between;
-    margin-top:8px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--muted);
-  }
-  .xp-pop{
-    position:relative;
-    height:0;
-  }
-  .btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:16px;
-    font-size:16px;
-    font-weight:800;
-    letter-spacing:.5px;
-    text-transform:uppercase;
-    cursor:pointer;
-    transition:transform .08s ease, filter .15s ease;
-  }
-  .btn-primary{
-    background:var(--green);
-    color:#ffffff;
-    box-shadow:0 4px 0 var(--green-dark);
-  }
-  .btn-primary:active{
-    transform:translateY(3px);
-    box-shadow:0 1px 0 var(--green-dark);
-  }
-  .btn-primary:disabled{
-    opacity:.5;
-    cursor:default;
-  }
-  .celebration{
-    display:none;
-    margin-top:20px;
-    padding:18px;
-    border-radius:14px;
-    background:#d7ffb8;
-    border:2px solid var(--green);
-  }
-  .celebration.show{
-    display:block;
-    animation:fadeUp .4s ease;
-  }
-  @keyframes fadeUp{
-    from{opacity:0; transform:translateY(8px);}
-    to{opacity:1; transform:translateY(0);}
-  }
-  .celebration h3{
-    margin:0 0 4px;
-    color:var(--green-dark);
-    font-size:18px;
-    font-weight:800;
-  }
-  .celebration p{
-    margin:0;
-    color:#4b4b4b;
-    font-size:14px;
-    font-weight:600;
-  }
-  .flame{
-    display:inline-block;
-    animation:flicker 1.4s ease-in-out infinite;
-  }
-  @keyframes flicker{
-    0%,100%{transform:scale(1) rotate(0deg);}
-    50%{transform:scale(1.08) rotate(-2deg);}
-  }
-  .footnote{
-    text-align:center;
-    margin-top:18px;
-    font-size:12px;
-    color:var(--muted);
-    font-weight:600;
-  }
+}
+:root[data-theme="light"] {
+  --color-snow:     247, 247, 247;
+  --color-polar:    255, 255, 255;
+  --color-ice:      240, 240, 240;
+  --color-seafoam:  229, 229, 229;
+  --color-swan:     229, 229, 229;
+  --color-eel:      75, 75, 75;
+  --color-hare:     175, 175, 175;
+  --color-koala:    215, 215, 215;
+  --color-wolf:     119, 119, 119;
+  --color-owl:      88, 204, 2;
+  --color-tree-frog:88, 167, 0;
+  --color-turtle:   165, 237, 110;
+  --color-macaw:    28, 176, 246;
+  --color-whale:    7, 147, 212;
+  --color-cardinal: 255, 75, 75;
+  --color-fire-ant: 234, 43, 43;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: "duolingo-sans", 'Nunito', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 2px solid var(--border);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  text-decoration: none;
+}
+.logo-owl { width: 42px; height: 42px; }
+.logo-text {
+  font-size: var(--text-heading-size-medium);
+  font-weight: var(--text-heading-weight-medium);
+  color: var(--green);
+  letter-spacing: -0.5px;
+  text-transform: lowercase;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: var(--text-label-size-medium);
+  font-weight: var(--text-label-weight-medium);
+  letter-spacing: var(--text-label-letter-spacing-medium);
+  text-transform: var(--text-label-casing-medium);
+  color: var(--text-secondary);
+  border: 2px solid transparent;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  font-family: "duolingo-sans", 'Nunito', sans-serif;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text-color); }
+.nav-item.active {
+  color: var(--blue);
+  background: rgba(var(--color-macaw), 0.1);
+  border-color: rgba(var(--color-macaw), 0.2);
+}
+.nav-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+
+/* ── Main ── */
+.main { padding: 0 24px 80px; position: relative; }
+.unit-header {
+  background: linear-gradient(135deg,
+    rgba(var(--color-turtle), 0.4) 0%,
+    rgba(var(--color-tree-frog), 0.15) 100%);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 24px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid var(--green-dark);
+}
+.unit-label {
+  font-size: var(--text-label-size-medium);
+  font-weight: var(--text-label-weight-large);
+  color: var(--green);
+  text-transform: var(--text-label-casing-medium);
+  letter-spacing: var(--text-label-letter-spacing-medium);
+  margin-bottom: 4px;
+}
+.unit-title { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-small); color: var(--text-color); }
+.unit-desc  { font-size: var(--text-caption-size); font-weight: var(--text-caption-weight); color: var(--text-secondary); margin-top: 2px; }
+.unit-badge {
+  background: var(--green);
+  border-radius: 50%;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+  box-shadow: 0 4px 0 var(--green-shadow);
+}
+.unit-header-locked {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 8px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+  border: 2px solid var(--border);
+  opacity: 0.7;
+}
+
+/* ── Path ── */
+.path-container { display: flex; flex-direction: column; align-items: center; padding: 32px 0; position: relative; }
+.path-row { display: flex; align-items: center; justify-content: center; position: relative; width: 100%; height: 120px; }
+.lesson-node { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.lesson-btn {
+  width: 72px; height: 72px; border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+  position: relative; transition: transform 0.1s; outline: none;
+}
+.lesson-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.lesson-btn:active { transform: scale(0.93); }
+.lesson-btn.active    { background: var(--green); box-shadow: 0 6px 0 var(--green-shadow); border: 3px solid var(--green-dark); }
+.lesson-btn.completed { background: var(--green); box-shadow: 0 4px 0 var(--green-shadow); }
+.lesson-btn.locked    { background: var(--surface-2); box-shadow: 0 4px 0 var(--border); cursor: not-allowed; filter: grayscale(0.5); }
+.lesson-btn.checkpoint { width: 80px; height: 80px; background: var(--gold); box-shadow: 0 6px 0 var(--gold-dark); border: 3px solid var(--gold-dark); font-size: 2rem; }
+.lesson-btn.checkpoint.locked { background: var(--surface-2); box-shadow: 0 4px 0 var(--border); filter: grayscale(0.6); }
+.lesson-label { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); text-transform: var(--text-label-casing-medium); letter-spacing: var(--text-label-letter-spacing-medium); color: var(--text-secondary); }
+.crown-badge { position: absolute; top: -6px; right: -6px; background: var(--gold); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid var(--bg); }
+.active-arrow { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 4px 10px; font-size: 0.7rem; font-weight: var(--text-label-weight-medium); letter-spacing: var(--text-label-letter-spacing-medium); text-transform: var(--text-label-casing-medium); color: var(--green); white-space: nowrap; z-index: 2; animation: bounce 1s ease-in-out infinite; }
+.active-arrow::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--border); }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
+
+/* ── Right Panel ── */
+.right-panel {
+  padding: 24px 16px;
+  display: flex; flex-direction: column; gap: 20px;
+  border-left: 2px solid var(--border);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.panel-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 16px; }
+.panel-title { font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-medium); text-transform: var(--text-label-casing-medium); letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 12px; }
+.stat-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.stat-icon { font-size: 1.6rem; width: 36px; text-align: center; }
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { font-size: var(--text-caption-size); font-weight: var(--text-caption-weight); color: var(--text-secondary); }
+.stat-value { font-size: var(--text-heading-size-xsmall); font-weight: var(--text-heading-weight-small); color: var(--text-color); font-variant-numeric: tabular-nums; }
+.hearts-row { display: flex; gap: 4px; align-items: center; }
+.heart { font-size: 1.3rem; }
+.heart.empty { filter: grayscale(1) opacity(0.3); }
+
+.leaderboard-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.leaderboard-item:last-child { border-bottom: none; }
+.lb-rank { font-size: 0.8rem; font-weight: var(--text-label-weight-medium); color: var(--text-secondary); width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+.lb-rank.gold-rank   { color: var(--gold);   font-size: 1rem; }
+.lb-rank.silver-rank { color: rgb(var(--color-koala)); font-size: 1rem; }
+.lb-rank.bronze-rank { color: var(--orange); font-size: 1rem; }
+.lb-avatar { width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.lb-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); }
+.lb-xp   { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--blue); font-variant-numeric: tabular-nums; }
+.lb-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lb-name-row { display: flex; align-items: center; gap: 8px; }
+.lb-streak { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--orange); }
+.lb-meta { font-size: 0.65rem; color: var(--text-secondary); }
+.lb-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.lb-badge-icon { font-size: 0.8rem; }
+.lb-no-badges { font-size: 0.65rem; color: var(--text-secondary); }
+
+/* Daily quests */
+.quest-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.quest-item:last-child { border-bottom: none; }
+.quest-check { font-size: 1.1rem; flex-shrink: 0; }
+.quest-info { flex: 1; }
+.quest-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); }
+.quest-sub  { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+.quest-progress-track { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.quest-progress-fill  { height: 100%; background: var(--gold); border-radius: 99px; transition: width 0.4s; }
+.quest-week-dots { display: flex; gap: 5px; margin-top: 8px; }
+.quest-day-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border); }
+.quest-day-dot.done { background: var(--green); border-color: var(--green-dark); }
+
+/*
+  Quests page shell — mirrors Duolingo's Welcome Back hero (beetle purple)
+  and the Quests/Badges tab strip above Daily Quests. JS still targets #quests-view
+  and #quests-badge-grid; class names here are for look-and-feel only.
+*/
+.quest-hero {
+  background: rgb(var(--color-beetle));
+  border-radius: 18px;
+  padding: 24px 24px 28px;
+  margin: 24px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+  color: rgb(var(--color-eel));
+  overflow: hidden;
+}
+.quest-subnav-shell {
+  background: rgb(var(--color-beetle));
+  border-radius: 0 0 18px 18px;
+  padding: 0 12px;
+  margin: -8px 0 16px;
+}
+.quest-subnav-shell .quest-tabs { border-bottom-color: rgba(var(--color-eel), 0.2); margin-bottom: 0; }
+.quest-subnav-shell .quest-tab { color: rgba(var(--color-eel), 0.75); }
+.quest-subnav-shell .quest-tab.active {
+  color: rgb(var(--color-eel));
+  border-bottom-color: rgb(var(--color-eel));
+}
+.quest-hero-title { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-large); margin-bottom: 4px; }
+.quest-hero-sub { font-size: var(--text-caption-size); opacity: 0.9; }
+.quest-hero-icon { font-size: 3rem; flex-shrink: 0; }
+
+.quest-tabs { display: flex; gap: 4px; margin: 0 0 16px; border-bottom: 2px solid var(--border); }
+.quest-tab {
+  flex: 1; background: none; border: none; padding: 12px 0 10px; cursor: pointer;
+  font-family: "duolingo-sans", 'Nunito', sans-serif;
+  font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-large);
+  letter-spacing: var(--text-label-letter-spacing-medium); text-transform: var(--text-label-casing-medium);
+  color: var(--text-secondary); border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.quest-tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+.quest-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.quest-section-title { font-size: var(--text-heading-size-xsmall); font-weight: var(--text-heading-weight-small); color: var(--text-color); }
+.quest-timer { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--gold); display: flex; align-items: center; gap: 4px; }
+
+.quest-item-icon { font-size: 1.5rem; width: 36px; text-align: center; flex-shrink: 0; }
+.quest-progress-wrap { position: relative; margin-top: 6px; }
+.quest-progress-track.tall { height: 18px; }
+.quest-progress-text {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: var(--text-label-weight-medium); color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+}
+.quest-reward { font-size: 1.4rem; flex-shrink: 0; }
+.quest-locked-row { display: flex; align-items: center; gap: 10px; padding: 14px 4px; color: var(--text-secondary); opacity: 0.7; }
+.quest-locked-icon { font-size: 1.3rem; }
+
+.streak-freeze-btn { width: 100%; padding: 10px; background: none; border: 2px solid var(--blue); border-radius: 12px; color: var(--blue); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.streak-freeze-btn:hover { background: rgba(var(--color-macaw), 0.1); }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(var(--color-snow), 0.7); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
+.modal-overlay[hidden] { display: none !important; }
+.modal { background: var(--surface); border-radius: 24px; width: 100%; max-width: 560px; border: 2px solid var(--border); overflow: hidden; animation: modalIn 0.2s ease; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.94) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-top-bar { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--border); }
+.close-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: 4px; line-height: 1; border-radius: 8px; }
+.close-btn:hover { background: var(--surface-2); color: var(--text-color); }
+.progress-bar-wrap { flex: 1; height: 14px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; }
+.hearts-display { display: flex; gap: 3px; }
+.modal-body { padding: 32px 28px; }
+.question-type-label { font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-medium); text-transform: var(--text-label-casing-medium); letter-spacing: var(--text-label-letter-spacing-medium); color: var(--text-secondary); margin-bottom: 8px; }
+.question-text { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-small); line-height: var(--text-heading-line-height-small); margin-bottom: 28px; text-wrap: balance; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.choice-btn { background: var(--surface-2); border: 2px solid var(--border); border-radius: 14px; padding: 14px 16px; font-family: "duolingo-sans", 'Nunito', sans-serif; font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); cursor: pointer; text-align: left; transition: border-color 0.1s, background 0.1s; display: flex; align-items: center; gap: 10px; }
+.choice-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(var(--color-macaw), 0.08); }
+.choice-btn.selected { border-color: var(--blue);  background: rgba(var(--color-macaw),   0.12); }
+.choice-btn.correct  { border-color: var(--green); background: rgba(var(--color-owl),     0.12); color: var(--green); }
+.choice-btn.wrong    { border-color: var(--red);   background: rgba(var(--color-cardinal), 0.12); color: var(--red); }
+.choice-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: var(--text-label-weight-medium); flex-shrink: 0; }
+.choice-btn.selected .choice-letter { background: var(--blue);  color: rgb(var(--color-snow)); }
+.choice-btn.correct  .choice-letter { background: var(--green); color: rgb(var(--color-snow)); }
+.choice-btn.wrong    .choice-letter { background: var(--red);   color: rgb(var(--color-snow)); }
+.modal-footer { padding: 20px 28px; border-top: 2px solid var(--border); }
+.modal-footer.correct-state { background: rgba(var(--color-owl),      0.08); border-top-color: var(--green); }
+.modal-footer.wrong-state   { background: rgba(var(--color-cardinal),  0.08); border-top-color: var(--red); }
+.feedback-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.feedback-icon { font-size: 1.4rem; }
+.feedback-text { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); }
+.feedback-text.correct-text { color: var(--green); }
+.feedback-text.wrong-text   { color: var(--red); }
+.feedback-answer { font-size: var(--text-caption-size); color: var(--text-secondary); font-weight: var(--text-caption-weight); margin-top: 2px; }
+.check-btn { width: 100%; padding: 14px; border-radius: 14px; border: none; font-family: "duolingo-sans", 'Nunito', sans-serif; font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-medium); letter-spacing: var(--text-label-letter-spacing-medium); text-transform: var(--text-label-casing-medium); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+.check-btn:active { transform: translateY(2px); }
+.check-btn.disabled   { background: var(--surface-2); color: var(--text-secondary); cursor: not-allowed; }
+.check-btn.ready      { background: var(--green); color: rgb(var(--color-snow)); box-shadow: 0 4px 0 var(--green-shadow); }
+.check-btn.ready:active { box-shadow: 0 2px 0 var(--green-shadow); }
+.check-btn.next-state { background: var(--green); color: rgb(var(--color-snow)); box-shadow: 0 4px 0 var(--green-shadow); }
+.check-btn.wrong-btn  { background: var(--red);   color: rgb(var(--color-snow)); box-shadow: 0 4px 0 var(--red-dark); }
+
+/* ── Completion ── */
+.completion-screen { padding: 40px 28px; text-align: center; }
+.completion-owl { font-size: 5rem; margin-bottom: 16px; animation: popIn 0.4s ease; }
+@keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.completion-title { font-size: var(--text-heading-size-large); font-weight: var(--text-heading-weight-large); line-height: var(--text-heading-line-height-large); margin-bottom: 8px; color: var(--text-color); }
+.completion-subtitle { font-size: var(--text-body-size); font-weight: var(--text-body-weight); color: var(--text-secondary); margin-bottom: 28px; }
+.xp-gained { display: inline-flex; align-items: center; gap: 8px; background: rgba(var(--color-bee), 0.15); border: 2px solid var(--gold); border-radius: 99px; padding: 10px 20px; font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-large); letter-spacing: var(--text-label-letter-spacing-medium); color: var(--gold); margin-bottom: 24px; }
+.continue-btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--green); color: rgb(var(--color-snow)); font-family: "duolingo-sans", 'Nunito', sans-serif; font-size: var(--text-label-size-medium); font-weight: var(--text-label-weight-large); letter-spacing: var(--text-label-letter-spacing-medium); text-transform: var(--text-label-casing-medium); cursor: pointer; box-shadow: 0 4px 0 var(--green-shadow); }
+.continue-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--green-shadow); }
+.confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; flex-direction: row; overflow-x: auto; padding: 12px 16px; border-right: none; border-bottom: 2px solid var(--border); -webkit-overflow-scrolling: touch; }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .logo { display: none; }
+  .nav-item { flex-direction: column; gap: 2px; font-size: 0.6rem; padding: 8px 10px; white-space: nowrap; min-width: 64px; }
+  .nav-icon { font-size: 1.2rem; width: auto; }
+  .right-panel { position: static; height: auto; border-left: none; border-top: 2px solid var(--border); flex-direction: row; flex-wrap: wrap; overflow: visible; }
+  .panel-card { flex: 1 1 200px; }
+  .choices { grid-template-columns: 1fr; }
+}
+
+/* ── Restore Hearts ── */
+.restore-btn { width: 100%; padding: 10px 12px; background: none; border: 2px solid var(--red); border-radius: 12px; color: var(--red); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: var(--text-label-casing-medium); letter-spacing: var(--text-label-letter-spacing-medium); }
+.restore-btn:hover { background: rgba(var(--color-cardinal), 0.1); }
+.restore-btn:disabled { border-color: var(--border); color: var(--text-secondary); cursor: not-allowed; }
+.restore-confirm { background: rgba(var(--color-cardinal), 0.08); border: 2px solid var(--red); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.restore-confirm-text { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); text-align: center; }
+.restore-confirm-cost { font-size: 0.75rem; color: var(--text-secondary); text-align: center; font-weight: var(--text-caption-weight); }
+.restore-confirm-btns { display: flex; gap: 8px; }
+.restore-confirm-yes { flex: 1; padding: 8px; border-radius: 10px; border: none; background: var(--red); color: rgb(var(--color-snow)); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); text-transform: var(--text-label-casing-medium); letter-spacing: var(--text-label-letter-spacing-medium); cursor: pointer; box-shadow: 0 3px 0 var(--red-dark); }
+.restore-confirm-yes:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--red-dark); }
+.restore-confirm-no { flex: 1; padding: 8px; border-radius: 10px; border: 2px solid var(--border); background: none; color: var(--text-secondary); font-family: "duolingo-sans", 'Nunito', sans-serif; font-weight: var(--text-label-weight-medium); font-size: var(--text-caption-size); text-transform: var(--text-label-casing-medium); letter-spacing: var(--text-label-letter-spacing-medium); cursor: pointer; }
+.restore-confirm-no:hover { background: var(--surface-2); color: var(--text-color); }
+.restore-toast { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); text-align: center; padding: 6px 10px; border-radius: 8px; animation: fadeOut 2s ease forwards; }
+.restore-toast.success { color: var(--green); background: rgba(var(--color-owl), 0.1); }
+.restore-toast.error   { color: var(--red);   background: rgba(var(--color-cardinal), 0.1); }
+@keyframes fadeOut { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+
+@keyframes xpPop { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-40px) scale(1.2); opacity: 0; } }
+.xp-float { position: fixed; font-size: var(--text-body-size); font-weight: var(--text-label-weight-large); color: var(--gold); pointer-events: none; z-index: 300; animation: xpPop 1s ease forwards; }
+
+/* ── Avatar / Profile page ── */
+.avatar-page { padding: 24px 0; }
+.avatar-page-header {
+  margin-bottom: 24px;
+}
+.avatar-page-title {
+  font-size: var(--text-heading-size-large);
+  font-weight: var(--text-heading-weight-large);
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+.avatar-page-sub {
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+/* Active character hero banner */
+.active-char-banner {
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid;
+  transition: box-shadow 0.3s;
+}
+/*
+  Equipped profile badge — one small circular medal at the bottom-right of a circular avatar.
+  All three avatar surfaces (Profile banner, Boards “You” row, player-summary for You) use
+  class avatar-equipped-badge-host on the circle and call avatarEquippedBadgeOverlayHtml()
+  so the medal always looks the same. Tune size with --avatar-medal-size on the host
+  (default fits the 32px leaderboard circle; Profile and modal set a larger value inline).
+*/
+.avatar-equipped-badge-host {
+  position: relative;
+}
+.avatar-equipped-medal {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: var(--avatar-medal-size, 16px);
+  height: var(--avatar-medal-size, 16px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--avatar-medal-size, 16px) * 0.52);
+  line-height: 1;
+  background: var(--surface);
+  border: 1.5px solid rgba(var(--color-black), 0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+/*
+  Circular profile icon on the Profile banner. The badge-avatar-slot button opens the picker;
+  keep class active-char-icon-wrap stable for renderAvatarPage and overlay hooks.
+*/
+.active-char-icon-wrap {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  border: 3px solid;
+  position: relative;
+}
+/* Opens the earned-badge picker — not equip buttons on each badge card. */
+button.badge-avatar-slot {
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  background: transparent;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+button.badge-avatar-slot:hover { transform: scale(1.04); }
+button.badge-avatar-slot:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.badge-slot-edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Full-screen dim layer; badge choices live in the centered panel. */
+.badge-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(var(--color-black), 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.badge-picker-panel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  max-width: 420px;
+  width: 100%;
+  max-height: min(80vh, 520px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+.badge-picker-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.badge-picker-title {
+  font-size: var(--text-heading-size-xsmall);
+  font-weight: var(--text-heading-weight-xsmall);
+  color: var(--text-color);
+}
+.badge-picker-sub {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.badge-picker-list {
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.badge-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  font-family: inherit;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.badge-picker-option:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(var(--color-bee), 0.06);
+}
+.badge-picker-option.equipped {
+  border-color: var(--gold);
+  background: rgba(var(--color-bee), 0.1);
+}
+.badge-picker-option.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.badge-picker-option.none-row {
+  border-style: dashed;
+  justify-content: center;
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label-weight-medium);
+  color: var(--text-secondary);
+}
+.badge-picker-foot {
+  padding: 0 12px 12px;
+}
+.badge-picker-close {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-color);
+  font-family: inherit;
+  font-weight: var(--text-label-weight-medium);
+  cursor: pointer;
+}
+.badge-equipped-tag {
+  font-size: 0.7rem;
+  font-weight: var(--text-label-weight-medium);
+  color: var(--gold);
+  white-space: nowrap;
+}
+.active-char-info { flex: 1; }
+.active-char-name { font-size: var(--text-heading-size-medium); font-weight: var(--text-heading-weight-medium); color: var(--text-color); }
+.active-char-skin { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); margin-top: 2px; }
+.active-char-game { font-size: var(--text-caption-size); color: var(--text-secondary); margin-top: 2px; }
+.active-badge {
+  font-size: 0.65rem;
+  font-weight: var(--text-label-weight-medium);
+  text-transform: var(--text-label-casing-medium);
+  letter-spacing: var(--text-label-letter-spacing-medium);
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: rgba(var(--color-owl), 0.15);
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+
+/* Character roster grid */
+.char-section-label {
+  font-size: var(--text-label-size-medium);
+  font-weight: var(--text-label-weight-medium);
+  text-transform: var(--text-label-casing-medium);
+  letter-spacing: var(--text-label-letter-spacing-medium);
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.char-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+  position: relative;
+}
+.char-card:hover { transform: translateY(-2px); }
+.char-card.selected {
+  transform: translateY(-2px);
+}
+.char-card-icon {
+  font-size: 2rem;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+  border: 2px solid;
+}
+.char-card-name {
+  font-size: 0.7rem;
+  font-weight: var(--text-label-weight-medium);
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.char-card-rarity {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.char-equipped-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid var(--surface);
+}
+
+/* Skin variants panel */
+.skin-panel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.skin-panel-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.skin-panel-icon-wrap {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  border: 2px solid;
+}
+.skin-panel-char-name { font-size: var(--text-heading-size-small); font-weight: var(--text-heading-weight-small); }
+.skin-panel-game      { font-size: var(--text-caption-size); color: var(--text-secondary); margin-top: 1px; }
+.skin-variants { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.skin-variant-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  width: 100%;
+  text-align: left;
+  font-family: "duolingo-sans", 'Nunito', sans-serif;
+}
+.skin-variant-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(var(--color-macaw), 0.06); }
+.skin-variant-btn.equipped { border-width: 2px; }
+.skin-variant-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.skin-variant-btn.near-unlock { border-color: var(--gold) !important; }
+.skin-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  border: 2px solid;
+}
+.skin-variant-info { flex: 1; }
+.skin-variant-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); }
+.skin-rarity {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: var(--text-label-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+.rarity-common    { background: rgba(var(--color-hare),    0.2); color: rgb(var(--color-hare)); }
+.rarity-rare      { background: rgba(var(--color-macaw),   0.2); color: var(--blue); }
+.rarity-epic      { background: rgba(var(--color-beetle),  0.2); color: var(--purple); }
+.rarity-legendary { background: rgba(var(--color-bee),     0.2); color: var(--gold); }
+.skin-lock-tag {
+  font-size: 0.7rem;
+  font-weight: var(--text-label-weight-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Badge case */
+.badge-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.badge-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+}
+.badge-card.earned { border-color: var(--gold); background: rgba(var(--color-bee), 0.08); }
+.badge-card.locked { opacity: 0.75; }
+.badge-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 2px solid var(--border);
+}
+.badge-card.earned .badge-icon { border-color: var(--gold); background: rgba(var(--color-bee), 0.15); }
+.badge-info { flex: 1; }
+.badge-name { font-size: var(--text-caption-size); font-weight: var(--text-label-weight-medium); color: var(--text-color); }
+.badge-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+.badge-earned-tag { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--gold); white-space: nowrap; }
+.badge-lock-tag { font-size: 0.7rem; font-weight: var(--text-label-weight-medium); color: var(--text-secondary); white-space: nowrap; }
+.skin-near-tag {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--gold);
+  white-space: nowrap;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.skin-equipped-tag {
+  font-size: 0.65rem;
+  font-weight: var(--text-label-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  white-space: nowrap;
+}
+.play-as-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-family: "duolingo-sans", 'Nunito', sans-serif;
+  font-size: var(--text-label-size-medium);
+  font-weight: var(--text-label-weight-medium);
+  letter-spacing: var(--text-label-letter-spacing-medium);
+  text-transform: var(--text-label-casing-medium);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.play-as-btn:active { transform: translateY(2px); }
+.play-as-btn.set-active { background: var(--green); color: rgb(var(--color-snow)); box-shadow: 0 4px 0 var(--green-shadow); }
+.play-as-btn.already-active { background: var(--surface-2); color: var(--text-secondary); cursor: default; }
+
+/* unlock toast */
+.unlock-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label-weight-medium);
+  color: var(--gold);
+  z-index: 400;
+  box-shadow: 0 4px 24px rgba(var(--color-bee), 0.3);
+  animation: toastIn 0.3s ease, toastOut 0.4s ease 2.6s forwards;
+  white-space: nowrap;
+}
+@keyframes toastIn  { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 </style>
 </head>
 <body>
 
+<canvas class="confetti-canvas" id="confetti"></canvas>
+
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal" id="modal">
+    <div class="modal-top-bar" id="modal-topbar">
+      <button class="close-btn" id="close-btn" title="Close">✕</button>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="hearts-display" id="modal-hearts"></div>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
 <div class="app">
-  <div class="topbar">
-    <div class="stat streak">
-      <span class="icon flame">🔥</span>
-      <span id="streakCount">0</span>
-    </div>
-    <div class="stat xp">
-      <span class="icon">⭐</span>
-      <span id="xpCount">0</span> XP
-    </div>
-  </div>
+  <nav class="sidebar">
+    <a class="logo" href="#">
+      <svg class="logo-owl" viewBox="0 0 64 64" fill="none">
+        <ellipse cx="32" cy="38" rx="22" ry="18" fill="rgb(147,211,51)"/>
+        <ellipse cx="32" cy="28" rx="18" ry="20" fill="rgb(147,211,51)"/>
+        <ellipse cx="24" cy="24" rx="10" ry="10" fill="white"/>
+        <ellipse cx="40" cy="24" rx="10" ry="10" fill="white"/>
+        <circle cx="24" cy="24" r="6" fill="#1A1A1A"/>
+        <circle cx="40" cy="24" r="6" fill="#1A1A1A"/>
+        <circle cx="26" cy="22" r="2" fill="white"/>
+        <circle cx="42" cy="22" r="2" fill="white"/>
+        <ellipse cx="32" cy="34" rx="6" ry="4" fill="rgb(255,199,0)"/>
+        <ellipse cx="18" cy="42" rx="6" ry="4" fill="rgb(121,185,51)" transform="rotate(-20 18 42)"/>
+        <ellipse cx="46" cy="42" rx="6" ry="4" fill="rgb(121,185,51)" transform="rotate(20 46 42)"/>
+        <ellipse cx="22" cy="14" rx="5" ry="7" fill="rgb(121,185,51)" transform="rotate(-10 22 14)"/>
+        <ellipse cx="42" cy="14" rx="5" ry="7" fill="rgb(121,185,51)" transform="rotate(10 42 14)"/>
+      </svg>
+      <span class="logo-text">luodingo</span>
+    </a>
+    <button class="nav-item active" data-view="learn"    onclick="setNav(this)"><span class="nav-icon">🏠</span> Learn</button>
+    <button class="nav-item"        data-view="boards"   onclick="setNav(this)"><span class="nav-icon">🏆</span> Leaderboards</button>
+    <button class="nav-item"        data-view="quests"   onclick="setNav(this)"><span class="nav-icon">🗡️</span> Quests</button>
+    <button class="nav-item"        data-view="shop"     onclick="setNav(this)"><span class="nav-icon">🛒</span> Shop</button>
+    <button class="nav-item"        data-view="profile"  onclick="setNav(this)"><span class="nav-icon">👤</span> Profile</button>
+  </nav>
 
-  <div class="card">
-    <div class="lesson-title">Unit 1, Lesson <span id="lessonNum">1</span></div>
-    <div class="lesson-name">Basic Phrases</div>
-
-    <div class="progress-wrap">
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
+  <main class="main">
+    <!-- Learn view -->
+    <div id="learn-view">
+      <div class="unit-header">
+        <div>
+          <div class="unit-label">Unit 1 · Section 1</div>
+          <div class="unit-title">Form basic sentences</div>
+          <div class="unit-desc">Learn simple Spanish phrases and greetings</div>
+        </div>
+        <div class="unit-badge">📖</div>
       </div>
-      <div class="progress-meta">
-        <span id="progressLabel">0 / 100 XP to next level</span>
-        <span id="levelLabel">Level 1</span>
+      <div class="path-container" id="path"></div>
+      <div class="unit-header-locked">
+        <div>
+          <div class="unit-label" style="color:var(--text-secondary)">Unit 2 · Section 1</div>
+          <div class="unit-title" style="color:var(--text-secondary)">People and animals</div>
+          <div class="unit-desc">Coming after Unit 1</div>
+        </div>
+        <div style="font-size:1.5rem">🔒</div>
+      </div>
+    </div>
+    <!-- Avatar / Profile view -->
+    <div id="avatar-view" hidden></div>
+    <!-- Leaderboard view -->
+    <div id="leaderboard-view" hidden>
+      <div class="unit-header">
+        <div>
+          <div class="unit-label">Weekly Leaderboard</div>
+          <div class="unit-title">See where you rank</div>
+          <div class="unit-desc">Rankings update once per day</div>
+        </div>
+        <div class="unit-badge">🏆</div>
+      </div>
+      <div class="panel-card" style="max-width:480px">
+        <div id="leaderboard"></div>
+      </div>
+    </div>
+    <!-- Quests view: layout follows Duolingo DOM (hero → tablist → daily list → locked slot). -->
+    <div id="quests-view" hidden>
+      <div class="quest-hero duo-quests-hero">
+        <div class="duo-quests-welcome">
+          <div class="quest-hero-title duo-quests-welcome-title">Welcome Back!</div>
+          <div class="quest-hero-sub duo-quests-welcome-sub">Complete quests to earn rewards!</div>
+        </div>
+        <div class="quest-hero-icon duo-quests-welcome-art" aria-hidden="true">🦉</div>
+      </div>
+      <div class="quest-subnav-shell duo-quests-subnav">
+        <nav class="quest-tabs duo-quests-tablist" role="tablist" aria-label="Quests and Badges">
+          <!-- ids quests-tab / badges-tab pair with tabpanel aria-labelledby for screen readers (U1-T6). -->
+          <button id="quests-tab" class="quest-tab duo-quests-tab active" data-tab="quests" role="tab" aria-selected="true" aria-controls="quests-panel" onclick="switchQuestTab('quests')"><span class="duo-quests-tab-label">Quests</span></button>
+          <button id="badges-tab" class="quest-tab duo-quests-tab" data-tab="badges" role="tab" aria-selected="false" aria-controls="badges-panel" onclick="switchQuestTab('badges')"><span class="duo-quests-tab-label">Badges</span></button>
+        </nav>
+      </div>
+      <div id="quests-panel" class="duo-quests-panel" role="tabpanel" aria-labelledby="quests-tab">
+        <div class="quest-section-head duo-daily-quests-head">
+          <h2 class="quest-section-title duo-daily-quests-title">Daily Quests</h2>
+          <span class="quest-timer duo-daily-quests-timer">⏱️ <span id="quest-reset-timer">24 hours</span></span>
+        </div>
+        <div class="panel-card duo-daily-quests-card" style="max-width:480px">
+          <div id="quests" class="duo-daily-quests-list"></div>
+        </div>
+        <div class="panel-card duo-quests-locked-slot" style="max-width:480px;margin-top:10px">
+          <div class="quest-locked-row">
+            <span class="quest-locked-icon" aria-hidden="true">🔒</span>
+            <span>More quests unlock soon</span>
+          </div>
+        </div>
+      </div>
+      <div id="badges-panel" class="duo-badges-panel" style="display:none" role="tabpanel" aria-labelledby="badges-tab">
+        <div class="quest-section-head duo-badges-head">
+          <h2 class="quest-section-title duo-badges-title">Badges</h2>
+        </div>
+        <div class="panel-card duo-badges-card" style="max-width:480px">
+          <div class="badge-grid duo-badges-grid" id="quests-badge-grid" style="margin-bottom:0"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="right-panel">
+    <div class="panel-card">
+      <div class="panel-title">🇪🇸 Spanish</div>
+      <div class="stat-row">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-info">
+          <span class="stat-label">Day Streak</span>
+          <span class="stat-value" style="color:var(--gold)" id="streak-display">0</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-info">
+          <span class="stat-label">Total XP</span>
+          <span class="stat-value" style="color:var(--blue)" id="xp-display">0</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">💎</div>
+        <div class="stat-info">
+          <span class="stat-label">Gems</span>
+          <span class="stat-value" style="color:var(--purple)" id="gems-display">500</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-info" style="flex:1">
+          <span class="stat-label">Hearts</span>
+          <div class="hearts-row" id="hearts-row"></div>
+        </div>
+      </div>
+      <div id="hearts-section" style="margin-top:4px"></div>
+      <div style="margin-top:8px">
+        <button class="streak-freeze-btn">❄️ Streak Freeze · 10 💎</button>
       </div>
     </div>
 
-    <button class="btn btn-primary" id="lessonBtn">Complete Lesson (+10 XP)</button>
-
-    <div class="celebration" id="celebration">
-      <h3 id="celebrationTitle">Lesson complete!</h3>
-      <p id="celebrationText">Nice work. Keep the streak going.</p>
+    <div class="panel-card">
+      <div class="panel-title">📅 Daily Goal</div>
+      <div style="margin-bottom:8px;font-size:var(--text-caption-size);font-weight:700;color:var(--text-secondary)">
+        <span id="goal-xp">0</span> / 20 XP today
+      </div>
+      <div style="height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden">
+        <div id="goal-fill" style="height:100%;background:var(--green);border-radius:99px;width:0%;transition:width 0.4s"></div>
+      </div>
     </div>
-  </div>
-
-  <div class="footnote">Core loop clone — streak, XP, and goal-gradient progress bar</div>
+  </aside>
 </div>
 
 <script>
-  const state = {
-    streak: 0,
-    xp: 0,
-    level: 1,
-    xpPerLevel: 100,
-    xpPerLesson: 10,
-    lessonsCompletedToday: 0
-  };
+/* ─────────────── Character + Skin Catalog ─────────────── */
+const CHARACTERS = {
+  mario:   { name: 'Mario',        game: 'Super Mario Bros.',   aura: '#FF2A2A' },
+  pikachu: { name: 'Pikachu',      game: 'Pokémon',             aura: '#FFD700' },
+  chief:   { name: 'Master Chief', game: 'Halo',                aura: '#93d333' },
+  link:    { name: 'Link',         game: 'Legend of Zelda',     aura: '#49c0f8' },
+  kratos:  { name: 'Kratos',       game: 'God of War',          aura: '#AFAFAF' },
+  geralt:  { name: 'Geralt',       game: 'The Witcher',         aura: '#888888' },
+  sonic:   { name: 'Sonic',        game: 'Sonic the Hedgehog',  aura: '#49c0f8' },
+  lara:    { name: 'Lara Croft',   game: 'Tomb Raider',         aura: '#20B2AA' },
+  steve:   { name: 'Steve',        game: 'Minecraft',           aura: '#00EEEE' },
+  samus:   { name: 'Samus',        game: 'Metroid',             aura: '#FF8C00' },
+};
 
-  const els = {
-    streakCount: document.getElementById('streakCount'),
-    xpCount: document.getElementById('xpCount'),
-    progressFill: document.getElementById('progressFill'),
-    progressLabel: document.getElementById('progressLabel'),
-    levelLabel: document.getElementById('levelLabel'),
-    lessonBtn: document.getElementById('lessonBtn'),
-    celebration: document.getElementById('celebration'),
-    celebrationTitle: document.getElementById('celebrationTitle'),
-    celebrationText: document.getElementById('celebrationText'),
-    lessonNum: document.getElementById('lessonNum')
-  };
+const SKINS = {
+  mario:   [
+    { id: 'mario_classic',  name: 'Classic Mario',      rarity: 'Common',    reqXp: 0,   icon: '🍄', aura: '#FF2A2A' },
+    { id: 'mario_fire',     name: 'Fire Mario',         rarity: 'Rare',      reqXp: 25,  icon: '🔥', aura: '#FFFFFF' },
+  ],
+  pikachu: [
+    { id: 'pikachu_classic',name: 'Standard Pikachu',   rarity: 'Common',    reqXp: 0,   icon: '⚡', aura: '#FFD700' },
+    { id: 'pikachu_shiny',  name: 'Shiny Pikachu',      rarity: 'Epic',      reqXp: 15,  icon: '✨', aura: '#FFA500' },
+  ],
+  chief:   [
+    { id: 'chief_mjolnir',  name: 'MJOLNIR Green',      rarity: 'Common',    reqXp: 0,   icon: '🛡️', aura: '#93d333' },
+    { id: 'chief_cortana',  name: 'Cortana Overcharge', rarity: 'Epic',      reqXp: 20,  icon: '🤖', aura: '#00FFFF' },
+  ],
+  link:    [
+    { id: 'link_champion',  name: "Champion's Tunic",   rarity: 'Common',    reqXp: 0,   icon: '🗡️', aura: '#49c0f8' },
+    { id: 'link_dark',      name: 'Dark Link',          rarity: 'Legendary', reqXp: 25,  icon: '👁️', aura: '#FF0000' },
+  ],
+  kratos:  [
+    { id: 'kratos_nordic',  name: 'Nordic Armor',       rarity: 'Common',    reqXp: 0,   icon: '🪓', aura: '#AFAFAF' },
+    { id: 'kratos_rage',    name: 'Spartan Rage',       rarity: 'Legendary', reqXp: 30,  icon: '🔥', aura: '#FF2A2A' },
+  ],
+  geralt:  [
+    { id: 'geralt_wolven',  name: 'Wolven Gear',        rarity: 'Common',    reqXp: 0,   icon: '🐺', aura: '#888888' },
+    { id: 'geralt_toxic',   name: 'Toxicity Mutated',   rarity: 'Rare',      reqXp: 30,  icon: '🧪', aura: '#00FF66' },
+  ],
+  sonic:   [
+    { id: 'sonic_blue',     name: 'Blue Blur',          rarity: 'Common',    reqXp: 0,   icon: '🦔', aura: '#49c0f8' },
+    { id: 'sonic_super',    name: 'Super Sonic',        rarity: 'Legendary', reqXp: 50,  icon: '🌟', aura: '#FFD700' },
+  ],
+  lara:    [
+    { id: 'lara_survivor',  name: 'Survivor Gear',      rarity: 'Common',    reqXp: 0,   icon: '🏹', aura: '#20B2AA' },
+    { id: 'lara_shadow',    name: 'Shadow Tactical',    rarity: 'Rare',      reqXp: 35,  icon: '🥷', aura: '#444444' },
+  ],
+  steve:   [
+    { id: 'steve_diamond',  name: 'Diamond Pickaxe',    rarity: 'Common',    reqXp: 0,   icon: '🧊', aura: '#00EEEE' },
+    { id: 'steve_enchanted',name: 'Enchanted Armor',    rarity: 'Epic',      reqXp: 40,  icon: '💎', aura: '#ce82ff' },
+  ],
+  samus:   [
+    { id: 'samus_varia',    name: 'Varia Suit',         rarity: 'Common',    reqXp: 0,   icon: '🚀', aura: '#FF8C00' },
+    { id: 'samus_gravity',  name: 'Gravity Suit',       rarity: 'Legendary', reqXp: 40,  icon: '🌌', aura: '#9932CC' },
+  ],
+};
 
-  function render(){
-    els.streakCount.textContent = state.streak;
-    els.xpCount.textContent = state.xp;
-    els.levelLabel.textContent = 'Level ' + state.level;
+/* ─────────────── State ─────────────── */
+const STATE_KEY = 'duo_state';
+const DEFAULT_RIVALS = [
+  { name: 'SarahK',     xp: 1840, flag: '🦊', streak: 34, language: 'French'   },
+  { name: 'Miguel_ES',  xp: 1720, flag: '🦁', streak: 12, language: 'German'   },
+  { name: 'LingoPro',   xp: 980,  flag: '🐨', streak: 5,  language: 'Japanese' },
+  { name: 'StudyBuddy', xp: 740,  flag: '🐸', streak: 2,  language: 'Italian'  },
+];
+const YOUR_LANGUAGE = 'Spanish';  /* the only course this app actually teaches */
 
-    const xpIntoLevel = state.xp % state.xpPerLevel;
-    const pct = (xpIntoLevel / state.xpPerLevel) * 100;
+/* Country flag for the language being studied (distinct from a rival's
+   own avatar emoji, which stays a mascot/character, not a flag). */
+const LANGUAGE_FLAGS = {
+  Spanish: '🇪🇸', French: '🇫🇷', German: '🇩🇪',
+  Japanese: '🇯🇵', Italian: '🇮🇹',
+};
+function languageFlag(language) {
+  return LANGUAGE_FLAGS[language] || '🌐';
+}
 
-    els.progressFill.style.width = pct + '%';
-    els.progressLabel.textContent = xpIntoLevel + ' / ' + state.xpPerLevel + ' XP to next level';
+/* Player level is a simple XP tier, separate from course Unit/Lesson numbers. */
+function levelForXp(xp) {
+  return Math.floor(xp / 100) + 1;
+}
+let state = {
+  xp: 0, streak: 7, hearts: 5, gems: 500,
+  completedLessons: [], todayXp: 0, lastDate: '', lastOpenDate: '', activityDates: [],
+  earnedBadges: [],
+  /* Which badge id is worn on the avatar slot; null means empty until the user picks one. */
+  equippedBadge: null,
+  rivals: DEFAULT_RIVALS.map(r => ({ ...r })),
+  /* avatar */
+  activeChar: 'mario',
+  equippedSkins: {
+    mario:'mario_classic', pikachu:'pikachu_classic', chief:'chief_mjolnir',
+    link:'link_champion', kratos:'kratos_nordic', geralt:'geralt_wolven',
+    sonic:'sonic_blue', lara:'lara_survivor', steve:'steve_diamond', samus:'samus_varia'
+  },
+  unlockedSkins: [
+    'mario_classic','pikachu_classic','chief_mjolnir','link_champion',
+    'kratos_nordic','geralt_wolven','sonic_blue','lara_survivor',
+    'steve_diamond','samus_varia'
+  ]
+};
+try {
+  const s = JSON.parse(localStorage.getItem(STATE_KEY));
+  if (s) {
+    Object.assign(state, s);
+    /* ensure new fields exist in old saves */
+    if (!state.equippedSkins) state.equippedSkins = {};
+    if (!state.unlockedSkins) state.unlockedSkins = [];
+    if (!state.activeChar)    state.activeChar = 'mario';
+    if (!state.earnedBadges)  state.earnedBadges = [];
+    /* Missing key on old saves means "never chose a badge"; stored null is the same empty slot. */
+    if (!('equippedBadge' in state)) state.equippedBadge = null;
+    if (!state.rivals)        state.rivals = DEFAULT_RIVALS.map(r => ({ ...r }));
+    /* older saves may have rivals without a streak field yet */
+    state.rivals.forEach((r, i) => { if (typeof r.streak !== 'number') r.streak = (DEFAULT_RIVALS[i] && DEFAULT_RIVALS[i].streak) || 0; });
+    if (!state.activityDates) state.activityDates = [];
+  }
+  const today = new Date().toDateString();
 
-    // Goal-Gradient Effect: as the user nears the goal, the bar visibly
-    // pulses/brightens to reinforce "almost there" and pull them to finish.
-    if (pct >= 70) {
-      els.progressFill.classList.add('near-goal');
-    } else {
-      els.progressFill.classList.remove('near-goal');
-    }
+  /* Streak reset: lastDate only ever changes when a lesson is completed
+     (see completeLesson), so this gap reflects real missed days. */
+  if (state.lastDate) {
+    const gapDays = Math.round((new Date(today) - new Date(state.lastDate)) / 86400000);
+    if (gapDays >= 2) state.streak = 0;
   }
 
-  function completeLesson(){
-    state.xp += state.xpPerLesson;
-    state.lessonsCompletedToday += 1;
-    els.lessonNum.textContent = state.lessonsCompletedToday + 1;
-
-    let leveledUp = false;
-    while (state.xp >= state.level * state.xpPerLevel) {
-      state.level += 1;
-      leveledUp = true;
-    }
-
-    if (state.lessonsCompletedToday === 1) {
-      state.streak += 1;
-    }
-
-    render();
-
-    els.celebration.classList.add('show');
-    if (leveledUp) {
-      els.celebrationTitle.textContent = 'Level up! 🎉';
-      els.celebrationText.textContent = 'You reached Level ' + state.level + '.';
-    } else {
-      els.celebrationTitle.textContent = 'Lesson complete!';
-      els.celebrationText.textContent = '+' + state.xpPerLesson + ' XP · Streak: ' + state.streak + ' day' + (state.streak === 1 ? '' : 's');
-    }
-
-    setTimeout(() => {
-      els.celebration.classList.remove('show');
-    }, 2200);
+  /* Daily XP reset (and the leaderboard rivals' daily XP gain) is tracked
+     separately from lastDate so it never masks the streak-increment check
+     in completeLesson. This block runs once, the first load of a new day. */
+  if (state.lastOpenDate !== today) {
+    state.todayXp = 0;
+    state.lastOpenDate = today;
+    simulateRivalProgress();
   }
+} catch(e) {}
 
-  els.lessonBtn.addEventListener('click', completeLesson);
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
 
-  render();
+/* ─────────────── Badges ─────────────── */
+const BADGES = [
+  { id: 'streak_7',   type: 'streak',      threshold: 7,   name: 'Week Warrior',     icon: '🔥', desc: 'Reach a 7-day streak' },
+  { id: 'streak_30',  type: 'streak',      threshold: 30,  name: 'Monthly Master',   icon: '🏆', desc: 'Reach a 30-day streak' },
+  { id: 'streak_100', type: 'streak',      threshold: 100, name: 'Centurion',        icon: '💯', desc: 'Reach a 100-day streak' },
+  { id: 'lessons_10', type: 'lessons',     threshold: 10,  name: 'Getting Started',  icon: '📘', desc: 'Complete 10 lessons' },
+  { id: 'lessons_50', type: 'lessons',     threshold: 50,  name: 'Dedicated Learner',icon: '📚', desc: 'Complete 50 lessons' },
+  { id: 'lessons_100',type: 'lessons',     threshold: 100, name: 'Lesson Legend',    icon: '🎓', desc: 'Complete 100 lessons' },
+  { id: 'perfect_week',type: 'consistency',threshold: 7,   name: 'Perfect Week',     icon: '📅', desc: 'Complete a lesson every day for 7 days straight' },
+];
+
+/* Single source of truth for "how close is this badge" -- every quest
+   reads progress through this same function, so a quest and its badge
+   can never drift out of sync with each other. */
+function badgeProgress(badge) {
+  if (badge.type === 'streak')      return state.streak;
+  if (badge.type === 'lessons')     return state.completedLessons.length;
+  if (badge.type === 'consistency') return last7Days().filter(d => state.activityDates.includes(d)).length;
+  return 0;
+}
+
+/* Earned badges are appended to state.earnedBadges and never removed,
+   so they survive a streak reset (PRD 1c / Requirements 3, P0).
+   Unlocking does not fill state.equippedBadge — the user must equip explicitly. */
+function evaluateBadgeUnlocks() {
+  const newlyEarned = [];
+  BADGES.forEach(badge => {
+    if (state.earnedBadges.includes(badge.id)) return;
+    if (badgeProgress(badge) >= badge.threshold) {
+      state.earnedBadges.push(badge.id);
+      newlyEarned.push(badge);
+    }
+  });
+  newlyEarned.forEach(badge => showBadgeToast(badge));
+  if (newlyEarned.length) saveState();
+}
+
+/*
+  Equip helpers read/write state.equippedBadge and duo_state via saveState().
+  Only badges already listed in earnedBadges can be equipped; everything else is ignored.
+*/
+function isBadgeEquippable(badgeId) {
+  return Array.isArray(state.earnedBadges) && state.earnedBadges.includes(badgeId);
+}
+
+function equipBadge(badgeId) {
+  if (!isBadgeEquippable(badgeId)) return;
+  state.equippedBadge = badgeId;
+  saveState();
+}
+
+function unequipBadge() {
+  state.equippedBadge = null;
+  saveState();
+}
+
+/* Returns the full BADGES catalog entry for the equipped id, or null when the slot is empty. */
+function getEquippedBadge() {
+  if (state.equippedBadge === null || state.equippedBadge === undefined) return null;
+  return BADGES.find(b => b.id === state.equippedBadge) || null;
+}
+
+/*
+  Builds the HTML for the equipped-badge medal (or nothing when the slot is empty).
+  Profile, Boards “You”, and the player-summary modal all call this helper so the
+  overlay never drifts between screens. Pass an explicit badge object when you already
+  have getEquippedBadge(); rivals never call this. Styling lives in .avatar-equipped-medal above.
+*/
+function avatarEquippedBadgeOverlayHtml(badge) {
+  const equipped = badge === undefined ? getEquippedBadge() : badge;
+  if (!equipped) return '';
+  return `<span class="avatar-equipped-medal" aria-hidden="true" title="${equipped.name}">${equipped.icon}</span>`;
+}
+
+/*
+  Badge picker UI lives on the Profile avatar circle, not on each badge card.
+  The overlay is attached to document.body so renderAvatarPage can refresh the
+  banner without destroying an open picker accidentally (we close before re-render).
+*/
+let badgePickerOverlay = null;
+
+/*
+  Hides the profile-badge popup and clears our handle to it.
+  Called when the user taps Done, taps outside the panel, or after equip/unequip
+  so the Profile page can redraw without leaving a stale dialog on screen.
+  To maintain: if you add another way to dismiss the picker, call this here too.
+*/
+function closeBadgePicker() {
+  if (badgePickerOverlay) {
+    badgePickerOverlay.remove();
+    badgePickerOverlay = null;
+  }
+}
+
+/*
+  Builds one row inside the badge picker for a single catalog badge.
+  Earned badges become clickable buttons wired to chooseBadgeFromPicker;
+  locked badges are plain divs (no click) so players cannot equip what they
+  have not earned. Uses isBadgeEquippable and badgeProgress like the quest list.
+  To maintain: when you add a badge to BADGES, this row appears automatically.
+*/
+function buildBadgePickerOptionHtml(badge) {
+  const earned = isBadgeEquippable(badge.id);
+  const isEquipped = state.equippedBadge === badge.id;
+  const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
+  const status = isEquipped
+    ? '<span class="badge-equipped-tag">★ Equipped</span>'
+    : earned
+      ? '<span class="badge-earned-tag">Tap to equip</span>'
+      : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
+  if (!earned) {
+    return `
+      <div class="badge-picker-option locked" aria-disabled="true">
+        <div class="badge-icon">${badge.icon}</div>
+        <div class="badge-info">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-desc">${badge.desc}</div>
+        </div>
+        ${status}
+      </div>`;
+  }
+  return `
+    <button type="button" class="badge-picker-option earned ${isEquipped ? 'equipped' : ''}"
+            onclick="chooseBadgeFromPicker('${badge.id}')">
+      <div class="badge-icon">${badge.icon}</div>
+      <div class="badge-info">
+        <div class="badge-name">${badge.name}</div>
+        <div class="badge-desc">${badge.desc}</div>
+      </div>
+      ${status}
+    </button>`;
+}
+
+/*
+  Opens the full-screen badge chooser when the user taps the circular avatar
+  on Profile. Lists every badge via buildBadgePickerOptionHtml, optionally
+  shows "Remove equipped badge" when something is already worn, and attaches
+  the dialog to document.body (see badgePickerOverlay above).
+  To maintain: keep openBadgePicker on the avatar button only — not on badge cards.
+*/
+function openBadgePicker() {
+  closeBadgePicker();
+  const equipped = getEquippedBadge();
+  const hasEarned = state.earnedBadges.length > 0;
+  const noneRow = equipped
+    ? `<button type="button" class="badge-picker-option none-row" onclick="chooseNoBadgeFromPicker()">Remove equipped badge</button>`
+    : '';
+  const emptyHint = hasEarned
+    ? ''
+    : `<p class="badge-picker-sub" style="padding:0 4px 8px">Earn badges from quests first — locked ones cannot be chosen here.</p>`;
+
+  badgePickerOverlay = document.createElement('div');
+  badgePickerOverlay.className = 'badge-picker-overlay';
+  badgePickerOverlay.setAttribute('role', 'dialog');
+  badgePickerOverlay.setAttribute('aria-label', 'Choose profile badge');
+  badgePickerOverlay.innerHTML = `
+    <div class="badge-picker-panel" onclick="event.stopPropagation()">
+      <div class="badge-picker-header">
+        <div class="badge-picker-title">Profile badge</div>
+        <div class="badge-picker-sub">${equipped ? `Showing ${equipped.icon} ${equipped.name} on your avatar slot.` : 'Pick one earned badge to show on your profile icon (optional).'}</div>
+      </div>
+      <div class="badge-picker-list">
+        ${emptyHint}
+        ${noneRow}
+        ${BADGES.map(buildBadgePickerOptionHtml).join('')}
+      </div>
+      <div class="badge-picker-foot">
+        <button type="button" class="badge-picker-close" onclick="closeBadgePicker()">Done</button>
+      </div>
+    </div>`;
+  badgePickerOverlay.addEventListener('click', e => {
+    if (e.target === badgePickerOverlay) closeBadgePicker();
+  });
+  document.body.appendChild(badgePickerOverlay);
+}
+
+/* User picked an earned badge in the picker — helpers enforce earned-only rules. */
+function chooseBadgeFromPicker(badgeId) {
+  if (!isBadgeEquippable(badgeId)) return;
+  equipBadge(badgeId);
+  closeBadgePicker();
+  renderAvatarPage();
+  renderLeaderboard();
+}
+
+/*
+  Clears the worn profile badge when the user chooses "Remove equipped badge"
+  in the picker. Delegates saving to unequipBadge(), then closes the dialog
+  and redraws Profile so the banner and badge list match saved state.
+*/
+function chooseNoBadgeFromPicker() {
+  unequipBadge();
+  closeBadgePicker();
+  renderAvatarPage();
+  renderLeaderboard();
+}
+
+function showBadgeToast(badge) {
+  const t = document.createElement('div');
+  t.className = 'unlock-toast';
+  t.innerHTML = `${badge.icon} New badge earned! <strong>${badge.name}</strong>`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function badgeUnit(badge, remaining) {
+  if (badge.type === 'streak')      return remaining === 1 ? 'day' : 'days';
+  if (badge.type === 'lessons')     return remaining === 1 ? 'lesson' : 'lessons';
+  if (badge.type === 'consistency') return remaining === 1 ? 'day left this week' : 'days left this week';
+  return '';
+}
+
+/*
+  Renders the read-only badge cards shown on Profile and on Quests → Badges tab.
+  Shows progress locks, "Earned", or "Equipped" tags — but no equip buttons here;
+  changing what is worn happens only through the avatar-slot picker (openBadgePicker).
+  To maintain: keep tags in sync with state.equippedBadge and state.earnedBadges.
+*/
+function buildBadgeGrid() {
+  return BADGES.map(badge => {
+    const earned = state.earnedBadges.includes(badge.id);
+    const isEquipped = earned && state.equippedBadge === badge.id;
+    const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
+    const rightTag = isEquipped
+      ? `<span class="badge-equipped-tag">★ Equipped</span>`
+      : earned
+        ? `<span class="badge-earned-tag">✓ Earned</span>`
+        : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
+    return `
+      <div class="badge-card ${earned ? 'earned' : 'locked'}">
+        <div class="badge-icon">${badge.icon}</div>
+        <div class="badge-info">
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-desc">${badge.desc}</div>
+        </div>
+        ${rightTag}
+      </div>`;
+  }).join('');
+}
+
+/* ─────────────── Helpers ─────────────── */
+function getActiveSkin(charId) {
+  const skinId = state.equippedSkins[charId] || SKINS[charId][0].id;
+  return SKINS[charId].find(s => s.id === skinId) || SKINS[charId][0];
+}
+
+function rarityClass(r) {
+  return 'rarity-' + r.toLowerCase();
+}
+
+/* ─────────────── XP Unlock Evaluation ─────────────── */
+function evaluateSkinUnlocks() {
+  const newlyUnlocked = [];
+  Object.keys(SKINS).forEach(charId => {
+    SKINS[charId].forEach(skin => {
+      if (!state.unlockedSkins.includes(skin.id) && state.xp >= skin.reqXp) {
+        state.unlockedSkins.push(skin.id);
+        newlyUnlocked.push(skin);
+      }
+    });
+  });
+  newlyUnlocked.forEach(skin => showUnlockToast(skin));
+  if (newlyUnlocked.length) saveState();
+}
+
+function showUnlockToast(skin) {
+  const t = document.createElement('div');
+  t.className = 'unlock-toast';
+  t.innerHTML = `${skin.icon} New skin unlocked! <strong>${skin.name}</strong> · ${skin.rarity}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ─────────────── Lessons ─────────────── */
+const lessons = [
+  { id: 0, icon: '🎯', label: 'Start', type: 'active', questions: [
+    { q: 'What does "Hola" mean?', choices: ['Goodbye','Hello','Thank you','Yes'], answer: 1 },
+    { q: 'How do you say "Thank you" in Spanish?', choices: ['Por favor','Lo siento','Gracias','De nada'], answer: 2 },
+    { q: 'What is "apple" in Spanish?', choices: ['Naranja','Manzana','Plátano','Uva'], answer: 1 }
+  ]},
+  { id: 1, icon: '💬', label: 'Greetings', type: 'normal', questions: [
+    { q: 'Which phrase means "Good morning"?', choices: ['Buenas noches','Buenas tardes','Buenos días','Hasta luego'], answer: 2 },
+    { q: 'What does "¿Cómo estás?" mean?', choices: ['What\'s your name?','How are you?','Where are you from?','How old are you?'], answer: 1 },
+    { q: 'How do you say "My name is…"?', choices: ['Yo tengo…','Me llamo…','Soy de…','Tengo… años'], answer: 1 }
+  ]},
+  { id: 2, icon: '🔢', label: 'Numbers', type: 'normal', questions: [
+    { q: 'What number is "tres"?', choices: ['1','2','3','4'], answer: 2 },
+    { q: 'How do you say "ten" in Spanish?', choices: ['Ocho','Nueve','Diez','Once'], answer: 2 },
+    { q: '"Veinte" means which number?', choices: ['12','20','21','22'], answer: 1 }
+  ]},
+  { id: 3, icon: '🏆', label: 'Checkpoint', type: 'checkpoint', questions: [
+    { q: 'Which sentence means "I am a student"?', choices: ['Yo soy un estudiante','Yo tengo un libro','Yo como una manzana','Yo soy un maestro'], answer: 0 },
+    { q: 'What does "La casa es grande" mean?', choices: ['The dog is big','The house is big','The car is fast','The tree is tall'], answer: 1 },
+    { q: 'How do you say "I speak Spanish"?', choices: ['Yo escucho español','Yo aprendo español','Yo hablo español','Yo leo español'], answer: 2 },
+    { q: 'What is "water" in Spanish?', choices: ['Leche','Jugo','Agua','Café'], answer: 2 }
+  ]},
+  { id: 4, icon: '🐶', label: 'Animals', type: 'normal', questions: [
+    { q: 'What is "dog" in Spanish?', choices: ['Gato','Perro','Pájaro','Pez'], answer: 1 },
+    { q: '"El gato bebe leche" means?', choices: ['The cat drinks milk','The dog eats food','The bird sings','The fish swims'], answer: 0 },
+    { q: 'How do you say "a big horse"?', choices: ['Un caballo pequeño','Un toro grande','Un caballo grande','Una vaca grande'], answer: 2 }
+  ]},
+  { id: 5, icon: '🍎', label: 'Food', type: 'normal', questions: [
+    { q: 'What is "bread" in Spanish?', choices: ['Leche','Queso','Pan','Arroz'], answer: 2 },
+    { q: '"Yo como una pizza" means?', choices: ['I want a pizza','I make a pizza','I eat a pizza','I buy a pizza'], answer: 2 },
+    { q: 'How do you say "I am hungry"?', choices: ['Tengo hambre','Tengo sed','Tengo frío','Tengo sueño'], answer: 0 }
+  ]},
+];
+
+const offsets = [0, 60, 100, 60, 0, -60];
+const pathEl = document.getElementById('path');
+
+function buildPath() {
+  pathEl.innerHTML = '';
+  lessons.forEach((lesson, i) => {
+    const isCompleted = state.completedLessons.includes(lesson.id);
+    const isActive = !isCompleted && (i === 0 || state.completedLessons.includes(lessons[i-1].id));
+    const isLocked = !isCompleted && !isActive;
+    const row = document.createElement('div');
+    row.className = 'path-row';
+    row.style.transform = `translateX(${offsets[i] || 0}px)`;
+    let btnClass = 'lesson-btn ' + (isCompleted ? 'completed' : isActive ? 'active' : 'locked');
+    if (lesson.type === 'checkpoint') btnClass += ' checkpoint';
+    row.innerHTML = `
+      <div class="lesson-node" ${isLocked ? '' : `onclick="startLesson(${lesson.id})"`} style="${isLocked ? 'cursor:not-allowed' : ''}">
+        ${isActive && i === getNextLesson() ? '<div class="active-arrow">START</div>' : ''}
+        <button class="${btnClass}" ${isLocked ? 'disabled' : ''} title="${lesson.label}">
+          ${isCompleted ? '⭐' : lesson.icon}
+          ${isCompleted ? '<div class="crown-badge">👑</div>' : ''}
+        </button>
+        <span class="lesson-label">${lesson.label}</span>
+      </div>`;
+    pathEl.appendChild(row);
+  });
+}
+
+function getNextLesson() {
+  for (let i = 0; i < lessons.length; i++) {
+    if (!state.completedLessons.includes(lessons[i].id)) return i;
+  }
+  return -1;
+}
+
+/* ─────────────── Leaderboard ─────────────── */
+/* Rivals live in state.rivals (persisted) so their XP can move over time
+   instead of being a fixed mock list. Called once per new calendar day
+   (see the load block above), same boundary the streak logic uses. */
+function simulateRivalProgress() {
+  state.rivals.forEach(r => {
+    r.xp += 10 + Math.floor(Math.random() * 50);
+    if (Math.random() < 0.8) r.streak += 1;  /* most days they keep it up; some they miss */
+  });
+}
+
+/* Rivals aren't tracked through the real badge system (they have no
+   lesson history), so their badges are derived straight from their
+   mock streak number using the same BADGES thresholds. One function
+   returns the actual badge objects -- both the leaderboard row icons
+   and the player-summary modal read through it, so they can never
+   show a different badge list for the same player. */
+function playerBadges(p) {
+  return p.isYou
+    ? BADGES.filter(b => state.earnedBadges.includes(b.id))
+    : BADGES.filter(b => b.type === 'streak' && p.streak >= b.threshold);
+}
+function highestBadge(badges) {
+  return badges.length ? badges.reduce((a, b) => b.threshold > a.threshold ? b : a) : null;
+}
+
+/* How many more (10-XP) lessons until the next level, same XP-per-lesson
+   math showCompletion() awards -- so this projection and the real climb
+   up the leaderboard always agree. */
+function nextLevelInfo(xp) {
+  const level = levelForXp(xp);
+  const nextThreshold = level * 100;
+  const xpNeeded = Math.max(0, nextThreshold - xp);
+  return { level, lessonsToNext: Math.max(1, Math.ceil(xpNeeded / 10)) };
+}
+
+let leaderboardSorted = [];
+function renderLeaderboard() {
+  const activeSkin = getActiveSkin(state.activeChar);
+  const you = { name: 'You', xp: state.xp, streak: state.streak, language: YOUR_LANGUAGE, isYou: true };
+  const sorted = [...state.rivals, you].sort((a, b) => b.xp - a.xp);
+  leaderboardSorted = sorted;
+  const ranks = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => {
+    const badges = playerBadges(p).map(b => b.icon);
+    /*
+      Avatar circle for this row: “You” adds avatar-equipped-badge-host and the shared
+      medal HTML from avatarEquippedBadgeOverlayHtml(); rivals stay a plain flag emoji
+      with no overlay so their look never changes when you equip a badge.
+    */
+    return `
+    <div class="leaderboard-item" style="cursor:pointer;${p.isYou ? 'background:rgba(var(--color-macaw),0.05);border-radius:10px;padding:8px;' : ''}" onclick="openPlayerSummary(${i})">
+      <span class="lb-rank ${i < 3 ? ['gold-rank','silver-rank','bronze-rank'][i] : ''}">${i < 3 ? ranks[i] : i+1}</span>
+      <div class="lb-avatar${p.isYou ? ' avatar-equipped-badge-host' : ''}" style="${p.isYou ? `background:${activeSkin.aura}22;border-radius:50%;border:2px solid ${activeSkin.aura}` : ''}">${p.isYou ? `${activeSkin.icon}${avatarEquippedBadgeOverlayHtml()}` : p.flag}</div>
+      <div class="lb-main">
+        <div class="lb-name-row">
+          <span class="lb-name" style="${p.isYou ? 'color:var(--blue);' : ''}">${p.isYou ? 'You' : p.name}</span>
+          <span class="lb-streak">🔥 ${p.streak}</span>
+        </div>
+        <div class="lb-meta">${languageFlag(p.language)} Learning ${p.language} · Level ${levelForXp(p.xp)}</div>
+        <div class="lb-badges">${badges.length ? badges.map(i => `<span class="lb-badge-icon">${i}</span>`).join('') : '<span class="lb-no-badges">No badges yet</span>'}</div>
+      </div>
+      <span class="lb-xp">${p.xp} XP</span>
+    </div>`;
+  }).join('');
+}
+
+/* Tapping a leaderboard row opens the same modal shell the lesson
+   flow uses, with a player-summary screen in it. */
+function openPlayerSummary(i) {
+  const p = leaderboardSorted[i];
+  if (!p) return;
+  const activeSkin = getActiveSkin(state.activeChar);
+  const badges = playerBadges(p);
+  const top = highestBadge(badges);
+  const { level, lessonsToNext } = nextLevelInfo(p.xp);
+  const pctToNext = Math.max(0, Math.min(100, 100 - (lessonsToNext * 10 / 100 * 100)));
+
+  document.getElementById('modal-topbar').style.display = 'none';
+  /*
+    Large avatar at the top of this screen: when the row is “You”, the same
+    avatar-equipped-badge-host wrapper and avatarEquippedBadgeOverlayHtml() output
+    as Profile and Boards so your equipped badge medal always matches.
+  */
+  modalContent.innerHTML = `
+    <div class="completion-screen" style="padding-top:32px">
+      <div class="avatar-equipped-badge-host" style="font-size:4rem;display:inline-flex;align-items:center;justify-content:center;${p.isYou ? `--avatar-medal-size:28px;border-radius:50%;` : ''}">${p.isYou ? activeSkin.icon : p.flag}${p.isYou ? avatarEquippedBadgeOverlayHtml() : ''}</div>
+      <div class="completion-title">${p.isYou ? 'You' : p.name}</div>
+      <div class="completion-subtitle">${languageFlag(p.language)} Learning ${p.language} · Level ${level}</div>
+
+      <div class="panel-card" style="text-align:left;margin-bottom:16px">
+        <div class="stat-row">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-info"><span class="stat-label">Day Streak</span><span class="stat-value">${p.streak}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-info"><span class="stat-label">Total XP</span><span class="stat-value">${p.xp}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon">🏅</div>
+          <div class="stat-info"><span class="stat-label">Badge Rank</span><span class="stat-value" style="font-size:var(--text-body-size)">${top ? `${top.icon} ${top.name}` : 'No badges yet'}</span></div>
+        </div>
+      </div>
+
+      <div class="panel-card" style="text-align:left;margin-bottom:16px">
+        <div class="panel-title">Badges</div>
+        <div class="badge-grid" style="margin-bottom:0">
+          ${badges.length ? badges.map(b => `
+            <div class="badge-card earned" style="padding:8px 10px">
+              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-info">
+                <div class="badge-name">${b.name}</div>
+                <div class="badge-desc">${b.desc}</div>
+              </div>
+            </div>`).join('') : '<div class="badge-desc">No badges yet.</div>'}
+        </div>
+      </div>
+
+      <div class="panel-card" style="text-align:left">
+        <div class="panel-title">Projected</div>
+        <div class="quest-sub" style="margin-bottom:8px">${lessonsToNext} more lesson${lessonsToNext === 1 ? '' : 's'} until ${p.isYou ? 'you reach' : `${p.name} reaches`} level ${level + 1}</div>
+        <div class="quest-progress-track"><div class="quest-progress-fill" style="width:${pctToNext}%"></div></div>
+      </div>
+
+      <button class="continue-btn" style="margin-top:20px" onclick="closePlayerSummary()">CLOSE</button>
+    </div>`;
+  overlay.hidden = false;
+}
+function closePlayerSummary() {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
+}
+
+/* ─────────────── Daily Quests ─────────────── */
+/* Quests aren't a separate reward system — they're a daily-framed view
+   into the same badge progress from the badge system PRD. Completing
+   a quest IS the action that advances a badge; there's no separate
+   quest currency or completion state to track. */
+function nextBadge(type) {
+  return BADGES.filter(b => b.type === type && !state.earnedBadges.includes(b.id))
+               .sort((a, b) => a.threshold - b.threshold)[0] || null;
+}
+
+/* last 7 calendar days (today back 6 days), oldest first */
+function last7Days() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toDateString());
+  }
+  return days;
+}
+
+/* Centered "progress / goal" text inside a pill-shaped track, the same
+   shape the real Duolingo Quests page uses for "0 / 10". */
+function progressBar(pct, text) {
+  return `<div class="quest-progress-wrap">
+    <div class="quest-progress-track tall"><div class="quest-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quest-progress-text">${text}</div>
+  </div>`;
+}
+
+/* How many hours remain until quests reset (local midnight) -- shown
+   next to "Daily Quests" the way the real page shows a countdown. */
+function questResetHoursLeft() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  return Math.max(1, Math.ceil((midnight - now) / 36e5));
+}
+
+/* Every quest row is built FROM a badge, via badgeProgress(), so a
+   quest can never show progress its matching badge disagrees with --
+   there is exactly one place (badgeProgress) that computes "how far
+   along is this". A quest with no badge left to chase shows the same
+   locked-card treatment the real app uses for "More quests unlock
+   soon", instead of dangling. */
+function questRow(badge, { icon = '⭐', label, checkbox = false, done, visual } = {}) {
+  if (!badge) {
+    return `
+    <div class="quest-locked-row">
+      <span class="quest-locked-icon">🔒</span>
+      <span>All badges in this set are earned — nice!</span>
+    </div>`;
+  }
+  const earned = state.earnedBadges.includes(badge.id);
+  const progress = badgeProgress(badge);
+  const pct = Math.min(100, progress / badge.threshold * 100);
+  const check = checkbox ? (earned || (done && done(progress)) ? '✅ ' : '') : '';
+  const defaultVisual = progressBar(pct, `${Math.min(progress, badge.threshold)} / ${badge.threshold}`);
+  return `
+    <div class="quest-item">
+      <div class="quest-item-icon">${icon}</div>
+      <div class="quest-info" style="flex:1">
+        <div class="quest-name">${check}${label(progress, badge)}</div>
+        ${visual ? visual(progress, badge) : defaultVisual}
+        <div class="quest-sub">Builds toward ${badge.icon} ${badge.name}${earned ? ' — already earned!' : ''}</div>
+      </div>
+      <div class="quest-reward" title="${badge.name}">${badge.icon}</div>
+    </div>`;
+}
+
+function renderQuests() {
+  switchQuestTab('quests');  /* opening the tab always lands on Quests, not wherever Badges was left */
+  document.getElementById('quest-reset-timer').textContent = `${questResetHoursLeft()} hours`;
+
+  const streakBadge = nextBadge('streak');
+  const lessonBadge = nextBadge('lessons');
+  const weekBadge = BADGES.find(b => b.id === 'perfect_week');
+
+  const streakRow = questRow(streakBadge, {
+    icon: '📖',
+    checkbox: true,
+    done: () => state.lastDate === new Date().toDateString(),
+    label: () => 'Complete a lesson today',
+  });
+
+  const xpGoalDone = state.todayXp >= 20;
+  const xpRow = streakBadge ? questRow(streakBadge, {
+    icon: '⚡',
+    checkbox: true,
+    done: () => xpGoalDone,
+    label: () => 'Earn 20 XP today',
+    visual: () => progressBar(Math.min(100, state.todayXp / 20 * 100), `${Math.min(state.todayXp, 20)} / 20`),
+  }) : '';
+
+  const lessonRow = questRow(lessonBadge, {
+    icon: '📘',
+    label: (progress, badge) => `${Math.max(0, badge.threshold - progress)} more lessons for ${badge.icon} ${badge.name}`,
+  });
+
+  const days = last7Days();
+  const weekRow = questRow(weekBadge, {
+    icon: '📅',
+    checkbox: true,
+    done: progress => progress === 7,
+    label: progress => `Perfect Week — ${progress}/7 days`,
+    visual: () => `<div class="quest-week-dots">${days.map(d => `<span class="quest-day-dot ${state.activityDates.includes(d) ? 'done' : ''}"></span>`).join('')}</div>`,
+  });
+
+  document.getElementById('quests').innerHTML = streakRow + xpRow + lessonRow + weekRow;
+}
+
+/* Quests/Badges sub-tabs inside the Quests page, matching the real
+   app's internal tablist (separate from the top nav). Badges reuses
+   the exact same buildBadgeGrid() the Profile tab renders, so the two
+   can never show a different badge list. Both tab buttons stay in normal
+   Tab order (FIX-2 option A — no roving tabindex) so keyboard users
+   can reach Quests and Badges without arrow-key wiring. */
+function switchQuestTab(tab) {
+  document.querySelectorAll('.quest-tab').forEach(b => {
+    const active = b.dataset.tab === tab;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  document.getElementById('quests-panel').style.display = tab === 'quests' ? '' : 'none';
+  document.getElementById('badges-panel').style.display = tab === 'badges' ? '' : 'none';
+  if (tab === 'badges') document.getElementById('quests-badge-grid').innerHTML = buildBadgeGrid();
+}
+
+/* ─────────────── Stats ─────────────── */
+function renderStats() {
+  document.getElementById('streak-display').textContent = state.streak;
+  document.getElementById('xp-display').textContent = state.xp;
+  document.getElementById('gems-display').textContent = state.gems;
+  const hr = document.getElementById('hearts-row');
+  hr.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.hearts ? ' empty' : '');
+    h.textContent = '❤️';
+    hr.appendChild(h);
+  }
+  const hs = document.getElementById('hearts-section');
+  if (state.hearts < 5) {
+    const canAfford = state.gems >= RESTORE_COST;
+    hs.innerHTML = `
+      <button class="restore-btn" onclick="showRestoreConfirm()" ${canAfford ? '' : 'disabled'}>
+        ❤️ Restore Hearts · ${RESTORE_COST} 💎
+      </button>
+      ${!canAfford ? '<div class="restore-toast error" style="animation:none;opacity:1">Not enough gems (need 350)</div>' : ''}`;
+  } else {
+    hs.innerHTML = '';
+  }
+  const goalXp = Math.min(state.todayXp, 20);
+  document.getElementById('goal-xp').textContent = goalXp;
+  document.getElementById('goal-fill').style.width = (goalXp / 20 * 100) + '%';
+  renderLeaderboard();
+  renderQuests();
+}
+
+const RESTORE_COST = 350;
+
+function showRestoreConfirm() {
+  const missing = 5 - state.hearts;
+  document.getElementById('hearts-section').innerHTML = `
+    <div class="restore-confirm">
+      <div class="restore-confirm-text">Restore all ${missing} heart${missing > 1 ? 's' : ''}?</div>
+      <div class="restore-confirm-cost">Costs ${RESTORE_COST} 💎 · You have ${state.gems} 💎</div>
+      <div class="restore-confirm-btns">
+        <button class="restore-confirm-no" onclick="cancelRestore()">CANCEL</button>
+        <button class="restore-confirm-yes" onclick="restoreHearts()">RESTORE</button>
+      </div>
+    </div>`;
+}
+function cancelRestore() { renderStats(); }
+function restoreHearts() {
+  if (state.gems < RESTORE_COST) return;
+  state.gems -= RESTORE_COST;
+  state.hearts = 5;
+  saveState(); renderStats();
+  const toast = document.createElement('div');
+  toast.className = 'restore-toast success';
+  toast.textContent = '❤️ Hearts fully restored!';
+  document.getElementById('hearts-section').appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+  lessonHearts = 5;
+  if (!overlay.hidden) renderModalHearts();
+}
+
+/* ─────────────── Lesson flow ─────────────── */
+let currentLesson = null, currentQ = 0, selectedChoice = null, checked = false, lessonHearts = 5;
+const overlay       = document.getElementById('modal-overlay');
+const closeBtn      = document.getElementById('close-btn');
+const progressFill  = document.getElementById('progress-fill');
+const modalContent  = document.getElementById('modal-content');
+
+function startLesson(id) {
+  currentLesson = lessons.find(l => l.id === id);
+  currentQ = 0; selectedChoice = null; checked = false;
+  lessonHearts = state.hearts;
+  overlay.hidden = false;
+  renderQuestion();
+}
+
+function renderModalHearts() {
+  const mh = document.getElementById('modal-hearts');
+  mh.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const h = document.createElement('span');
+    h.style.fontSize = '0.9rem';
+    h.textContent = i < lessonHearts ? '❤️' : '🖤';
+    mh.appendChild(h);
+  }
+}
+
+function renderQuestion() {
+  const q = currentLesson.questions[currentQ];
+  progressFill.style.width = (currentQ / currentLesson.questions.length * 100) + '%';
+  renderModalHearts();
+  selectedChoice = null; checked = false;
+  const letters = ['A','B','C','D'];
+  modalContent.innerHTML = `
+    <div class="modal-body">
+      <div class="question-type-label">Translate this sentence</div>
+      <div class="question-text">${q.q}</div>
+      <div class="choices" id="choices">
+        ${q.choices.map((c, i) => `
+          <button class="choice-btn" onclick="selectChoice(${i})" id="choice-${i}">
+            <span class="choice-letter">${letters[i]}</span>${c}
+          </button>`).join('')}
+      </div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="check-btn disabled" id="check-btn" onclick="checkAnswer()">CHECK</button>
+    </div>`;
+}
+
+function selectChoice(i) {
+  if (checked) return;
+  selectedChoice = i;
+  document.querySelectorAll('.choice-btn').forEach((b, idx) => {
+    b.className = 'choice-btn' + (idx === i ? ' selected' : '');
+  });
+  document.getElementById('check-btn').className = 'check-btn ready';
+}
+
+function checkAnswer() {
+  if (selectedChoice === null || checked) return;
+  checked = true;
+  const q = currentLesson.questions[currentQ];
+  const correct = selectedChoice === q.answer;
+  const footer = document.getElementById('modal-footer');
+  document.querySelectorAll('.choice-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.answer) b.className = 'choice-btn correct';
+    else if (i === selectedChoice && !correct) b.className = 'choice-btn wrong';
+  });
+  if (correct) {
+    footer.className = 'modal-footer correct-state';
+    footer.innerHTML = `
+      <div class="feedback-row">
+        <span class="feedback-icon">✅</span>
+        <div><div class="feedback-text correct-text">Correct! Great job!</div></div>
+      </div>
+      <button class="check-btn next-state" onclick="nextQuestion()">CONTINUE</button>`;
+  } else {
+    lessonHearts = Math.max(0, lessonHearts - 1);
+    state.hearts = Math.max(0, state.hearts - 1);
+    renderModalHearts();
+    footer.className = 'modal-footer wrong-state';
+    footer.innerHTML = `
+      <div class="feedback-row">
+        <span class="feedback-icon">❌</span>
+        <div>
+          <div class="feedback-text wrong-text">Incorrect!</div>
+          <div class="feedback-answer">Correct answer: ${q.choices[q.answer]}</div>
+        </div>
+      </div>
+      <button class="check-btn wrong-btn" onclick="nextQuestion()">GOT IT</button>`;
+    saveState(); renderStats();
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= currentLesson.questions.length) showCompletion();
+  else renderQuestion();
+}
+
+function showCompletion() {
+  const isCheckpoint = currentLesson.type === 'checkpoint';
+  const xpGain    = 10 + (isCheckpoint ? 10 : 0);
+  const gemGain   = isCheckpoint ? 20 : (currentLesson.id === 0 ? 10 : 5);
+  const perfectBonus = lessonHearts === state.hearts;
+  const bonusGems = perfectBonus ? 20 : 0;
+  const totalGems = gemGain + bonusGems;
+
+  progressFill.style.width = '100%';
+  document.getElementById('modal-topbar').style.display = 'none';
+
+  const activeSkin = getActiveSkin(state.activeChar);
+  modalContent.innerHTML = `
+    <div class="completion-screen">
+      <div class="completion-owl" style="font-size:5rem">${activeSkin.icon}</div>
+      <div class="completion-title">Lesson Complete!</div>
+      <div class="completion-subtitle">You finished <strong>${currentLesson.label}</strong></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+        <div class="xp-gained">+${xpGain} ⚡ XP</div>
+        <div class="xp-gained" style="border-color:var(--purple);background:rgba(var(--color-beetle),0.12);color:var(--purple)">
+          +${totalGems} 💎 Gems
+        </div>
+        ${perfectBonus ? '<div class="xp-gained" style="border-color:var(--gold);background:rgba(var(--color-bee),0.1);color:var(--gold);font-size:0.85rem">⭐ Perfect +20 💎</div>' : ''}
+      </div>
+      <button class="continue-btn" onclick="completeLesson()">CONTINUE</button>
+    </div>`;
+
+  state.xp += xpGain;
+  state.todayXp += xpGain;
+  state.gems += totalGems;
+  if (!state.completedLessons.includes(currentLesson.id)) state.completedLessons.push(currentLesson.id);
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) {
+    state.streak++;
+    state.lastDate = today;
+    state.activityDates.push(today);
+    if (state.activityDates.length > 14) state.activityDates.shift();  /* only need ~2 weeks for the Perfect Week quest */
+  }
+  saveState();
+  evaluateSkinUnlocks();   /* check XP-gated skin unlocks */
+  evaluateBadgeUnlocks();  /* check streak/lesson-count badge unlocks */
+  renderStats();
+  launchConfetti();
+  floatXP(xpGain);
+  floatGems(totalGems);
+}
+
+function completeLesson() {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
+  buildPath();
+}
+
+closeBtn.addEventListener('click', () => {
+  overlay.hidden = true;
+  document.getElementById('modal-topbar').style.display = '';
+});
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) { overlay.hidden = true; document.getElementById('modal-topbar').style.display = ''; }
+});
+
+/* ─────────────── Avatar Page ─────────────── */
+let selectedCharForPanel = null;
+
+/*
+  Redraws the whole Profile tab: active character banner (with badge-avatar-slot
+  button that opens the picker), badge grid, character roster, and optional skin panel.
+  Call this after equip/unequip, skin changes, or switching which character is selected.
+  To maintain: any new Profile-only UI should be added inside this innerHTML block.
+*/
+function renderAvatarPage() {
+  const av = document.getElementById('avatar-view');
+
+  const activeChar = CHARACTERS[state.activeChar];
+  const activeSkin = getActiveSkin(state.activeChar);
+  const equippedBadge = getEquippedBadge();
+
+  const charCards = Object.keys(CHARACTERS).map(charId => {
+    const char = CHARACTERS[charId];
+    const skin = getActiveSkin(charId);
+    const isActive = charId === state.activeChar;
+    const isSelected = charId === selectedCharForPanel;
+    return `
+      <div class="char-card ${isSelected ? 'selected' : ''}"
+           style="${isSelected ? `border-color:${skin.aura};box-shadow:0 0 0 2px ${skin.aura}44` : ''}"
+           onclick="selectCharPanel('${charId}')">
+        ${isActive ? '<div class="char-equipped-dot"></div>' : ''}
+        <div class="char-card-icon" style="background:${skin.aura}22;border-color:${skin.aura}">${skin.icon}</div>
+        <div class="char-card-name">${char.name}</div>
+        <div class="char-card-rarity">${skin.rarity}</div>
+      </div>`;
+  }).join('');
+
+  const panelHtml = selectedCharForPanel ? buildSkinPanel(selectedCharForPanel) : '';
+
+  av.innerHTML = `
+    <div class="avatar-page">
+      <div class="avatar-page-header">
+        <div class="avatar-page-title">Choose Your Avatar</div>
+        <div class="avatar-page-sub">Your avatar appears in the leaderboard. Unlock new looks by earning XP.</div>
+      </div>
+
+      <!-- Active character banner -->
+      <div class="active-char-banner"
+           style="background:${activeSkin.aura}11;border-color:${activeSkin.aura};box-shadow:0 0 24px ${activeSkin.aura}33">
+        <button type="button" class="active-char-icon-wrap badge-avatar-slot avatar-equipped-badge-host"
+                style="background:${activeSkin.aura}22;border-color:${activeSkin.aura};--avatar-medal-size:26px"
+                aria-label="${equippedBadge ? `Profile badge: ${equippedBadge.name}. Tap to change.` : 'Choose a profile badge'}"
+                onclick="openBadgePicker()">
+          ${activeSkin.icon}
+          ${avatarEquippedBadgeOverlayHtml(equippedBadge)}
+          ${equippedBadge ? '' : '<span class="badge-slot-edit" aria-hidden="true">🏅</span>'}
+        </button>
+        <div class="active-char-info">
+          <div class="active-char-name">${activeChar.name}</div>
+          <div class="active-char-skin" style="color:${activeSkin.aura}">${activeSkin.name}</div>
+          <div class="active-char-game">${activeChar.game}</div>
+          ${equippedBadge ? `<div class="active-char-game" style="color:var(--gold);margin-top:4px">${equippedBadge.icon} ${equippedBadge.name} equipped</div>` : ''}
+        </div>
+        <span class="active-badge">Active</span>
+      </div>
+
+      <div class="char-section-label">Badges (${state.earnedBadges.length}/${BADGES.length})</div>
+      <div class="badge-grid">${buildBadgeGrid()}</div>
+
+      <div class="char-section-label">All Characters</div>
+      <div class="char-grid">${charCards}</div>
+
+      ${panelHtml}
+    </div>`;
+}
+
+function selectCharPanel(charId) {
+  selectedCharForPanel = charId;
+  renderAvatarPage();
+  /* scroll to panel */
+  setTimeout(() => {
+    const panel = document.querySelector('.skin-panel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function buildSkinPanel(charId) {
+  const char = CHARACTERS[charId];
+  const skins = SKINS[charId];
+  const equippedSkinId = state.equippedSkins[charId] || skins[0].id;
+  const isActiveChar = charId === state.activeChar;
+
+  const variantRows = skins.map(skin => {
+    const isUnlocked = state.unlockedSkins.includes(skin.id);
+    const isEquipped = skin.id === equippedSkinId;
+    const xpNeeded   = Math.max(0, skin.reqXp - state.xp);
+    const isNear     = !isUnlocked && xpNeeded > 0 && xpNeeded <= 25;
+
+    const rightTag = isEquipped
+      ? `<span class="skin-equipped-tag">Equipped</span>`
+      : isUnlocked
+        ? `<button onclick="equipSkin('${charId}','${skin.id}')" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:none;border:1.5px solid var(--blue);border-radius:6px;padding:3px 8px;color:var(--blue);cursor:pointer;font-family:inherit">Equip</button>`
+        : isNear
+          ? `<span class="skin-near-tag">⚡ ${xpNeeded} XP left!</span>`
+          : `<span class="skin-lock-tag">🔒 Need ${skin.reqXp} XP</span>`;
+
+    return `
+      <div class="skin-variant-btn ${isEquipped ? 'equipped' : ''} ${isNear ? 'near-unlock' : ''}"
+           style="${isEquipped ? `border-color:${skin.aura};background:${skin.aura}18` : ''}${!isUnlocked ? 'opacity:0.65' : ''}">
+        <div class="skin-icon" style="background:${skin.aura}22;border-color:${skin.aura}">${skin.icon}</div>
+        <div class="skin-variant-info">
+          <div class="skin-variant-name">${skin.name}</div>
+          <span class="skin-rarity ${rarityClass(skin.rarity)}">${skin.rarity}</span>
+        </div>
+        ${rightTag}
+      </div>`;
+  }).join('');
+
+  const playBtnClass = isActiveChar ? 'play-as-btn already-active' : 'play-as-btn set-active';
+  const playBtnLabel = isActiveChar ? '✓ Currently Playing As' : 'Play As ' + char.name;
+
+  return `
+    <div class="skin-panel">
+      <div class="skin-panel-header">
+        <div class="skin-panel-icon-wrap" style="background:${getActiveSkin(charId).aura}22;border-color:${getActiveSkin(charId).aura}">
+          ${getActiveSkin(charId).icon}
+        </div>
+        <div>
+          <div class="skin-panel-char-name">${char.name}</div>
+          <div class="skin-panel-game">${char.game}</div>
+        </div>
+      </div>
+      <div class="skin-variants">${variantRows}</div>
+      <button class="${playBtnClass}" onclick="setActiveChar('${charId}')"
+        ${isActiveChar ? 'disabled' : ''}>${playBtnLabel}</button>
+    </div>`;
+}
+
+function equipSkin(charId, skinId) {
+  if (!state.unlockedSkins.includes(skinId)) return;
+  state.equippedSkins[charId] = skinId;
+  saveState();
+  renderStats(); /* refreshes leaderboard avatar */
+  renderAvatarPage();
+}
+
+function setActiveChar(charId) {
+  state.activeChar = charId;
+  saveState();
+  renderStats();
+  renderAvatarPage();
+}
+
+/* ─────────────── Nav / View switching ─────────────── */
+function setNav(btn) {
+  /*
+    Leaving Profile (or any tab) should dismiss the profile-badge popup if it
+    is open — otherwise the dim overlay stays on document.body and blocks clicks
+    on Learn, Leaderboards, and Quests until the user finds Done again.
+  */
+  closeBadgePicker();
+
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const view = btn.dataset.view;
+  document.getElementById('learn-view').hidden       = (view !== 'learn');
+  document.getElementById('avatar-view').hidden      = (view !== 'profile');
+  document.getElementById('leaderboard-view').hidden = (view !== 'boards');
+  document.getElementById('quests-view').hidden      = (view !== 'quests');
+
+  if (view === 'profile') {
+    selectedCharForPanel = state.activeChar; /* open active char's panel by default */
+    renderAvatarPage();
+  }
+  if (view === 'boards') {
+    renderLeaderboard();
+  }
+  if (view === 'quests') {
+    renderQuests();
+  }
+}
+
+/* ─────────────── FX ─────────────── */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ['#93d333','#ffc700','#49c0f8','#ee5555','#ce82ff','#ffab33'];
+  const particles = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height * 0.3 - 50,
+    vx: (Math.random() - 0.5) * 6, vy: Math.random() * 4 + 2,
+    size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * 360, vr: (Math.random() - 0.5) * 8, op: 1
+  }));
+  let frame = 0;
+  const tick = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.vx *= 0.99; p.rot += p.vr;
+      if (frame > 60) p.op -= 0.018;
+      ctx.save(); ctx.globalAlpha = Math.max(0, p.op);
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(tick);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+  requestAnimationFrame(tick);
+}
+
+function floatXP(amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.textContent = '+' + amount + ' XP';
+  el.style.left = (window.innerWidth / 2 - 30) + 'px';
+  el.style.top  = (window.innerHeight / 2) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function floatGems(amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.style.color = 'var(--purple)';
+  el.textContent = '+' + amount + ' 💎';
+  el.style.left = (window.innerWidth / 2 + 40) + 'px';
+  el.style.top  = (window.innerHeight / 2 + 24) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+/* ─────────────── Init ─────────────── */
+buildPath();
+renderStats();
+evaluateSkinUnlocks(); /* catch any already-earned unlocks from saved state */
 </script>
-
 </body>
 </html>
