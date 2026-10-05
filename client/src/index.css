@@ -8,6 +8,7 @@
     font-family: 'Nunito', system-ui, sans-serif;
     background-color: #fff;
     color: #3c3c3c;
+    transition: background-color 0.2s, color 0.2s;
   }
 }
 
@@ -89,6 +90,19 @@
   .stat-card {
     @apply border-2 border-[#E5E5E5] rounded-2xl p-4;
   }
+
+  /* ── Generic card (used by Stories and other pages) ── */
+  .card {
+    @apply border-2 border-b-[4px] border-[#E5E5E5] rounded-2xl bg-white;
+  }
+
+  /* ── btn-primary alias → same as btn-green ── */
+  .btn-primary {
+    @apply bg-[#58CC02] text-white font-extrabold tracking-wide uppercase
+           rounded-2xl py-[14px] px-8 border-b-[4px] border-[#58A700]
+           select-none cursor-pointer transition-all duration-75
+           active:border-b-0 active:translate-y-[4px];
+  }
 }
 
 @layer utilities {
@@ -141,21 +155,116 @@
   0%,100% { transform: scale(1) rotate(0deg); }
   50%     { transform: scale(1.1) rotate(-3deg); }
 }
-/* streak-watchers: goal-gradient pulse when near target */
+/* goal-gradient: pulse when near daily goal */
 @keyframes nearGoalPulse {
   0%,100% { filter: brightness(1); }
   50%     { filter: brightness(1.18); }
 }
+/* goal-gradient feature 1: fire glow pulse on XP bar at 85%+ */
+@keyframes xpFireGlow {
+  0%,100% { box-shadow: 0 0 6px 1px #ff9600, 0 0 14px 3px #ff4b4b40; }
+  50%     { box-shadow: 0 0 14px 4px #ff4b4b, 0 0 28px 8px #ff4b4b80; }
+}
+/* goal-gradient feature 1: XP goal reached burst */
+@keyframes xpBurst {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.06); }
+  60%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+/* goal-gradient feature 1: confetti pieces fall */
+@keyframes confettiFall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80px) rotate(540deg); opacity: 0; }
+}
+/* goal-gradient feature 3: row bounce for fire urgency */
+@keyframes rowBounce {
+  0%,100% { transform: translateY(0); }
+  35%     { transform: translateY(-4px); }
+  65%     { transform: translateY(-2px); }
+}
+/* goal-gradient feature 3: urgency glow on fire rows */
+@keyframes urgencyFireGlow {
+  0%,100% { box-shadow: 0 0 0 1px #ff4b4b40; }
+  50%     { box-shadow: 0 0 8px 3px #ff4b4b80; }
+}
+/* GachaRankBanner: electric plasma ring pulse */
+@keyframes electricPulse {
+  0%   { stroke-width: 6; opacity: 1; }
+  100% { stroke-width: 3; opacity: 0.65; }
+}
 
-.animate-pop        { animation: pop 0.25s ease-out forwards; }
-.animate-slideUp    { animation: slideUp 0.25s ease-out forwards; }
-.animate-shake      { animation: shake 0.4s ease-in-out; }
-.animate-bounceIn   { animation: bounceIn 0.3s ease-out; }
-.animate-fadeIn     { animation: fadeIn 0.2s ease-out forwards; }
-.animate-flicker    { animation: flicker 1.4s ease-in-out infinite; }
-.animate-nearGoal   { animation: nearGoalPulse 0.6s ease-in-out infinite; }
+.animate-pop          { animation: pop 0.25s ease-out forwards; }
+.animate-slideUp      { animation: slideUp 0.25s ease-out forwards; }
+.animate-shake        { animation: shake 0.4s ease-in-out; }
+.animate-bounceIn     { animation: bounceIn 0.3s ease-out; }
+.animate-fadeIn       { animation: fadeIn 0.2s ease-out forwards; }
+.animate-flicker      { animation: flicker 1.4s ease-in-out infinite; }
+.animate-nearGoal     { animation: nearGoalPulse 0.6s ease-in-out infinite; }
+.animate-xpFireGlow   { animation: xpFireGlow 0.7s ease-in-out infinite; }
+.animate-xpBurst      { animation: xpBurst 0.4s ease-out; }
+.animate-rowBounce    { animation: rowBounce 0.6s ease-in-out infinite; }
+.animate-urgencyGlow  { animation: urgencyFireGlow 0.8s ease-in-out infinite; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 2px; }
+
+/* ── Dark mode overrides ────────────────────────────────────────────────────
+   Tailwind atomic classes can't be overridden by class selectors, so we
+   target element/component patterns that are predictable. */
+[data-duo-theme="dark"] {
+  color-scheme: dark;
+  background-color: #131f24;
+  color: #f1f7fb;
+}
+[data-duo-theme="dark"] body,
+[data-duo-theme="dark"] #root,
+[data-duo-theme="dark"] main {
+  background-color: #131f24 !important;
+  color: #f1f7fb !important;
+}
+[data-duo-theme="dark"] nav,
+[data-duo-theme="dark"] header {
+  background-color: #131f24 !important;
+  border-color: #37464f !important;
+}
+[data-duo-theme="dark"] input,
+[data-duo-theme="dark"] textarea {
+  background-color: #1f2f36 !important;
+  color: #f1f7fb !important;
+  border-color: #37464f !important;
+}
+/* These CSS classes ARE defined here (not Tailwind-generated), so they work */
+[data-duo-theme="dark"] .stat-card,
+[data-duo-theme="dark"] .card {
+  background-color: #1f2f36 !important;
+  border-color: #37464f !important;
+}
+[data-duo-theme="dark"] .option-tile {
+  background-color: #1f2f36 !important;
+  border-color: #37464f !important;
+  color: #f1f7fb !important;
+}
+[data-duo-theme="dark"] .option-tile:hover { background-color: #253038 !important; }
+[data-duo-theme="dark"] .word-tile {
+  background-color: #1f2f36 !important;
+  border-color: #37464f !important;
+  color: #f1f7fb !important;
+}
+[data-duo-theme="dark"] .nav-item { color: #7d9aa8; }
+[data-duo-theme="dark"] .nav-item:hover { background-color: #253038 !important; }
+[data-duo-theme="dark"] .nav-item.active { background-color: #1a3040 !important; color: #1CB0F6 !important; }
+/* Tailwind-generated utility overrides — !important ensures they beat base Tailwind */
+[data-duo-theme="dark"] .bg-white { background-color: #1f2f36 !important; color: #f1f7fb !important; }
+[data-duo-theme="dark"] .bg-\[\#F7F7F7\],
+[data-duo-theme="dark"] .bg-\[\#f7f7f7\] { background-color: #253038 !important; }
+[data-duo-theme="dark"] .bg-\[\#EAEAEA\] { background-color: #2a3a42 !important; }
+[data-duo-theme="dark"] .bg-\[\#DDF4FF\] { background-color: #1a3040 !important; }
+[data-duo-theme="dark"] .bg-\[\#D7FFB8\] { background-color: #1a3028 !important; }
+[data-duo-theme="dark"] .bg-\[\#FFDFE0\] { background-color: #3d1a1a !important; }
+[data-duo-theme="dark"] .bg-\[\#FFF3B3\] { background-color: #3d320a !important; }
+[data-duo-theme="dark"] .border-\[\#E5E5E5\] { border-color: #37464f !important; }
+[data-duo-theme="dark"] .text-\[\#3C3C3C\],
+[data-duo-theme="dark"] .text-\[\#3c3c3c\] { color: #f1f7fb !important; }

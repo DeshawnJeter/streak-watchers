@@ -12,7 +12,8 @@ import Lesson from './pages/Lesson';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Stories from './pages/Stories';
-import Shop from './pages/Shop';
+import Achievements from './pages/Achievements';
+import Quests from './pages/Quests';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }) {
 }
 
 // Pages that get the right panel
-const withRightPanel = new Set(['/learn', '/leaderboard', '/profile', '/shop']);
+const withRightPanel = new Set(['/learn', '/leaderboard', '/profile']);
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -47,8 +48,9 @@ function AppRoutes() {
           <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/stories/:courseId" element={<ProtectedRoute><Stories /></ProtectedRoute>} />
-          <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
           <Route path="/quests" element={<ProtectedRoute><Quests /></ProtectedRoute>} />
+
+          <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -58,34 +60,6 @@ function AppRoutes() {
   );
 }
 
-function Quests() {
-  const achievements = [
-    { icon: '🔥', title: '7 Day Streak', desc: 'Keep a streak for 7 days', xp: 100, done: false },
-    { icon: '⚡', title: 'XP Earner', desc: 'Earn 100 XP', xp: 50, done: false },
-    { icon: '🎯', title: 'Sharpshooter', desc: 'Complete a lesson with no mistakes', xp: 75, done: false },
-    { icon: '🌙', title: 'Night Owl', desc: 'Complete a lesson after 9pm', xp: 30, done: false },
-    { icon: '🚀', title: 'Quick Learner', desc: 'Complete 3 lessons in one day', xp: 80, done: false },
-    { icon: '💎', title: 'Gem Collector', desc: 'Earn 1000 gems', xp: 60, done: false },
-  ];
-  return (
-    <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-black text-[#3C3C3C] mb-2">Quests</h1>
-      <p className="text-[#AFAFAF] font-bold mb-8">Complete quests to earn bonus XP</p>
-      <div className="flex flex-col gap-3">
-        {achievements.map(a => (
-          <div key={a.title} className="border-2 border-[#E5E5E5] rounded-2xl p-4 flex items-center gap-4">
-            <span className="text-3xl">{a.icon}</span>
-            <div className="flex-1">
-              <p className="font-extrabold text-[#3C3C3C]">{a.title}</p>
-              <p className="text-sm text-[#AFAFAF] font-bold">{a.desc}</p>
-            </div>
-            <span className="text-sm font-extrabold text-[#58CC02]">+{a.xp} XP</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function App() {
   return (
