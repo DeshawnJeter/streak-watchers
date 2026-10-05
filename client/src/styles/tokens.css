@@ -1,0 +1,209 @@
+/* Duolingo design token system — all ~230 animal-named CSS custom properties.
+   Values are raw RGB triplets: use as rgb(var(--color-X)) or rgba(var(--color-X), 0.4) */
+
+:root {
+  /* ── Core greens ── */
+  --color-owl: 88, 204, 2;
+  --color-owl-always-light: 88, 204, 2;
+  --color-owl-always-dark: 147, 211, 51;
+  --color-tree-frog: 88, 167, 0;
+  --color-tree-frog-always-light: 88, 167, 0;
+  --color-turtle: 165, 237, 110;
+  --color-turtle-always-light: 165, 237, 110;
+  --color-kiwi: 122, 199, 12;
+  --color-kiwi-dark: 93, 151, 9;
+  --color-kiwi-light: 142, 224, 0;
+  --color-peacock: 0, 205, 156;
+  --color-gamma: 38, 246, 99;
+  --color-sea-sponge: 215, 255, 184;
+  --color-sea-sponge-always-light: 215, 255, 184;
+  --color-mask-green: 144, 220, 72;
+
+  /* ── Blues ── */
+  --color-macaw: 28, 176, 246;
+  --color-macaw-always-light: 28, 176, 246;
+  --color-macaw-always-dark: 73, 192, 248;
+  --color-macaw-shadow: 0, 150, 221;
+  --color-whale: 24, 153, 214;
+  --color-humpback: 43, 112, 201;
+  --color-narwhal: 20, 83, 163;
+  --color-manta-ray: 4, 44, 96;
+  --color-blue-jay: 63, 133, 167;
+  --color-bluebird: 3, 144, 211;
+  --color-blue-tang: 0, 141, 207;
+  --color-starlight: 38, 138, 255;
+  --color-martin: 71, 85, 223;
+  --color-cosmos: 60, 77, 255;
+  --color-nebula: 63, 34, 236;
+  --color-starling: 92, 108, 252;
+  --color-blueberry: 17, 82, 167;
+  --color-ether: 60, 89, 141;
+  --color-beluga: 187, 242, 255;
+  --color-aqua: 43, 164, 176;
+  --color-aqua-always-light: 56, 238, 255;
+  --color-ocean: 56, 238, 255;
+  --color-moon-jelly: 122, 240, 242;
+  --color-max-shadow: 20, 208, 225;
+  --color-stardust: 199, 255, 254;
+  --color-diamond: 56, 208, 208;
+  --color-diamond-shadow: 0, 172, 178;
+  --color-diamond-highlight: 231, 251, 251;
+  --color-diamond-stat: 86, 219, 226;
+
+  /* ── Reds / Pinks ── */
+  --color-cardinal: 255, 75, 75;
+  --color-cardinal-always-light: 255, 75, 75;
+  --color-cardinal-always-dark: 238, 85, 85;
+  --color-fire-ant: 234, 43, 43;
+  --color-fire-ant-always-light: 234, 43, 43;
+  --color-crab: 255, 120, 120;
+  --color-pig: 245, 164, 164;
+  --color-flamingo: 148, 81, 81;
+  --color-dragon: 204, 52, 141;
+  --color-starfish: 255, 134, 208;
+  --color-nova: 207, 23, 200;
+  --color-roseate: 223, 75, 162;
+  --color-rosefinch: 180, 28, 117;
+  --color-quasar: 252, 85, 255;
+  --color-pearl-stat: 255, 170, 222;
+
+  /* ── Yellows / Ambers / Oranges ── */
+  --color-bee: 255, 199, 0;
+  --color-bee-always-dark: 255, 199, 0;
+  --color-duck: 251, 229, 109;
+  --color-fox: 255, 150, 0;
+  --color-fox-always-light: 255, 150, 0;
+  --color-fox-shadow: 205, 121, 0;
+  --color-camel: 231, 166, 1;
+  --color-lion: 255, 177, 0;
+  --color-banana: 255, 176, 32;
+  --color-gold: 250, 169, 25;
+  --color-gold-shine: 255, 231, 0;
+  --color-guinea-pig: 205, 121, 0;
+  --color-guinea-pig-always-light: 205, 121, 0;
+  --color-grizzly: 187, 113, 73;
+  --color-grizzly-lite: 220, 143, 71;
+  --color-monkey: 229, 162, 89;
+  --color-cowbird: 174, 104, 2;
+  --color-orange: 255, 157, 0;
+
+  /* ── Purples ── */
+  --color-beetle: 206, 130, 255;
+  --color-betta: 144, 105, 205;
+  --color-butterfly: 111, 78, 161;
+  --color-grackle: 167, 160, 255;
+  --color-honeycreeper: 193, 187, 255;
+  --color-sabrewing: 165, 112, 255;
+  --color-cotinga: 121, 58, 227;
+  --color-deep-martin: 16, 15, 62;
+  --color-deep-starling: 34, 33, 81;
+  --color-eclipse: 0, 4, 55;
+
+  /* ── Neutrals ── */
+  --color-eel: 75, 75, 75;
+  --color-eel-always-light: 75, 75, 75;
+  --color-eel-always-dark: 241, 247, 251;
+  --color-wolf: 119, 119, 119;
+  --color-wolf-always-light: 119, 119, 119;
+  --color-wolf-always-dark: 220, 230, 236;
+  --color-hare: 175, 175, 175;
+  --color-hare-always-light: 175, 175, 175;
+  --color-koala: 215, 215, 215;
+  --color-koala-always-light: 215, 215, 215;
+  --color-koala-always-dark: 72, 90, 98;
+  --color-freetail: 85, 85, 85;
+  --color-freetail-always-light: 85, 85, 85;
+  --color-freetail-always-dark: 82, 101, 109;
+  --color-swan: 229, 229, 229;
+  --color-swan-always-light: 229, 229, 229;
+  --color-swan-always-dark: 55, 70, 79;
+  --color-squid: 235, 227, 227;
+  --color-polar: 247, 247, 247;
+  --color-polar-always-light: 247, 247, 247;
+  --color-polar-always-dark: 32, 47, 54;
+  --color-snow: 255, 255, 255;
+  --color-snow-always-light: 255, 255, 255;
+  --color-snow-always-dark: 19, 31, 36;
+  --color-ice: 244, 250, 254;
+  --color-anchovy: 210, 228, 232;
+  --color-cloud: 207, 207, 207;
+  --color-cloud-light: 221, 221, 221;
+  --color-cloud-lightest: 240, 240, 240;
+  --color-orca: 51, 51, 51;
+  --color-orca-always-light: 51, 51, 51;
+  --color-orca-always-dark: 55, 70, 79;
+  --color-black: 0, 0, 0;
+  --color-celestia: 255, 255, 255;
+  --color-black-white: 60, 60, 60;
+  --color-black-text: 60, 60, 60;
+  --color-black-text-always-light: 60, 60, 60;
+  --color-gray-text: 119, 119, 119;
+
+  /* ── Teal / Seafoam ── */
+  --color-seafoam: 238, 252, 248;
+  --color-rookie: 0, 175, 133;
+  --color-rookie-progress-bar: 0, 198, 150;
+  --color-oscar: 0, 164, 125;
+
+  /* ── Character colors ── */
+  --color-bea-secondary: 24, 153, 214;
+  --color-eddy-secondary: 234, 43, 43;
+  --color-gilded-secondary: 231, 166, 1;
+  --color-lily-secondary: 165, 104, 204;
+  --color-vikram-secondary: 163, 42, 113;
+  --color-duo-shine: 114, 214, 39;
+
+  /* ── Semantic aliases (light mode) ── */
+  --bg-primary: 255, 255, 255;
+  --bg-secondary: 247, 247, 247;
+  --text-primary: 60, 60, 60;
+  --text-muted: 175, 175, 175;
+  --border-default: 229, 229, 229;
+  --accent-green: 88, 204, 2;
+  --accent-blue: 28, 176, 246;
+  --accent-red: 255, 75, 75;
+  --accent-yellow: 255, 199, 0;
+  --sidebar-bg: 255, 255, 255;
+  --sidebar-border: 229, 229, 229;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────────────────── */
+:root[data-duo-theme="dark"] {
+  --color-owl: 147, 211, 51;
+  --color-tree-frog: 121, 185, 51;
+  --color-turtle: 95, 132, 40;
+  --color-peacock: 0, 205, 156;
+  --color-macaw: 73, 192, 248;
+  --color-cardinal: 238, 85, 85;
+  --color-fire-ant: 216, 72, 72;
+  --color-fox: 255, 171, 51;
+  --color-bee: 255, 199, 0;
+  --color-beetle: 206, 130, 255;
+  --color-eel: 241, 247, 251;
+  --color-wolf: 220, 230, 236;
+  --color-hare: 82, 101, 109;
+  --color-koala: 72, 90, 98;
+  --color-swan: 55, 70, 79;
+  --color-polar: 32, 47, 54;
+  --color-snow: 19, 31, 36;
+  --color-ice: 23, 52, 58;
+  --color-black-white: 255, 255, 255;
+  --color-black-text: 241, 247, 251;
+  --color-gray-text: 220, 230, 236;
+  --color-orca: 55, 70, 79;
+  --color-freetail: 82, 101, 109;
+  --color-seafoam: 30, 89, 97;
+
+  /* ── Semantic aliases (dark mode) ── */
+  --bg-primary: 19, 31, 36;
+  --bg-secondary: 32, 47, 54;
+  --text-primary: 241, 247, 251;
+  --text-muted: 82, 101, 109;
+  --border-default: 55, 70, 79;
+  --accent-green: 147, 211, 51;
+  --accent-blue: 73, 192, 248;
+  --accent-red: 238, 85, 85;
+  --accent-yellow: 255, 199, 0;
+  --sidebar-bg: 19, 31, 36;
+  --sidebar-border: 55, 70, 79;
+}
