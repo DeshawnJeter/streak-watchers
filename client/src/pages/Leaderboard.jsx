@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import GachaRankBanner from '../components/GachaRankBanner';
+import CharacterAvatar from '../components/CharacterAvatar';
 
 const LEAGUES = [
   { name: 'Bronze',   emoji: '🥉', color: '#CD7F32', min: 0     },
@@ -25,25 +27,250 @@ const PODIUM = {
   3: { bg: '#CD7F32', size: 'h-8',  label: '🥉' },
 };
 
+// ── Feature 3: League Urgency Meter ──────────────────────────────────────────
+// Players within striking distance of the promotion zone (top 10) see
+// escalating urgency cues: color heats up, row bounces, XP gap label pulses.
+// This triggers the goal-gradient acceleration effect near a reachable threshold.
+const PROMOTION_RANK = 10;
+
+function getUrgencyLevel(rank, xpToAdvance) {
+  if (rank <= PROMOTION_RANK) return 'promoted';
+  if (xpToAdvance <= 50)  return 'fire';
+  if (xpToAdvance <= 150) return 'amber';
+  if (xpToAdvance <= 350) return 'teal';
+  return 'gray';
+}
+
+const URGENCY_COLORS = {
+  promoted: '#58CC02',
+  fire:     '#FF4B4B',
+  amber:    '#FF9600',
+  teal:     '#1CB0F6',
+  gray:     '#AFAFAF',
+};
+
+function UrgencyMeter({ entry, promotionXp }) {
+  const xpToAdvance = Math.max(0, promotionXp - (entry.xp || 0));
+  const level = getUrgencyLevel(entry.rank, xpToAdvance);
+  const color = URGENCY_COLORS[level];
+
+  if (level === 'promoted') {
+    return (
+      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#D7FFB8', color: '#2B730A' }}>
+        🏆 TOP 10
+      </span>
+    );
+  }
+
+  // Proximity bar: fill based on how close to the promotion threshold
+  // Max gap we consider is 500 XP (beyond that = gray, no bar shown)
+  if (level === 'gray') return null;
+
+  const proximityPct = Math.min(100, Math.max(5, 100 - (xpToAdvance / 500) * 100));
+
+  return (
+    <div className="flex flex-col items-end gap-0.5 min-w-[80px]">
+      {/* Bar */}
+      <div className="w-full h-[5px] bg-[#E5E5E5] rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{
+            width: `${proximityPct}%`,
+            backgroundColor: color,
+            transition: 'width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        />
+      </div>
+      {/* Label */}
+      <span
+        className={`text-[10px] font-extrabold ${level === 'fire' ? 'animate-xpFireGlow' : ''}`}
+        style={{ color }}
+      >
+        {level === 'fire' ? `🔥 ${xpToAdvance} XP` : `${xpToAdvance} XP`}
+      </span>
+    </div>
+  );
+}
+
+function LeagueTierCarousel({ currentLeague }) {
+  const activeRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (activeRef.current && containerRef.current) {
+      const el = activeRef.current;
+      const container = containerRef.current;
+      const offset = el.offsetLeft - container.offsetWidth / 2 + el.offsetWidth / 2;
+      container.scrollTo({ left: offset, behavior: 'smooth' });
+    }
+  }, [currentLeague]);
+
+  return (
+    <div ref={containerRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide mb-4" style={{ scrollbarWidth: 'none' }}>
+      {LEAGUES.map(l => {
+        const isActive = l.name === currentLeague.name;
+        return (
+          <div
+            key={l.name}
+            ref={isActive ? activeRef : null}
+            className={`flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-2xl border-2 transition-all ${
+              isActive
+                ? 'border-[#FFC800] bg-[#FFF3B3] scale-110'
+                : 'border-[#E5E5E5] bg-white opacity-60'
+            }`}
+          >
+            <span className="text-2xl">{l.emoji}</span>
+            <span className="text-[10px] font-extrabold text-[#3C3C3C] whitespace-nowrap">{l.name}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PlayerSummaryModal({ entry, onClose }) {
+  if (!entry) return null;
+  const level = Math.floor((entry.xp || 0) / 1000) + 1;
+
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={onClose}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480 }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+          <CharacterAvatar avatar={entry.avatar} size={56} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 900, fontSize: 18, color: '#3C3C3C' }}>{entry.username}</div>
+            <div style={{ fontSize: 12, color: '#AFAFAF' }}>Level {level} · {(entry.xp || 0).toLocaleString()} XP</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#AFAFAF' }}>#{entry.rank}</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+          {[
+            { emoji: '🔥', label: 'Streak', value: `${entry.streak || 0}d` },
+            { emoji: '⚡', label: 'XP', value: (entry.xp || 0).toLocaleString() },
+          ].map(s => (
+            <div key={s.label} style={{ flex: 1, border: '2px solid #E5E5E5', borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
+              <div style={{ fontSize: 22, marginBottom: 2 }}>{s.emoji}</div>
+              <div style={{ fontWeight: 900, fontSize: 16, color: '#3C3C3C' }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: '#AFAFAF', fontWeight: 700 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        {(entry.pinned_achievements || []).length > 0 && (
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 12, color: '#AFAFAF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              📌 Pinned Badges
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {entry.pinned_achievements.map(a => {
+                const gradient =
+                  a.rarity === 'legendary' ? 'linear-gradient(135deg,#FFD700,#FF9600)'
+                  : a.rarity === 'epic'    ? 'linear-gradient(135deg,#CE82FF,#9932CC)'
+                  : a.rarity === 'rare'    ? 'linear-gradient(135deg,#1CB0F6,#0077C2)'
+                  :                          '#E5E5E5';
+                return (
+                  <div key={a.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: '50%',
+                      background: gradient,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 26, boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    }}>
+                      {a.emoji}
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#AFAFAF', textAlign: 'center', maxWidth: 60 }}>{a.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: 20, width: '100%', background: '#F7F7F7', border: 'none',
+            borderRadius: 16, padding: 14, fontWeight: 800, fontSize: 15, color: '#3C3C3C', cursor: 'pointer',
+          }}
+        >CLOSE</button>
+      </div>
+    </div>
+  );
+}
+
+function useCountdown() {
+  const [daysLeft] = useState(() => {
+    try {
+      const stored = localStorage.getItem('duo-league-days');
+      const parsed = stored ? JSON.parse(stored) : null;
+      const now = Date.now();
+      if (parsed && parsed.expires > now) return parsed.days;
+      const days = Math.floor(Math.random() * 5) + 3;
+      localStorage.setItem('duo-league-days', JSON.stringify({ days, expires: now + days * 86400000 }));
+      return days;
+    } catch { return 5; }
+  });
+  return daysLeft;
+}
+
 export default function Leaderboard() {
   const [tab, setTab] = useState('weekly');
   const [weekly, setWeekly] = useState({ leaderboard: [] });
   const [alltime, setAlltime] = useState({ leaderboard: [] });
+  const [myPinnedBadges, setMyPinnedBadges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEntry, setSelectedEntry] = useState(null);
   const { user } = useAuth();
+  const daysLeft = useCountdown();
 
   useEffect(() => {
     Promise.all([
       api.get('/leaderboard/weekly'),
       api.get('/leaderboard/alltime'),
-    ]).then(([w, a]) => {
+      api.get('/achievements'),
+    ]).then(([w, a, ach]) => {
       setWeekly(w.data);
       setAlltime(a.data);
+      // Resolve the current user's pinned IDs into full achievement objects
+      const catalog = ach.data.achievements;
+      const pinnedIds = ach.data.pinned || [];
+      setMyPinnedBadges(
+        pinnedIds.map(id => catalog.find(a => a.id === id)).filter(Boolean)
+      );
     }).finally(() => setLoading(false));
   }, []);
 
   const data = tab === 'weekly' ? weekly.leaderboard : alltime.leaderboard;
   const myLeague = getLeague(user?.xp || 0);
+
+  // XP of the player at rank PROMOTION_RANK (the advancement threshold)
+  const promotionEntry = data.find(e => e.rank === PROMOTION_RANK);
+  const promotionXp = promotionEntry?.xp || 0;
+
+  // Colors for GachaRankBanner based on current league
+  const LEAGUE_COLORS = {
+    Bronze:   { primary: '#CD7F32', secondary: '#8B4513' },
+    Silver:   { primary: '#C0C0C0', secondary: '#808080' },
+    Gold:     { primary: '#FFD700', secondary: '#FFA500' },
+    Sapphire: { primary: '#0F52BA', secondary: '#1899D6' },
+    Ruby:     { primary: '#FF4B4B', secondary: '#CC0000' },
+    Emerald:  { primary: '#50C878', secondary: '#228B22' },
+    Amethyst: { primary: '#CE82FF', secondary: '#8B00FF' },
+    Pearl:    { primary: '#FFC800', secondary: '#FF9600' },
+    Obsidian: { primary: '#4A4A4A', secondary: '#1C1C1C' },
+    Diamond:  { primary: '#1CB0F6', secondary: '#0077C2' },
+  };
+  const leagueColors = LEAGUE_COLORS[myLeague.name] || LEAGUE_COLORS.Bronze;
+
+  // Current user's rank in the displayed list
+  const myEntry = data.find(e => e.is_me);
+  const myRank = myEntry?.rank || '?';
 
   if (loading) return (
     <div className="flex items-center justify-center h-96">
@@ -56,11 +283,25 @@ export default function Leaderboard() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <div className="text-5xl mb-2" style={{ color: myLeague.color }}>{myLeague.emoji}</div>
-        <h1 className="text-3xl font-black text-[#3C3C3C]">{myLeague.name} League</h1>
-        <p className="text-[#AFAFAF] font-bold mt-1">Top 10 advance · Bottom 5 drop down</p>
+      {/* ── GachaRankBanner: shows current user's league rank ── */}
+      <div className="mb-6">
+        <GachaRankBanner
+          heroName={user?.username || 'Learner'}
+          heroEmoji={user?.avatar || '🦉'}
+          rankText={`RANK ${myRank}`}
+          rewardXp={String(user?.xp || 0)}
+          primaryColor={leagueColors.primary}
+          secondaryColor={leagueColors.secondary}
+          leftMedalEmoji={myLeague.emoji}
+          rightMedalEmoji="⚡"
+          pinnedBadges={myPinnedBadges}
+        />
+        <div className="flex items-center justify-center gap-4 mt-3">
+          <span className="text-sm font-extrabold text-[#AFAFAF]">{myLeague.name} League</span>
+          <span className="text-xs font-extrabold text-[#FF9600] bg-[#FFF3B3] px-2 py-1 rounded-full">
+            ⏰ {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+          </span>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -100,7 +341,7 @@ export default function Leaderboard() {
                 const p = PODIUM[pos];
                 return (
                   <div key={entry?.id || i} className="flex flex-col items-center gap-2 flex-1">
-                    <div className="text-3xl">{entry?.avatar || '🦉'}</div>
+                    <button onClick={() => setSelectedEntry(entry)} className="focus:outline-none"><CharacterAvatar avatar={entry?.avatar} size={40} /></button>
                     <p className={`text-xs font-extrabold text-[#3C3C3C] truncate max-w-[80px] ${entry?.is_me ? 'text-[#1CB0F6]' : ''}`}>
                       {entry?.username}
                     </p>
@@ -117,46 +358,93 @@ export default function Leaderboard() {
             </div>
           )}
 
-          {/* Rank rows */}
+          {/* ── Feature 3: Rank rows with League Urgency Meter ── */}
           <div className="flex flex-col gap-2">
-            {data.map((entry, idx) => (
-              <div
-                key={entry.id}
-                className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                  entry.is_me
-                    ? 'border-[#1CB0F6] bg-[#DDF4FF]'
-                    : 'border-[#E5E5E5] bg-white'
-                } ${idx === 9 ? 'border-dashed border-[#FF4B4B]' : ''}`}
-              >
-                <div className="w-8 text-center font-black text-lg text-[#AFAFAF]">
-                  {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : entry.rank}
-                </div>
-                <div className="w-10 h-10 rounded-full bg-[#DDF4FF] flex items-center justify-center text-xl">
-                  {entry.avatar || '🦉'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`font-extrabold truncate ${entry.is_me ? 'text-[#1CB0F6]' : 'text-[#3C3C3C]'}`}>
-                    {entry.username}{entry.is_me ? ' (You)' : ''}
-                  </p>
-                  <p className="text-xs text-[#AFAFAF] font-bold flex items-center gap-1">
-                    🔥 {entry.streak} day streak
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-black text-[#3C3C3C]">{(entry.xp || 0).toLocaleString()}</p>
-                  <p className="text-xs text-[#AFAFAF] font-bold">XP</p>
-                </div>
-              </div>
-            ))}
-          </div>
+            {data.map((entry, idx) => {
+              const xpToAdvance = Math.max(0, promotionXp - (entry.xp || 0));
+              const urgencyLevel = getUrgencyLevel(entry.rank, xpToAdvance);
+              const isFire = urgencyLevel === 'fire' && !entry.is_me;
+              const isDemotion = idx >= 14; // bottom 5
 
-          {/* Demotion zone label */}
-          {data.length > 9 && (
-            <p className="text-center text-xs text-[#FF4B4B] font-extrabold uppercase tracking-wider mt-2">
-              ↑ Demotion zone
-            </p>
-          )}
+              return (
+                <div key={entry.id}>
+                  {/* Promotion zone divider after rank 10 */}
+                  {idx === 10 && data.length > 10 && (
+                    <div className="flex items-center gap-3 my-2">
+                      <div className="flex-1 h-px bg-[#58CC02]" />
+                      <span className="text-xs font-extrabold text-[#58CC02] bg-[#D7FFB8] px-3 py-1 rounded-full whitespace-nowrap">
+                        🏆 Promotion Zone above
+                      </span>
+                      <div className="flex-1 h-px bg-[#58CC02]" />
+                    </div>
+                  )}
+                  {/* Demotion zone divider after rank 15 */}
+                  {idx === 15 && data.length > 15 && (
+                    <div className="flex items-center gap-3 my-2">
+                      <div className="flex-1 h-px bg-[#FF4B4B]" />
+                      <span className="text-xs font-extrabold text-[#FF4B4B] bg-[#FFDFE0] px-3 py-1 rounded-full whitespace-nowrap">
+                        ⚠️ Demotion Zone below
+                      </span>
+                      <div className="flex-1 h-px bg-[#FF4B4B]" />
+                    </div>
+                  )}
+                  <div
+                    onClick={() => setSelectedEntry(entry)}
+                    className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer hover:opacity-90 ${
+                      entry.is_me
+                        ? 'border-[#1CB0F6] bg-[#DDF4FF]'
+                        : isDemotion
+                          ? 'border-dashed border-[#FF4B4B] bg-white'
+                          : 'border-[#E5E5E5] bg-white'
+                    } ${isFire ? 'animate-rowBounce animate-urgencyGlow' : ''}`}
+                  >
+                    <div className="w-8 text-center font-black text-lg text-[#AFAFAF] flex-shrink-0">
+                      {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : entry.rank}
+                    </div>
+                    <CharacterAvatar avatar={entry.avatar} size={40} isMe={entry.is_me} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-extrabold truncate ${entry.is_me ? 'text-[#1CB0F6]' : 'text-[#3C3C3C]'}`}>
+                        {entry.username}{entry.is_me ? ' (You)' : ''}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        <p className="text-xs text-[#AFAFAF] font-bold">🔥 {entry.streak}d</p>
+                        {(entry.pinned_achievements || []).map(a => (
+                          <span
+                            key={a.id}
+                            title={a.name}
+                            className="text-xs leading-none"
+                            style={{
+                              background: a.rarity === 'legendary' ? 'linear-gradient(135deg,#FFD700,#FF9600)'
+                                        : a.rarity === 'epic'      ? 'linear-gradient(135deg,#CE82FF,#9932CC)'
+                                        : a.rarity === 'rare'      ? 'linear-gradient(135deg,#1CB0F6,#0077C2)'
+                                        :                            '#E5E5E5',
+                              borderRadius: '50%',
+                              width: 22, height: 22,
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 12, flexShrink: 0,
+                            }}
+                          >
+                            {a.emoji}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <p className="font-black text-[#3C3C3C] text-sm">{(entry.xp || 0).toLocaleString()} XP</p>
+                      {!entry.is_me && (
+                        <UrgencyMeter entry={entry} promotionXp={promotionXp} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </>
+      )}
+
+      {selectedEntry && (
+        <PlayerSummaryModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
       )}
     </div>
   );
