@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/profile', requireAuth, (req, res) => {
   const user = db.prepare(
-    'SELECT id, username, email, xp, gems, hearts, streak, avatar, last_activity, created_at FROM users WHERE id = ?'
+    'SELECT id, username, email, xp, gems, hearts, streak, avatar, last_activity, created_at, daily_xp, daily_xp_goal FROM users WHERE id = ?'
   ).get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Not found' });
 

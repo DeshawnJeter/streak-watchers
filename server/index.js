@@ -10,6 +10,9 @@ app.use('/api/courses', require('./routes/courses'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
+app.use('/api/achievements', require('./routes/achievements'));
+app.use('/api/stories', require('./routes/stories'));
+app.use('/api/quests', require('./routes/quests'));
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 

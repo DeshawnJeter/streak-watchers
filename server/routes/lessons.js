@@ -65,7 +65,7 @@ router.post('/lesson/:lessonId/complete', requireAuth, (req, res) => {
       completed_at = excluded.completed_at
   `).run(userId, lessonId, xp_earned || 50);
 
-  // Update user XP, hearts, streak
+  // Update user XP, hearts, streak, daily XP
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   const xpGain = isFirstTime ? (xp_earned || 50) : Math.floor((xp_earned || 50) * 0.5);
   const newXP = user.xp + xpGain;
@@ -77,8 +77,12 @@ router.post('/lesson/:lessonId/complete', requireAuth, (req, res) => {
   if (user.last_activity === yesterday) streak += 1;
   else if (user.last_activity !== today) streak = 1;
 
-  db.prepare('UPDATE users SET xp = ?, hearts = ?, streak = ?, last_activity = ? WHERE id = ?')
-    .run(newXP, newHearts, streak, today, userId);
+  // Daily XP: reset if new day, then add
+  const currentDailyXp = user.daily_xp_reset === today ? (user.daily_xp || 0) : 0;
+  const newDailyXp = Math.min(currentDailyXp + xpGain, user.daily_xp_goal || 50);
+
+  db.prepare('UPDATE users SET xp = ?, hearts = ?, streak = ?, last_activity = ?, daily_xp = ?, daily_xp_reset = ? WHERE id = ?')
+    .run(newXP, newHearts, streak, today, newDailyXp, today, userId);
 
   // Update weekly XP
   const weekNum = getWeekNumber();
@@ -88,7 +92,7 @@ router.post('/lesson/:lessonId/complete', requireAuth, (req, res) => {
   `).run(userId, weekNum, xpGain);
 
   const updatedUser = db.prepare(
-    'SELECT id, username, xp, gems, hearts, streak FROM users WHERE id = ?'
+    'SELECT id, username, xp, gems, hearts, streak, daily_xp, daily_xp_goal FROM users WHERE id = ?'
   ).get(userId);
 
   res.json({ xp_gained: xpGain, first_time: isFirstTime, user: updatedUser });
