@@ -1302,6 +1302,11 @@ const BADGES = [
   { id: 'lessons_50', type: 'lessons',     threshold: 50,  name: 'Dedicated Learner',icon: '📚', desc: 'Complete 50 lessons' },
   { id: 'lessons_100',type: 'lessons',     threshold: 100, name: 'Lesson Legend',    icon: '🎓', desc: 'Complete 100 lessons' },
   { id: 'perfect_week',type: 'consistency',threshold: 7,   name: 'Perfect Week',     icon: '📅', desc: 'Complete a lesson every day for 7 days straight' },
+  /* Profile flair: already unlocked so the picker has more than one choice. Daily quests ignore type "profile". */
+  { id: 'early_bird', type: 'profile',     threshold: 1,   name: 'Early Bird',       icon: '🌅', desc: 'A profile badge for starting your study day' },
+  { id: 'gem_keeper', type: 'profile',     threshold: 1,   name: 'Gem Keeper',       icon: '💎', desc: 'A profile badge for players who collect gems' },
+  { id: 'hearty',     type: 'profile',     threshold: 1,   name: 'Hearty',           icon: '💛', desc: 'A profile badge for keeping your hearts up' },
+  { id: 'night_owl',  type: 'profile',     threshold: 1,   name: 'Night Owl',        icon: '🌙', desc: 'A profile badge for late study sessions' },
 ];
 
 /* Single source of truth for "how close is this badge" -- every quest
@@ -1311,6 +1316,7 @@ function badgeProgress(badge) {
   if (badge.type === 'streak')      return state.streak;
   if (badge.type === 'lessons')     return state.completedLessons.length;
   if (badge.type === 'consistency') return last7Days().filter(d => state.activityDates.includes(d)).length;
+  if (badge.type === 'profile')     return badge.threshold;
   return 0;
 }
 
@@ -1320,6 +1326,8 @@ function badgeProgress(badge) {
 function evaluateBadgeUnlocks() {
   const newlyEarned = [];
   BADGES.forEach(badge => {
+    /* Profile badges are granted quietly by grantProfileBadges, not toasted here. */
+    if (badge.type === 'profile') return;
     if (state.earnedBadges.includes(badge.id)) return;
     if (badgeProgress(badge) >= badge.threshold) {
       state.earnedBadges.push(badge.id);
@@ -1328,6 +1336,21 @@ function evaluateBadgeUnlocks() {
   });
   newlyEarned.forEach(badge => showBadgeToast(badge));
   if (newlyEarned.length) saveState();
+}
+
+/*
+  Adds the four profile badges to earnedBadges when a save does not have them yet.
+  No toast: these are picker choices, not quest rewards. Safe to call on every load.
+*/
+function grantProfileBadges() {
+  let added = false;
+  BADGES.forEach(badge => {
+    if (badge.type !== 'profile') return;
+    if (state.earnedBadges.includes(badge.id)) return;
+    state.earnedBadges.push(badge.id);
+    added = true;
+  });
+  if (added) saveState();
 }
 
 /*
@@ -1349,9 +1372,10 @@ function unequipBadge() {
   saveState();
 }
 
-/* Returns the full BADGES catalog entry for the equipped id, or null when the slot is empty. */
+/* Returns the worn badge, or null when the slot is empty or that id is no longer earned. */
 function getEquippedBadge() {
   if (state.equippedBadge === null || state.equippedBadge === undefined) return null;
+  if (!isBadgeEquippable(state.equippedBadge)) return null;
   return BADGES.find(b => b.id === state.equippedBadge) || null;
 }
 
@@ -1399,7 +1423,7 @@ function buildBadgePickerOptionHtml(badge) {
   const isEquipped = state.equippedBadge === badge.id;
   const remaining = Math.max(0, badge.threshold - badgeProgress(badge));
   const status = isEquipped
-    ? '<span class="badge-equipped-tag">★ Equipped</span>'
+    ? '<span class="badge-equipped-tag">★ Equipped — tap to remove</span>'
     : earned
       ? '<span class="badge-earned-tag">Tap to equip</span>'
       : `<span class="badge-lock-tag">🔒 ${remaining} more ${badgeUnit(badge, remaining)}</span>`;
@@ -1438,7 +1462,7 @@ function openBadgePicker() {
   const equipped = getEquippedBadge();
   const hasEarned = state.earnedBadges.length > 0;
   const noneRow = equipped
-    ? `<button type="button" class="badge-picker-option none-row" onclick="chooseNoBadgeFromPicker()">Remove equipped badge</button>`
+    ? `<button type="button" class="badge-picker-option none-row" onclick="chooseNoBadgeFromPicker()">Unequip</button>`
     : '';
   const emptyHint = hasEarned
     ? ''
@@ -1469,17 +1493,18 @@ function openBadgePicker() {
   document.body.appendChild(badgePickerOverlay);
 }
 
-/* User picked an earned badge in the picker — helpers enforce earned-only rules. */
+/* User picked an earned badge. Tapping the one already worn takes it off. */
 function chooseBadgeFromPicker(badgeId) {
   if (!isBadgeEquippable(badgeId)) return;
-  equipBadge(badgeId);
+  if (state.equippedBadge === badgeId) unequipBadge();
+  else equipBadge(badgeId);
   closeBadgePicker();
   renderAvatarPage();
   renderLeaderboard();
 }
 
 /*
-  Clears the worn profile badge when the user chooses "Remove equipped badge"
+  Clears the worn profile badge when the user chooses "Unequip"
   in the picker. Delegates saving to unequipBadge(), then closes the dialog
   and redraws Profile so the banner and badge list match saved state.
 */
@@ -1502,6 +1527,7 @@ function badgeUnit(badge, remaining) {
   if (badge.type === 'streak')      return remaining === 1 ? 'day' : 'days';
   if (badge.type === 'lessons')     return remaining === 1 ? 'lesson' : 'lessons';
   if (badge.type === 'consistency') return remaining === 1 ? 'day left this week' : 'days left this week';
+  if (badge.type === 'profile')     return 'profile badge';
   return '';
 }
 
@@ -2351,6 +2377,8 @@ function floatGems(amount) {
 buildPath();
 renderStats();
 evaluateSkinUnlocks(); /* catch any already-earned unlocks from saved state */
+grantProfileBadges(); /* picker choices, no toast */
+evaluateBadgeUnlocks(); /* streak and lesson badges already earned in this save */
 </script>
 </body>
 </html>
