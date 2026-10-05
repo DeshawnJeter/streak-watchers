@@ -1,16 +1,46 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import Confetti from './Confetti';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
+// ── Goal-Gradient Effect Feature 1: Velocity XP Bar ──────────────────────────
+// As daily XP approaches the goal, the bar accelerates visually:
+// color heats up (green → amber → fire red), animations intensify,
+// and a confetti burst fires at 100% — triggering the goal-gradient
+// acceleration response.
+function useXpPhase(dailyXp, goalXp) {
+  const pct = Math.min(1, (dailyXp || 0) / (goalXp || 50));
+  if (pct >= 1)    return { phase: 'complete', pct: 1,   color: '#58CC02', label: 'Goal reached! 🎉' };
+  if (pct >= 0.85) return { phase: 'fire',     pct,      color: '#FF4B4B', label: `Almost there! ${goalXp - dailyXp} XP left` };
+  if (pct >= 0.60) return { phase: 'amber',    pct,      color: '#FF9600', label: 'Keep going!' };
+  return                  { phase: 'normal',   pct,      color: '#58CC02', label: null };
+}
+
 export default function RightPanel() {
   const { user } = useAuth();
+  const [showBurst, setShowBurst] = useState(false);
+  const [prevPhase, setPrevPhase] = useState(null);
+
   if (!user) return null;
 
   const today = new Date().getDay();
-  const goalXP = 10;
-  const todayXP = Math.min(user.xp % 100, goalXP); // crude daily proxy
-  const progressPct = Math.min(100, (todayXP / goalXP) * 100);
+  const goalXP = user.daily_xp_goal || 50;
+  const todayXP = user.daily_xp || 0;
+  const { phase, pct, color, label } = useXpPhase(todayXP, goalXP);
+
+  // Trigger confetti burst when reaching complete phase for the first time
+  useEffect(() => {
+    setPrevPhase(prev => {
+      if (phase === 'complete' && prev && prev !== 'complete') {
+        setShowBurst(true);
+        setTimeout(() => setShowBurst(false), 1200);
+      }
+      return phase;
+    });
+  }, [phase]);
+
+  const progressPct = Math.round(pct * 100);
 
   return (
     <aside className="hidden xl:flex flex-col fixed right-0 top-0 h-screen w-[368px] px-6 py-8 gap-4 overflow-y-auto">
@@ -42,30 +72,52 @@ export default function RightPanel() {
         </div>
       </div>
 
-      {/* Daily goal */}
-      <div className="stat-card">
+      {/* ── Feature 1: Velocity XP Bar ── */}
+      <div className={`stat-card relative overflow-hidden ${phase === 'complete' ? 'animate-xpBurst' : ''}`}>
+        {showBurst && <Confetti />}
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-extrabold text-[#AFAFAF] uppercase tracking-widest">Daily goal</span>
-          <span className="text-xs font-bold text-[#AFAFAF]">{goalXP} XP</span>
+          <span
+            className="text-xs font-extrabold transition-colors duration-500"
+            style={{ color: phase === 'normal' ? '#AFAFAF' : color }}
+          >
+            {goalXP} XP
+          </span>
         </div>
-        <div className="w-full h-4 bg-[#E5E5E5] rounded-full overflow-hidden mb-2">
+
+        {/* Progress track */}
+        <div className="w-full h-4 bg-[#E5E5E5] rounded-full overflow-hidden mb-2 relative">
           <div
-            className={`h-full bg-[#58CC02] rounded-full transition-all duration-700 ${progressPct >= 70 ? 'animate-nearGoal' : ''}`}
-            style={{ width: `${progressPct}%` }}
+            className={`h-full rounded-full transition-all duration-700 ${phase === 'fire' ? 'animate-xpFireGlow' : ''}`}
+            style={{
+              width: `${progressPct}%`,
+              backgroundColor: color,
+              // Spring easing: accelerates toward goal — the core Goal-Gradient visual
+              transition: 'width 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s ease',
+            }}
           />
         </div>
-        <p className="text-sm font-bold text-[#AFAFAF]">{todayXP}/{goalXP} XP today</p>
+
+        {/* Status row */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold" style={{ color: phase === 'normal' ? '#AFAFAF' : color }}>
+            {todayXP}/{goalXP} XP today
+          </p>
+          {label && (
+            <span
+              className={`text-xs font-extrabold animate-fadeIn ${phase === 'fire' ? 'animate-xpFireGlow' : ''}`}
+              style={{ color }}
+            >
+              {label}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Gems */}
-      <div className="stat-card flex items-center justify-between">
-        <div>
-          <p className="text-xs font-extrabold text-[#AFAFAF] uppercase tracking-widest mb-1">Gems</p>
-          <p className="text-3xl font-black text-[#1CB0F6]">💎 <span>{(user.gems || 0).toLocaleString()}</span></p>
-        </div>
-        <Link to="/shop" className="text-xs font-extrabold text-[#1CB0F6] hover:underline uppercase tracking-wider">
-          SHOP →
-        </Link>
+      <div className="stat-card">
+        <p className="text-xs font-extrabold text-[#AFAFAF] uppercase tracking-widest mb-1">Gems</p>
+        <p className="text-3xl font-black text-[#1CB0F6]">💎 <span>{(user.gems || 0).toLocaleString()}</span></p>
       </div>
 
       {/* Hearts */}
@@ -79,11 +131,6 @@ export default function RightPanel() {
               </span>
             ))}
           </div>
-          {(user.hearts || 0) < 5 && (
-            <Link to="/shop" className="text-xs font-extrabold text-[#FF4B4B] hover:underline uppercase">
-              REFILL
-            </Link>
-          )}
         </div>
       </div>
 

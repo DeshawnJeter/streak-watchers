@@ -139,6 +139,44 @@ export default function Learn() {
     </div>
   );
 
+  // ── Feature 2: Shrinking Lesson Path ────────────────────────────────────────
+  // Total + completed counts across all skills
+  const totalLessons = skills.reduce((sum, s) => sum + s.lessons.length, 0);
+  const completedLessons = skills.reduce((sum, s) => sum + s.lessons.filter(l => l.completed).length, 0);
+  const completionRatio = totalLessons > 0 ? completedLessons / totalLessons : 0;
+
+  // Per-lesson scale + margin: upcoming nodes shrink and crowd together,
+  // creating the illusion that the finish line is getting closer.
+  function getLessonStyle(globalIndex) {
+    const distanceFromCurrent = globalIndex - completedLessons;
+    if (distanceFromCurrent <= 0) {
+      // Completed or active: full size, generous spacing
+      return { transform: 'scale(1)', marginTop: '24px', transition: 'transform 0.5s ease, margin 0.5s ease' };
+    }
+    // Upcoming: shrink 4% per step from current, min 65%
+    const scale = Math.max(0.65, 1 - distanceFromCurrent * 0.04);
+    // Crowd upcoming nodes together
+    const marginTop = Math.max(4, 24 - distanceFromCurrent * 3);
+    return {
+      transform: `scale(${scale})`,
+      marginTop: `${marginTop}px`,
+      transformOrigin: 'center top',
+      transition: 'transform 0.5s ease, margin 0.5s ease',
+    };
+  }
+
+  // At 70%+ completion: zoom in on the path to make the finish feel close
+  const pathZoomedStyle = completionRatio >= 0.70 ? {
+    transform: 'scale(1.06) translateY(-32px)',
+    transition: 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)',
+    transformOrigin: 'top center',
+  } : {};
+
+  // Pre-compute global sequential index per lesson (for shrink transforms)
+  const lessonGlobalIndex = new Map();
+  let idx = 0;
+  skills.forEach(skill => skill.lessons.forEach(lesson => lessonGlobalIndex.set(lesson.id, idx++)));
+
   // Find the first incomplete lesson across all skills
   let firstIncompleteFound = false;
 
@@ -167,8 +205,8 @@ export default function Learn() {
         </Link>
       </div>
 
-      {/* Skill units */}
-      <div className="flex flex-col gap-6">
+      {/* Skill units — Feature 2: path container receives zoom at 70%+ completion */}
+      <div className="flex flex-col gap-6" style={pathZoomedStyle}>
         {skills.map((skill, si) => {
           const isUnitLocked = si > 0 && skills[si - 1].completed_lessons === 0;
 
@@ -177,23 +215,26 @@ export default function Learn() {
               {/* Unit banner */}
               <UnitBanner skill={skill} index={si} isLocked={isUnitLocked} />
 
-              {/* Lesson nodes */}
-              <div className="flex flex-col items-center gap-5 pb-4">
+              {/* Lesson nodes — each wrapped in shrink transform */}
+              <div className="flex flex-col items-center pb-4">
                 {skill.lessons.map((lesson, li) => {
                   const isLocked = isUnitLocked || (li > 0 && !skill.lessons[li - 1].completed && !lesson.completed);
                   const isActive = !isLocked && !firstIncompleteFound && !lesson.completed;
                   if (isActive) firstIncompleteFound = true;
 
+                  const nodeStyle = getLessonStyle(lessonGlobalIndex.get(lesson.id));
+
                   return (
-                    <SkillNode
-                      key={lesson.id}
-                      lesson={lesson}
-                      skillIndex={si}
-                      lessonIndex={li}
-                      isLocked={isLocked}
-                      isActive={isActive}
-                      onStart={id => navigate(`/lesson/${id}`)}
-                    />
+                    <div key={lesson.id} style={nodeStyle}>
+                      <SkillNode
+                        lesson={lesson}
+                        skillIndex={si}
+                        lessonIndex={li}
+                        isLocked={isLocked}
+                        isActive={isActive}
+                        onStart={id => navigate(`/lesson/${id}`)}
+                      />
+                    </div>
                   );
                 })}
               </div>

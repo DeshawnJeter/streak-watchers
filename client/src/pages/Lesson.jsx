@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import { BADGES, badgeProgress } from '../data/characters';
+import { parseAvatarFull, buildAvatarJson } from '../data/avatarUtils';
 
 const XP_PER_CORRECT = 10;
 
@@ -240,8 +242,28 @@ export default function Lesson() {
         xp_earned: xp,
         hearts_lost: heartsLost,
       });
-      setUser(u => ({ ...u, ...r.data.user }));
-      const nextLevel = Math.floor((r.data.user?.xp || 0) / 1000) + 1;
+      const updatedUser = r.data.user;
+      setUser(u => {
+        const newXp      = updatedUser?.xp || 0;
+        const newStreak  = updatedUser?.streak || 0;
+        const newLessons = updatedUser?.lessons_completed || 0;
+        const { svgConfig, earnedBadges, equippedBadge } = parseAvatarFull(u.avatar);
+
+        // evaluate which badges were newly earned
+        const newlyEarned = BADGES
+          .filter(b => !earnedBadges.includes(b.id))
+          .filter(b => badgeProgress(b, newStreak, newLessons) >= b.threshold)
+          .map(b => b.id);
+
+        if (newlyEarned.length > 0) {
+          const updated = [...earnedBadges, ...newlyEarned];
+          const newAvatar = buildAvatarJson(svgConfig, { earnedBadges: updated, equippedBadge });
+          api.patch('/users/profile', { avatar: newAvatar }).catch(() => {});
+          return { ...u, ...updatedUser, avatar: newAvatar };
+        }
+        return { ...u, ...updatedUser };
+      });
+      const nextLevel = Math.floor((updatedUser?.xp || 0) / 1000) + 1;
       if (nextLevel > oldLevel) {
         setLeveledUp(true);
         setNewLevel(nextLevel);

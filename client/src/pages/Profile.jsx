@@ -1,9 +1,65 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import CharacterAvatar from '../components/CharacterAvatar';
+import AvatarBuilder from '../components/AvatarBuilder';
 
-const AVATARS = ['🦉', '🐉', '🐺', '🦊', '🐸', '🐼', '🦁', '🐯', '🦋', '🐬', '🦄', '🐻'];
+const LEAGUES = [
+  { name: 'Bronze',   emoji: '🥉', color: '#CD7F32', min: 0     },
+  { name: 'Silver',   emoji: '🥈', color: '#C0C0C0', min: 100   },
+  { name: 'Gold',     emoji: '🥇', color: '#FFD700', min: 250   },
+  { name: 'Sapphire', emoji: '💎', color: '#0F52BA', min: 600   },
+  { name: 'Ruby',     emoji: '💎', color: '#FF4B4B', min: 1500  },
+  { name: 'Emerald',  emoji: '💚', color: '#50C878', min: 3000  },
+  { name: 'Amethyst', emoji: '💜', color: '#CE82FF', min: 6000  },
+  { name: 'Pearl',    emoji: '🌟', color: '#FFC800', min: 10000 },
+  { name: 'Obsidian', emoji: '⬛', color: '#3C3C3C', min: 16000 },
+  { name: 'Diamond',  emoji: '💠', color: '#1CB0F6', min: 30000 },
+];
+
+function getLeague(xp) {
+  return [...LEAGUES].reverse().find(l => xp >= l.min) || LEAGUES[0];
+}
+
+function WeeklyXpChart({ dailyXp }) {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const today = new Date().getDay();
+  const adjustedToday = today === 0 ? 6 : today - 1;
+
+  // Build 7-bar dataset: today's bar has real data, others are mock
+  const data = days.map((d, i) => {
+    if (i === adjustedToday) return { day: d, xp: dailyXp || 0, isToday: true };
+    // Generate plausible mock data
+    const seed = (i * 7 + 13) % 37;
+    return { day: d, xp: seed * 2, isToday: false };
+  });
+
+  const maxXp = Math.max(...data.map(d => d.xp), 1);
+
+  return (
+    <div className="border-2 border-[#E5E5E5] rounded-2xl p-5 mb-4">
+      <p className="text-xs font-extrabold uppercase tracking-widest text-[#AFAFAF] mb-4">Weekly XP</p>
+      <div className="flex items-end justify-between gap-1 h-20">
+        {data.map((d, i) => (
+          <div key={i} className="flex flex-col items-center gap-1 flex-1">
+            <div className="w-full flex items-end justify-center" style={{ height: '60px' }}>
+              <div
+                className="w-full rounded-t-lg transition-all duration-500"
+                style={{
+                  height: `${Math.max(4, (d.xp / maxXp) * 60)}px`,
+                  backgroundColor: d.isToday ? '#58CC02' : '#E5E5E5',
+                }}
+              />
+            </div>
+            <span className={`text-[10px] font-extrabold ${d.isToday ? 'text-[#58CC02]' : 'text-[#AFAFAF]'}`}>
+              {d.day}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const STATS_CONFIG = [
   { key: 'streak',            label: 'Day Streak',    emoji: '🔥', color: '#FF9600' },
@@ -19,7 +75,7 @@ export default function Profile() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showAvatars, setShowAvatars] = useState(false);
+  const [showCharSelect, setShowCharSelect] = useState(false);
 
   useEffect(() => {
     api.get('/users/profile').then(r => setProfile(r.data));
@@ -40,11 +96,11 @@ export default function Profile() {
     }
   };
 
-  const pickAvatar = async emoji => {
-    await api.patch('/users/profile', { avatar: emoji });
-    setUser(u => ({ ...u, avatar: emoji }));
-    setProfile(p => ({ ...p, avatar: emoji }));
-    setShowAvatars(false);
+  const saveAvatar = async avatarJson => {
+    await api.patch('/users/profile', { avatar: avatarJson });
+    setUser(u => ({ ...u, avatar: avatarJson }));
+    setProfile(p => ({ ...p, avatar: avatarJson }));
+    setShowCharSelect(false);
   };
 
   if (!profile) return (
@@ -53,37 +109,33 @@ export default function Profile() {
     </div>
   );
 
+  if (showCharSelect) return (
+    <AvatarBuilder
+      initial={profile.avatar}
+      streak={profile.streak || 0}
+      lessons={profile.lessons_completed || 0}
+      onSave={saveAvatar}
+      onClose={() => setShowCharSelect(false)}
+    />
+  );
+
   const joined = new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const level = Math.floor(profile.xp / 1000) + 1;
   const levelXP = profile.xp % 1000;
+  const league = getLeague(profile.xp || 0);
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
       {/* Avatar + name */}
       <div className="text-center mb-8">
         <button
-          onClick={() => setShowAvatars(v => !v)}
-          className="text-[80px] leading-none hover:scale-110 transition-transform inline-block mb-3"
+          onClick={() => setShowCharSelect(true)}
+          className="inline-block mb-3 hover:scale-110 transition-transform"
+          title="Edit avatar"
         >
-          {profile.avatar || '🦉'}
+          <CharacterAvatar avatar={profile.avatar} size={96} />
         </button>
-
-        {showAvatars && (
-          <div className="animate-fadeIn border-2 border-[#E5E5E5] rounded-2xl p-4 mb-4">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-[#AFAFAF] mb-3">Choose your avatar</p>
-            <div className="grid grid-cols-6 gap-2">
-              {AVATARS.map(e => (
-                <button
-                  key={e}
-                  onClick={() => pickAvatar(e)}
-                  className={`text-3xl p-2 rounded-xl transition-all hover:scale-110 ${profile.avatar === e ? 'bg-[#DDF4FF]' : 'hover:bg-[#F7F7F7]'}`}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <p className="text-xs font-bold text-[#AFAFAF] mb-2 uppercase tracking-wider">Tap to edit avatar</p>
 
         {editing ? (
           <div className="flex flex-col items-center gap-3">
@@ -101,6 +153,14 @@ export default function Profile() {
         ) : (
           <>
             <h1 className="text-3xl font-black text-[#3C3C3C]">{profile.username}</h1>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <span
+                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold text-white"
+                style={{ backgroundColor: league.color }}
+              >
+                {league.emoji} {league.name} League
+              </span>
+            </div>
             <p className="text-[#AFAFAF] font-bold text-sm mt-1">Joined {joined}</p>
             <button
               onClick={() => { setUsername(profile.username); setEditing(true); }}
@@ -125,6 +185,9 @@ export default function Profile() {
         ))}
       </div>
 
+      {/* Weekly XP chart */}
+      <WeeklyXpChart dailyXp={profile.daily_xp || 0} />
+
       {/* Level bar */}
       <div className="border-2 border-[#E5E5E5] rounded-2xl p-5 mb-4">
         <div className="flex justify-between items-center mb-3">
@@ -143,18 +206,13 @@ export default function Profile() {
       </div>
 
       {/* Hearts */}
-      <div className="border-2 border-[#E5E5E5] rounded-2xl p-5 mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-widest text-[#AFAFAF] mb-2">Hearts</p>
-          <div className="flex gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={`text-2xl ${i < profile.hearts ? '' : 'grayscale opacity-20'}`}>❤️</span>
-            ))}
-          </div>
+      <div className="border-2 border-[#E5E5E5] rounded-2xl p-5 mb-4">
+        <p className="text-xs font-extrabold uppercase tracking-widest text-[#AFAFAF] mb-2">Hearts</p>
+        <div className="flex gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} className={`text-2xl ${i < profile.hearts ? '' : 'grayscale opacity-20'}`}>❤️</span>
+          ))}
         </div>
-        {profile.hearts < 5 && (
-          <Link to="/shop" className="btn-red py-2 px-4 text-sm">REFILL</Link>
-        )}
       </div>
 
       {/* Languages */}
