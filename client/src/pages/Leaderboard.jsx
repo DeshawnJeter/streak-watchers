@@ -3,6 +3,7 @@ import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import GachaRankBanner from '../components/GachaRankBanner';
 import CharacterAvatar from '../components/CharacterAvatar';
+import MiniPlayerBanner, { getBannerColors } from '../components/MiniPlayerBanner';
 
 const LEAGUES = [
   { name: 'Bronze',   emoji: '🥉', color: '#CD7F32', min: 0     },
@@ -130,7 +131,7 @@ function LeagueTierCarousel({ currentLeague }) {
 
 function PlayerSummaryModal({ entry, onClose }) {
   if (!entry) return null;
-  const level = Math.floor((entry.xp || 0) / 1000) + 1;
+  const colors = getBannerColors(entry.xp || 0);
 
   return (
     <div
@@ -141,15 +142,17 @@ function PlayerSummaryModal({ entry, onClose }) {
         onClick={e => e.stopPropagation()}
         style={{ background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480 }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-          <CharacterAvatar avatar={entry.avatar} size={56} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 900, fontSize: 18, color: '#3C3C3C' }}>{entry.username}</div>
-            <div style={{ fontSize: 12, color: '#AFAFAF' }}>Level {level} · {(entry.xp || 0).toLocaleString()} XP</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#AFAFAF' }}>#{entry.rank}</div>
-          </div>
+        {/* MiniPlayerBanner — avatar in electric ring + rank shield + 3 badge medal slots */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <MiniPlayerBanner
+            avatar={entry.avatar}
+            username={entry.username}
+            rank={entry.rank}
+            pinnedBadges={entry.pinned_achievements || []}
+            primaryColor={colors.primary}
+            secondaryColor={colors.secondary}
+            xp={entry.xp || 0}
+          />
         </div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
           {[
@@ -163,39 +166,10 @@ function PlayerSummaryModal({ entry, onClose }) {
             </div>
           ))}
         </div>
-        {(entry.pinned_achievements || []).length > 0 && (
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 12, color: '#AFAFAF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-              📌 Pinned Badges
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              {entry.pinned_achievements.map(a => {
-                const gradient =
-                  a.rarity === 'legendary' ? 'linear-gradient(135deg,#FFD700,#FF9600)'
-                  : a.rarity === 'epic'    ? 'linear-gradient(135deg,#CE82FF,#9932CC)'
-                  : a.rarity === 'rare'    ? 'linear-gradient(135deg,#1CB0F6,#0077C2)'
-                  :                          '#E5E5E5';
-                return (
-                  <div key={a.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <div style={{
-                      width: 52, height: 52, borderRadius: '50%',
-                      background: gradient,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 26, boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                    }}>
-                      {a.emoji}
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#AFAFAF', textAlign: 'center', maxWidth: 60 }}>{a.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
         <button
           onClick={onClose}
           style={{
-            marginTop: 20, width: '100%', background: '#F7F7F7', border: 'none',
+            marginTop: 4, width: '100%', background: '#F7F7F7', border: 'none',
             borderRadius: 16, padding: 14, fontWeight: 800, fontSize: 15, color: '#3C3C3C', cursor: 'pointer',
           }}
         >CLOSE</button>
@@ -331,28 +305,34 @@ export default function Leaderboard() {
         </div>
       ) : (
         <>
-          {/* Top 3 podium */}
+          {/* Top 3 podium — MiniPlayerBanner cards */}
           {top3.length >= 3 && (
-            <div className="flex items-end justify-center gap-4 mb-8 h-36">
-              {/* 2nd */}
+            <div className="flex items-end justify-center gap-3 mb-8">
+              {/* Order: 2nd (left), 1st (center/raised), 3rd (right) */}
               {[1, 0, 2].map(i => {
                 const entry = top3[i];
                 const pos = i + 1;
-                const p = PODIUM[pos];
+                const colors = getBannerColors(entry?.xp || 0);
+                const podiumEmoji = PODIUM[pos]?.label;
                 return (
-                  <div key={entry?.id || i} className="flex flex-col items-center gap-2 flex-1">
-                    <button onClick={() => setSelectedEntry(entry)} className="focus:outline-none"><CharacterAvatar avatar={entry?.avatar} size={40} /></button>
-                    <p className={`text-xs font-extrabold text-[#3C3C3C] truncate max-w-[80px] ${entry?.is_me ? 'text-[#1CB0F6]' : ''}`}>
-                      {entry?.username}
-                    </p>
-                    <p className="text-sm font-black text-[#AFAFAF]">{(entry?.xp || 0).toLocaleString()} XP</p>
-                    <div
-                      className={`w-full ${p.size} rounded-t-xl flex items-start justify-center pt-2 text-2xl`}
-                      style={{ backgroundColor: p.bg }}
-                    >
-                      {p.label}
-                    </div>
-                  </div>
+                  <button
+                    key={entry?.id || i}
+                    onClick={() => setSelectedEntry(entry)}
+                    className="focus:outline-none flex flex-col items-center gap-1"
+                    style={{ transform: pos === 1 ? 'translateY(-16px)' : 'none', transition: 'transform 0.2s' }}
+                  >
+                    <MiniPlayerBanner
+                      avatar={entry?.avatar}
+                      username={entry?.username || ''}
+                      rank={pos}
+                      pinnedBadges={entry?.pinned_achievements || []}
+                      primaryColor={colors.primary}
+                      secondaryColor={colors.secondary}
+                      xp={entry?.xp || 0}
+                    />
+                    <span className="text-xl mt-1">{podiumEmoji}</span>
+                    <span className="text-xs font-black text-[#AFAFAF]">{(entry?.xp || 0).toLocaleString()} XP</span>
+                  </button>
                 );
               })}
             </div>
