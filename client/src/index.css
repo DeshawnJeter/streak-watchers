@@ -206,6 +206,83 @@
 .animate-rowBounce    { animation: rowBounce 0.6s ease-in-out infinite; }
 .animate-urgencyGlow  { animation: urgencyFireGlow 0.8s ease-in-out infinite; }
 
+/* ── Wishlist #5: extra animations ── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes statPop {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
+  70%  { opacity: 1; transform: translateY(-2px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes badgeSpin {
+  0%   { transform: rotate(-180deg) scale(0.2); }
+  70%  { transform: rotate(12deg) scale(1.1); }
+  100% { transform: rotate(0) scale(1); }
+}
+@keyframes shine {
+  0%   { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(250%); }
+}
+@keyframes correctPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.animate-pageIn    { animation: pageIn 0.25s ease-out; }
+.animate-statPop   { opacity: 0; animation: statPop 0.45s ease-out forwards; }
+.animate-badgeSpin { animation: badgeSpin 0.7s cubic-bezier(.34,1.56,.64,1); }
+
+/* Glossy highlight that sweeps across progress bars */
+.progress-shine { position: relative; overflow: hidden; }
+.progress-shine::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 0;
+  width: 40%; height: 35%;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.35);
+  animation: shine 2.4s ease-in-out infinite;
+}
+
+.option-tile.correct { animation: correctPop 0.3s ease-out; }
+
+/* ── Wishlist #1: visual polish pass ──
+   One consistent hover, focus and press language for every interactive surface. */
+.btn-green, .btn-blue, .btn-red, .btn-white, .btn-primary {
+  transition: filter 0.15s, transform 0.075s, border-width 0.075s;
+}
+.btn-green:hover:not(:disabled), .btn-blue:hover, .btn-red:hover, .btn-primary:hover { filter: brightness(1.06); }
+.btn-white:hover { background-color: #F7F7F7; }
+
+.card, .stat-card { transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+a.card:hover, button.card:hover { border-color: #CFCFCF; transform: translateY(-1px); }
+
+.option-tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 3px solid #84D8FF;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+h1, h2, h3 { letter-spacing: -0.01em; }
+p { text-wrap: pretty; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Respect users who turn off motion in their OS settings */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .animate-statPop { opacity: 1; }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -254,6 +331,8 @@
   color: #f1f7fb !important;
 }
 [data-duo-theme="dark"] .nav-item { color: #7d9aa8; }
+[data-duo-theme="dark"] .text-\[\#777777\] { color: #a9bcc6 !important; }
+[data-duo-theme="dark"] .btn-white:hover { background-color: #253038; }
 [data-duo-theme="dark"] .nav-item:hover { background-color: #253038 !important; }
 [data-duo-theme="dark"] .nav-item.active { background-color: #1a3040 !important; color: #1CB0F6 !important; }
 /* Tailwind-generated utility overrides — !important ensures they beat base Tailwind */

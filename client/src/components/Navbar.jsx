@@ -2,6 +2,18 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import CharacterAvatar from './CharacterAvatar';
+import { resetIntro } from './IntroTour';
+import { isSoundOn, setSoundOn, sounds } from '../utils/sounds';
+
+function useSound() {
+  const [on, setOn] = useState(isSoundOn);
+  const toggle = () => setOn(v => {
+    setSoundOn(!v);
+    if (!v) sounds.tap();
+    return !v;
+  });
+  return [on, toggle];
+}
 
 function useDarkMode() {
   const [dark, setDark] = useState(() => {
@@ -64,6 +76,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dark, toggleDark] = useDarkMode();
+  const [soundOn, toggleSound] = useSound();
 
   return (
     <>
@@ -111,6 +124,21 @@ export default function Navbar() {
               <span>{dark ? 'Light mode' : 'Dark mode'}</span>
             </button>
             <button
+              onClick={toggleSound}
+              className="w-full mt-1 flex items-center gap-3 px-3 py-2 text-sm text-[#AFAFAF] font-bold rounded-xl hover:bg-[#F7F7F7] transition-colors"
+              aria-pressed={soundOn}
+            >
+              <span className="text-lg">{soundOn ? '🔊' : '🔇'}</span>
+              <span>{soundOn ? 'Sound on' : 'Sound off'}</span>
+            </button>
+            <button
+              onClick={resetIntro}
+              className="w-full mt-1 flex items-center gap-3 px-3 py-2 text-sm text-[#AFAFAF] font-bold rounded-xl hover:bg-[#F7F7F7] transition-colors"
+            >
+              <span className="text-lg">❔</span>
+              <span>Replay tour</span>
+            </button>
+            <button
               onClick={() => { logout(); navigate('/'); }}
               className="w-full mt-1 text-left px-3 py-2 text-sm text-[#AFAFAF] font-bold rounded-xl hover:bg-[#FFF0F0] hover:text-[#FF4B4B] transition-colors"
             >
@@ -122,13 +150,14 @@ export default function Navbar() {
 
       {/* ── Mobile top bar ── */}
       <header className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b-2 border-[#E5E5E5] z-40 flex items-center justify-between px-4 py-3">
-        <span className="text-[22px] font-black text-[#58CC02]">🦉 duolingo</span>
+        <span className="text-[22px] font-black text-[#58CC02] flex items-center gap-1"><span>🦉</span><span className="hidden sm:inline">duolingo</span></span>
         {user && (
           <div className="flex items-center gap-3 text-sm font-extrabold">
             <span className="flex items-center gap-1 text-[#FF9600]">🔥 {user.streak || 0}</span>
             <span className="flex items-center gap-1 text-[#FFC800]">💎 {user.gems || 0}</span>
             <span className="flex items-center gap-1 text-[#FF4B4B]">❤️ {user.hearts || 0}</span>
-            <button onClick={toggleDark} className="text-lg">{dark ? '☀️' : '🌙'}</button>
+            <button onClick={toggleSound} className="text-lg" aria-label={soundOn ? 'Turn sound off' : 'Turn sound on'}>{soundOn ? '🔊' : '🔇'}</button>
+            <button onClick={toggleDark} className="text-lg" aria-label={dark ? 'Light mode' : 'Dark mode'}>{dark ? '☀️' : '🌙'}</button>
           </div>
         )}
       </header>
@@ -138,9 +167,9 @@ export default function Navbar() {
         {mobileItems.map(({ to, Icon, label }) => (
           <NavLink key={to} to={to} end={to === '/learn'} className="flex-1">
             {({ isActive }) => (
-              <div className={`flex flex-col items-center py-3 gap-0.5 transition-colors ${isActive ? 'text-[#1CB0F6]' : 'text-[#AFAFAF]'}`}>
+              <div className={`flex flex-col items-center py-2.5 gap-0.5 transition-colors min-w-0 ${isActive ? 'text-[#1CB0F6]' : 'text-[#AFAFAF]'}`}>
                 <Icon />
-                <span className="text-[10px] font-extrabold tracking-wider">{label}</span>
+                <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider truncate max-w-full px-0.5">{label}</span>
               </div>
             )}
           </NavLink>

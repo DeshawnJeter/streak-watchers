@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import RightPanel from './components/RightPanel';
+import IntroTour from './components/IntroTour';
+import MobileXpStrip from './components/MobileXpStrip';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,18 +27,23 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
-// Pages that get the right panel
-const withRightPanel = new Set(['/learn', '/leaderboard', '/profile']);
+// Pages that show the daily XP goal on small screens (the right panel only shows on xl)
+const showsXpStrip = path => path.startsWith('/learn') || path === '/leaderboard' || path === '/profile';
 
 function AppRoutes() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  // Lessons are full-screen (like real Duolingo) so the app chrome doesn't cover the lesson's own top bar
+  const chrome = user && !pathname.startsWith('/lesson/');
 
   return (
     <div className="flex min-h-screen">
-      {user && <Navbar />}
+      {chrome && <Navbar />}
 
       {/* Main content — offset for sidebar */}
-      <main className={`flex-1 ${user ? 'lg:ml-[256px]' : ''} ${user ? 'xl:mr-[368px]' : ''} mt-[56px] lg:mt-0 mb-[64px] lg:mb-0`}>
+      <main className={`flex-1 min-w-0 ${chrome ? 'lg:ml-[256px] xl:mr-[368px] mt-[56px] lg:mt-0 mb-[64px] lg:mb-0' : ''}`}>
+        {chrome && showsXpStrip(pathname) && <MobileXpStrip />}
+        <div key={pathname} className="animate-pageIn">
         <Routes>
           <Route path="/" element={user ? <Navigate to="/learn" replace /> : <Landing />} />
           <Route path="/login" element={user ? <Navigate to="/learn" replace /> : <Login />} />
@@ -53,9 +60,11 @@ function AppRoutes() {
           <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </div>
       </main>
 
-      {user && <RightPanel />}
+      {chrome && <RightPanel />}
+      {user && <IntroTour />}
     </div>
   );
 }

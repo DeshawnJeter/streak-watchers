@@ -4,6 +4,8 @@ import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import { BADGES, badgeProgress } from '../data/characters';
 import { parseAvatarFull, buildAvatarJson } from '../data/avatarUtils';
+import BadgeToast from '../components/BadgeToast';
+import { sounds } from '../utils/sounds';
 
 const XP_PER_CORRECT = 10;
 
@@ -23,7 +25,7 @@ function MultipleChoice({ exercise, checked, onSelect, selected }) {
           <button
             key={opt}
             className={cls}
-            onClick={() => !checked && onSelect(opt)}
+            onClick={() => { if (!checked) { sounds.tap(); onSelect(opt); } }}
             disabled={checked}
           >
             <span className="text-base font-bold">{opt}</span>
@@ -66,7 +68,7 @@ function FillBlank({ exercise, checked, onSelect, selected }) {
         {exercise.options.map(opt => (
           <button
             key={opt}
-            onClick={() => !checked && onSelect(opt === selected ? null : opt)}
+            onClick={() => { if (!checked) { sounds.tap(); onSelect(opt === selected ? null : opt); } }}
             disabled={checked}
             className={`word-tile text-base ${selected === opt && !checked ? 'border-[#1CB0F6] bg-[#DDF4FF]' : ''}`}
           >
@@ -148,7 +150,7 @@ function WordBank({ exercise, checked, onAnswer, answer, setAnswer }) {
         {available.map((w, i) => (
           <button
             key={i}
-            onClick={() => addWord(w)}
+            onClick={() => { sounds.tap(); addWord(w); }}
             disabled={checked}
             className="word-tile text-base"
           >
@@ -180,6 +182,7 @@ export default function Lesson() {
   const [shakeKey, setShakeKey] = useState(0);
   const [leveledUp, setLeveledUp] = useState(false);
   const [newLevel, setNewLevel] = useState(null);
+  const [earnedNow, setEarnedNow] = useState([]);
 
   useEffect(() => {
     api.get(`/lessons/lesson/${lessonId}`)
@@ -210,6 +213,7 @@ export default function Lesson() {
     const correct = normalise(ans) === normalise(ex.correct_answer);
     setChecked(true);
     setIsCorrect(correct);
+    if (correct) sounds.correct(); else sounds.wrong();
     if (!correct) {
       setShakeKey(k => k + 1);
       const newHearts = Math.max(0, localHearts - 1);
@@ -243,32 +247,31 @@ export default function Lesson() {
         hearts_lost: heartsLost,
       });
       const updatedUser = r.data.user;
-      setUser(u => {
-        const newXp      = updatedUser?.xp || 0;
-        const newStreak  = updatedUser?.streak || 0;
-        const newLessons = updatedUser?.lessons_completed || 0;
-        const { svgConfig, earnedBadges, equippedBadge } = parseAvatarFull(u.avatar);
+      const newStreak  = updatedUser?.streak || 0;
+      const newLessons = updatedUser?.lessons_completed || 0;
+      const { svgConfig, earnedBadges, equippedBadge } = parseAvatarFull(user?.avatar);
 
-        // evaluate which badges were newly earned
-        const newlyEarned = BADGES
-          .filter(b => !earnedBadges.includes(b.id))
-          .filter(b => badgeProgress(b, newStreak, newLessons) >= b.threshold)
-          .map(b => b.id);
+      // evaluate which badges were newly earned
+      const newlyEarned = BADGES
+        .filter(b => !earnedBadges.includes(b.id))
+        .filter(b => badgeProgress(b, newStreak, newLessons) >= b.threshold);
 
-        if (newlyEarned.length > 0) {
-          const updated = [...earnedBadges, ...newlyEarned];
-          const newAvatar = buildAvatarJson(svgConfig, { earnedBadges: updated, equippedBadge });
-          api.patch('/users/profile', { avatar: newAvatar }).catch(() => {});
-          return { ...u, ...updatedUser, avatar: newAvatar };
-        }
-        return { ...u, ...updatedUser };
-      });
+      if (newlyEarned.length > 0) {
+        const updated = [...earnedBadges, ...newlyEarned.map(b => b.id)];
+        const newAvatar = buildAvatarJson(svgConfig, { earnedBadges: updated, equippedBadge });
+        api.patch('/users/profile', { avatar: newAvatar }).catch(() => {});
+        setUser(u => ({ ...u, ...updatedUser, avatar: newAvatar }));
+        setEarnedNow(newlyEarned);
+      } else {
+        setUser(u => ({ ...u, ...updatedUser }));
+      }
       const nextLevel = Math.floor((updatedUser?.xp || 0) / 1000) + 1;
       if (nextLevel > oldLevel) {
         setLeveledUp(true);
         setNewLevel(nextLevel);
       }
     } catch {}
+    sounds.complete();
     setPhase('result');
   };
 
@@ -285,6 +288,9 @@ export default function Lesson() {
     const xpEarned = correct * XP_PER_CORRECT;
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 pb-8">
+        {earnedNow.length > 0 && (
+          <BadgeToast badges={earnedNow} onDone={() => setEarnedNow([])} />
+        )}
         <div className="max-w-sm w-full text-center animate-fadeIn">
           <div className="text-8xl mb-6">
             {pct === 100 ? '🏆' : pct >= 80 ? '🎉' : pct >= 50 ? '😊' : '💪'}
@@ -295,13 +301,13 @@ export default function Lesson() {
           <p className="text-[#AFAFAF] font-bold mb-10 text-lg">{pct}% correct</p>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-10">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-10">
             {[
               { label: 'TOTAL XP', value: `+${xpEarned}`, color: '#FFC800', emoji: '⚡' },
               { label: 'AMAZING', value: `${correct}/${exercises.length}`, color: '#58CC02', emoji: '✓' },
               { label: 'HEARTS', value: `−${heartsLost}`, color: '#FF4B4B', emoji: '❤️' },
-            ].map(s => (
-              <div key={s.label} className="border-2 border-[#E5E5E5] rounded-2xl p-4 text-center">
+            ].map((s, i) => (
+              <div key={s.label} className="border-2 border-[#E5E5E5] rounded-2xl p-3 sm:p-4 text-center animate-statPop" style={{ animationDelay: `${i * 0.12}s` }}>
                 <p className="text-2xl font-black" style={{ color: s.color }}>{s.emoji}</p>
                 <p className="text-2xl font-black text-[#3C3C3C]">{s.value}</p>
                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#AFAFAF] mt-1">{s.label}</p>
@@ -351,7 +357,7 @@ export default function Lesson() {
           {/* Progress bar */}
           <div className="flex-1 h-4 bg-[#E5E5E5] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#58CC02] rounded-full transition-all duration-500"
+              className="h-full bg-[#58CC02] rounded-full transition-all duration-500 progress-shine"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -367,7 +373,7 @@ export default function Lesson() {
 
       {/* ── XP toast ── */}
       {xpToast && (
-        <div className="fixed top-20 right-6 bg-[#FFC800] text-[#3C3C3C] font-extrabold px-5 py-2.5 rounded-2xl shadow-lg animate-pop z-50 tracking-wide">
+        <div className="fixed top-20 right-4 sm:right-6 bg-[#FFC800] text-[#3C3C3C] font-extrabold px-5 py-2.5 rounded-2xl shadow-lg animate-pop z-50 tracking-wide">
           +{XP_PER_CORRECT} XP
         </div>
       )}
@@ -423,7 +429,7 @@ export default function Lesson() {
             isCorrect ? 'bg-[#D7FFB8] border-[#58CC02]' : 'bg-[#FFDFE0] border-[#FF4B4B]'
           }`}
         >
-          <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-start gap-4">
               <span className="text-3xl mt-0.5">{isCorrect ? '✅' : '❌'}</span>
               <div>
@@ -439,7 +445,8 @@ export default function Lesson() {
             </div>
             <button
               onClick={advance}
-              className={isCorrect ? 'btn-green' : 'btn-red'}
+              className={`${isCorrect ? 'btn-green' : 'btn-red'} w-full sm:w-auto`}
+              autoFocus
             >
               CONTINUE
             </button>
