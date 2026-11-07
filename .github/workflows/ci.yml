@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - name: Syntax check
+        run: for f in $(git ls-files 'server/*.js' 'server/**/*.js'); do node --check "$f" || exit 1; done
+      - name: API tests (temporary database)
+        run: npm test
+      - name: Secret scan
+        run: |
+          if grep -rEn --exclude-dir=.git --exclude-dir=node_modules '(sk-ant-|gsk_)[A-Za-z0-9_-]{20,}' .; then echo "possible secret"; exit 1; fi
