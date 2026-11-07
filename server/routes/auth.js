@@ -5,7 +5,7 @@ const db = require('../db');
 const requireAuth = require('../middleware/auth');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'duolingo_clone_secret_key_2024';
+const { JWT_SECRET } = require('../config');
 
 router.post('/register', async (req, res) => {
   const { username, email, password, dailyGoal } = req.body;

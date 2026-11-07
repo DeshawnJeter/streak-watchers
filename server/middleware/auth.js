@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'duolingo_clone_secret_key_2024';
+const { JWT_SECRET } = require('../config');
 
 module.exports = function requireAuth(req, res, next) {
   const header = req.headers.authorization;
