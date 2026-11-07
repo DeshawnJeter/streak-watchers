@@ -48,7 +48,10 @@ router.get('/lesson/:lessonId', requireAuth, (req, res) => {
 router.post('/lesson/:lessonId/complete', requireAuth, (req, res) => {
   const userId = req.user.id;
   const lessonId = parseInt(req.params.lessonId);
-  const { xp_earned, hearts_lost } = req.body;
+  // The client reports these numbers, so never trust them blindly: whole numbers in a sane range only.
+  const wholeBetween = (v, min, max, fallback) => (Number.isInteger(v) && v >= min && v <= max ? v : fallback);
+  const xp_earned = wholeBetween(req.body.xp_earned, 0, MAX_LESSON_XP, 50);
+  const hearts_lost = wholeBetween(req.body.hearts_lost, 0, 5, 0);
 
   const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(lessonId);
   if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
@@ -63,11 +66,11 @@ router.post('/lesson/:lessonId/complete', requireAuth, (req, res) => {
       completed = 1,
       xp_earned = MAX(xp_earned, excluded.xp_earned),
       completed_at = excluded.completed_at
-  `).run(userId, lessonId, xp_earned || 50);
+  `).run(userId, lessonId, xp_earned);
 
   // Update user XP, hearts, streak, daily XP
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-  const xpGain = isFirstTime ? (xp_earned || 50) : Math.floor((xp_earned || 50) * 0.5);
+  const xpGain = isFirstTime ? xp_earned : Math.floor(xp_earned * 0.5);
   const newXP = user.xp + xpGain;
   const newHearts = Math.max(0, user.hearts - (hearts_lost || 0));
 
@@ -120,6 +123,8 @@ router.post('/story/:storyId/complete', requireAuth, (req, res) => {
   const user = db.prepare('SELECT id, username, xp, gems, hearts, streak FROM users WHERE id = ?').get(userId);
   res.json({ xp_gained: story.xp_reward, gems_gained: 5, user });
 });
+
+const MAX_LESSON_XP = 200;
 
 function getWeekNumber() {
   const d = new Date();
